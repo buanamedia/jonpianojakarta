@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Piano - Executive Showroom</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { gold: '#C5A059', dark: '#111111', charcoal: '#1A1A1A', cream: '#FAF8F5' } },
+          fontFamily: { serif: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
+
+  <!-- HEADER NAVIGATION -->
+  <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3">
+        <i class="fa-solid fa-music text-brand-gold text-2xl"></i>
+        <div>
+          <span class="font-serif text-xl sm:text-2xl tracking-wider font-bold block text-white">JOHN PIANO</span>
+          <span class="text-[10px] tracking-widest uppercase text-brand-gold block -mt-1">Luxury Keys & Showroom</span>
+        </div>
+      </a>
+      <nav class="flex items-center space-x-3">
+        <a href="index.html" class="px-4 py-2 rounded-md font-medium text-sm text-brand-gold bg-white/10 flex items-center">
+          <i class="fa-solid fa-store mr-2"></i>Katalog
+        </a>
+        <a href="admin.html" class="p-2.5 rounded-md text-gray-300 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center" title="Masuk Admin">
+          <i class="fa-solid fa-user-gear text-lg"></i>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- VIEW 1: HOME PAGE -->
+  <div id="view-home">
+    <section class="relative bg-brand-charcoal text-white overflow-hidden">
+      <div id="carousel-slides" class="relative h-[450px] sm:h-[550px]"></div>
+      <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-brand-gold rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all z-20">
+        <i class="fa-solid fa-chevron-left text-lg"></i>
+      </button>
+      <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 hover:bg-brand-gold rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all z-20">
+        <i class="fa-solid fa-chevron-right text-lg"></i>
+      </button>
+      <div id="carousel-indicators" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-20"></div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex flex-wrap gap-2 w-full md:w-auto" id="category-filters"></div>
+        <div class="relative w-full md:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Cari tipe piano..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-brand-gold">
+        </div>
+      </div>
+      <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </main>
+  </div>
+
+  <!-- VIEW 2: HALAMAN DETAIL PIANO -->
+  <div id="view-detail" class="hidden flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <a href="index.html" class="inline-flex items-center text-sm font-semibold text-brand-gold hover:underline mb-6">
+        <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Katalog Utama
+      </a>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-10">
+        <div class="space-y-4">
+          <div class="h-96 rounded-xl overflow-hidden bg-gray-100 border">
+            <img id="detail-image" src="" class="w-full h-full object-cover">
+          </div>
+        </div>
+
+        <div class="flex flex-col justify-between space-y-6">
+          <div>
+            <span id="detail-category" class="bg-brand-dark text-brand-gold text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"></span>
+            <h1 id="detail-title" class="font-serif text-3xl sm:text-4xl font-bold text-brand-dark mt-3 mb-2"></h1>
+            <p id="detail-price" class="text-2xl font-bold text-brand-gold mb-4"></p>
+            <hr class="my-4">
+            <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wider mb-2">Deskripsi Produk & Spesifikasi</h3>
+            <p id="detail-description" class="text-gray-600 text-sm leading-relaxed whitespace-pre-line"></p>
+          </div>
+
+          <div class="bg-brand-cream p-4 rounded-xl border border-brand-gold/20 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <span class="text-xs text-gray-500 block">Tertarik dengan piano ini?</span>
+              <span class="font-bold text-sm text-brand-dark">Jadwalkan Private Showroom Session</span>
+            </div>
+            <a id="btn-detail-wa" href="#" target="_blank" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-lg shadow-md flex items-center">
+              <i class="fa-brands fa-whatsapp mr-2 text-lg"></i>Hubungi via WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-brand-dark text-white border-t border-gray-800 py-6 text-center text-xs text-gray-400 mt-auto">
+    &copy; 2026 John Piano Showroom. All rights reserved.
+  </footer>
+
+  <script>
+    const defaultProducts = [
+      { id: "1", title: "Steinway & Sons Spirio Model B", category: "Grand Piano", price: "Rp 2.850.000.000", image: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=1200", description: "Grand piano akustik high-end dengan teknologi reproduksi permainan piano beresolusi tinggi.", isCarousel: true },
+      { id: "2", title: "Yamaha U1 Classic Professional", category: "Upright Piano", price: "Rp 145.000.000", image: "https://images.unsplash.com/photo-1552422535-c45813c61732?q=80&w=1200", description: "Standar piano upright profesional pilihan akademisi dan pianis konser di seluruh dunia.", isCarousel: true },
+      { id: "3", title: "Kawai NV10S Novus Hybrid", category: "Digital Piano", price: "Rp 185.000.000", image: "https://images.unsplash.com/photo-1571974599782-87624638275e?q=80&w=1200", description: "Perpaduan mekanis tuts Grand Piano asli dengan pemrosesan audio digital tercanggih.", isCarousel: true }
+    ];
+
+    let products = JSON.parse(localStorage.getItem('hop_products')) || defaultProducts;
+    let currentSlide = 0;
+    let currentCategory = 'All';
+    let searchQuery = '';
+    let autoSlideInterval = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if(!localStorage.getItem('hop_products')) localStorage.setItem('hop_products', JSON.stringify(defaultProducts));
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id');
+
+      if (productId) {
+        showDetailPage(productId);
+      } else {
+        initHomePage();
+      }
+    });
+
+    function getWaNumber() {
+      return localStorage.getItem('jp_wa_number') || '6281234567890';
+    }
+
+    function initHomePage() {
+      document.getElementById('view-home').classList.remove('hidden');
+      document.getElementById('view-detail').classList.add('hidden');
+      renderCategoryButtons();
+      renderCarousel();
+      renderCatalog();
+      startAutoSlide();
+    }
+
+    function getCarouselItems() {
+      let items = products.filter(p => p.isCarousel === true);
+      if (items.length === 0) items = products.slice(0, 3);
+      return items;
+    }
+
+    function renderCarousel() {
+      const carouselItems = getCarouselItems();
+      const container = document.getElementById('carousel-slides');
+      const indicators = document.getElementById('carousel-indicators');
+      container.innerHTML = ''; indicators.innerHTML = '';
+      if (carouselItems.length === 0) return;
+
+      carouselItems.forEach((item, idx) => {
+        const slide = document.createElement('div');
+        slide.className = `absolute inset-0 transition-opacity duration-700 ease-in-out ${idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`;
+        slide.innerHTML = `
+          <img src="${item.image}" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-end">
+            <div class="max-w-7xl mx-auto px-6 py-12 w-full space-y-3">
+              <span class="bg-brand-gold text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${item.category}</span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white drop-shadow-md">${item.title}</h2>
+              <p class="text-gray-300 text-sm max-w-2xl line-clamp-2">${item.description}</p>
+              <a href="index.html?id=${item.id}" class="inline-block mt-3 px-6 py-2.5 bg-brand-gold text-white font-bold text-sm rounded-lg hover:bg-amber-600 shadow-lg">Lihat Halaman Detail</a>
+            </div>
+          </div>
+        `;
+        container.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.className = `h-3 rounded-full transition-all ${idx === currentSlide ? 'bg-brand-gold w-8' : 'bg-white/50 w-3'}`;
+        dot.onclick = () => goToSlide(idx);
+        indicators.appendChild(dot);
+      });
+    }
+
+    function goToSlide(idx) {
+      const carouselItems = getCarouselItems();
+      if(carouselItems.length === 0) return;
+      currentSlide = (idx + carouselItems.length) % carouselItems.length;
+      renderCarousel();
+    }
+
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function prevSlide() { goToSlide(currentSlide - 1); }
+    function startAutoSlide() { if(autoSlideInterval) clearInterval(autoSlideInterval); autoSlideInterval = setInterval(nextSlide, 5000); }
+
+    function renderCategoryButtons() {
+      const container = document.getElementById('category-filters');
+      const categories = ['All', ...new Set(products.map(p => p.category))];
+      container.innerHTML = '';
+      categories.forEach(cat => {
+        const isSelected = currentCategory === cat;
+        const label = cat === 'All' ? 'Semua' : cat;
+        container.innerHTML += `
+          <button onclick="filterCategory('${cat}')" class="cat-btn px-4 py-2 rounded-lg text-sm font-medium transition-all ${isSelected ? 'bg-brand-dark text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+            ${label}
+          </button>
+        `;
+      });
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+      const filtered = products.filter(p => {
+        const matchCat = currentCategory === 'All' || p.category === currentCategory;
+        const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+      });
+
+      filtered.forEach(p => {
+        grid.innerHTML += `
+          <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col group">
+            <div class="relative h-64 overflow-hidden bg-gray-100">
+              <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <span class="absolute top-4 left-4 bg-brand-dark/80 backdrop-blur-md text-brand-gold text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
+            </div>
+            <div class="p-6 flex flex-col flex-grow">
+              <h3 class="font-serif font-bold text-xl text-brand-dark mb-2">${p.title}</h3>
+              <p class="text-gray-500 text-xs leading-relaxed mb-4 flex-grow line-clamp-3">${p.description}</p>
+              <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-gray-400 uppercase tracking-wider block">Harga</span>
+                  <span class="font-bold text-brand-dark text-base">${p.price}</span>
+                </div>
+                <a href="index.html?id=${p.id}" class="px-4 py-2 bg-brand-gold text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-colors">Buka Halaman</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filterCategory(cat) { currentCategory = cat; renderCategoryButtons(); renderCatalog(); }
+    function handleSearch() { searchQuery = document.getElementById('search-input').value; renderCatalog(); }
+
+    function showDetailPage(id) {
+      document.getElementById('view-home').classList.add('hidden');
+      document.getElementById('view-detail').classList.remove('hidden');
+
+      const product = products.find(p => p.id === id);
+      if (product) {
+        document.title = `${product.title} - John Piano`;
+        document.getElementById('detail-image').src = product.image;
+        document.getElementById('detail-category').textContent = product.category;
+        document.getElementById('detail-title').textContent = product.title;
+        document.getElementById('detail-price').textContent = product.price;
+        document.getElementById('detail-description').textContent = product.description;
+
+        const waNum = getWaNumber();
+        const waMsg = encodeURIComponent(`Halo John Piano, saya tertarik dengan produk ${product.title} (${product.price}). Boleh minta informasi detailnya?`);
+        document.getElementById('btn-detail-wa').href = `https://wa.me/${waNum}?text=${waMsg}`;
+      }
+    }
+  </script>
+</body>
+</html>
