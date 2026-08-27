@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Piano - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { gold: '#C5A059', dark: '#111111', charcoal: '#1A1A1A', cream: '#FAF8F5' } },
+          fontFamily: { serif: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
+
+  <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
+    <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-user-shield text-brand-gold text-2xl"></i>
+        <span class="font-serif text-xl font-bold tracking-wider text-white">JOHN PIANO ADMIN</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="index.html" class="px-4 py-2 rounded-md font-medium text-sm text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 transition-all"><i class="fa-solid fa-arrow-left mr-2"></i>Ke Website Utama</a>
+        <button id="btn-logout" onclick="logoutAdmin()" class="hidden px-4 py-2 rounded-md font-medium text-sm text-red-400 bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 transition-all"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- FORM LOGIN -->
+  <div id="section-login" class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+      <div class="bg-brand-dark p-6 text-center text-white border-b border-brand-gold/30">
+        <i class="fa-solid fa-lock text-brand-gold text-4xl mb-3"></i>
+        <h2 class="font-serif text-2xl font-bold">Otentikasi John Piano Admin</h2>
+      </div>
+      <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
+        <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg">Username atau Password salah!</div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username Admin</label>
+          <input type="text" id="login-username" required placeholder="admin" class="w-full px-3 py-2 border rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+          <input type="password" id="login-password" required placeholder="admin123" class="w-full px-3 py-2 border rounded-lg text-sm">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-bold text-sm rounded-lg">Masuk Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD ADMIN -->
+  <main id="section-dashboard" class="hidden max-w-7xl mx-auto px-4 py-10 flex-grow w-full">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-serif text-3xl font-bold">Dashboard Pengelola John Piano</h1>
+        <p class="text-gray-500 text-sm">Kelola halaman produk, nomor WhatsApp sales, dan konfigurasi Cloudinary.</p>
+      </div>
+      <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md"><i class="fa-solid fa-plus mr-2"></i>Buat Halaman Piano Baru</button>
+    </div>
+
+    <!-- CONFIGURATION SECTION (WHATSAPP + CLOUDINARY) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <!-- PENGATURAN WHATSAPP -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
+            <i class="fa-brands fa-whatsapp text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-800 text-base">Pengaturan WhatsApp Showroom</h3>
+            <p class="text-xs text-gray-500">Nomor ini akan digunakan untuk tombol inquiry di Katalog.</p>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor WA (Format: 628123...)</label>
+          <input type="text" id="wa-number-input" placeholder="6281234567890" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button onclick="saveWaNumber()" class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700">Simpan Nomor WA</button>
+        </div>
+      </div>
+
+      <!-- PENGATURAN CLOUDINARY -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Storage Cloudinary</h3>
+              <p class="text-xs text-gray-500">Kredensial upload foto otomatis.</p>
+            </div>
+          </div>
+          <span id="cld-status" class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Lokal</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <input type="text" id="cld-cloud-name" placeholder="Cloud Name" class="px-3 py-2 border rounded-lg text-sm bg-gray-50">
+          <input type="text" id="cld-upload-preset" placeholder="Upload Preset" class="px-3 py-2 border rounded-lg text-sm bg-gray-50">
+        </div>
+        <div class="flex justify-end">
+          <button onclick="saveCloudinaryConfig()" class="px-4 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg">Simpan Storage</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABEL MANAJEMEN HALAMAN PRODUK -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="p-4 border-b border-gray-100 font-bold text-gray-800">Daftar Halaman Piano (<span id="total-count">0</span>)</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase">
+              <th class="py-3 px-4">Gambar</th>
+              <th class="py-3 px-4">Nama Piano / Judul Halaman</th>
+              <th class="py-3 px-4">Kategori</th>
+              <th class="py-3 px-4">Carousel</th>
+              <th class="py-3 px-4 text-center">Aksi Edit</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL FORM EDIT / TAMBAH HALAMAN -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+      <div class="bg-brand-dark px-6 py-4 text-white flex justify-between items-center">
+        <h3 id="modal-title" class="font-serif font-bold text-lg">Kelola Halaman Piano</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <form id="product-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="form-id">
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Judul Halaman / Nama Piano</label>
+          <input type="text" id="form-title" required class="w-full px-3 py-2 border rounded-lg text-sm">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kategori Produk</label>
+            <input type="text" id="form-category" list="category-list" required placeholder="Pilih / ketik kategori baru..." class="w-full px-3 py-2 border rounded-lg text-sm">
+            <datalist id="category-list">
+              <option value="Grand Piano">
+              <option value="Upright Piano">
+              <option value="Digital Piano">
+              <option value="Accessories">
+            </datalist>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Harga (IDR)</label>
+            <input type="text" id="form-price" required class="w-full px-3 py-2 border rounded-lg text-sm">
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
+          <input type="checkbox" id="form-carousel" class="w-4 h-4 text-brand-gold rounded">
+          <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan sebagai Slide Carousel di Halaman Depan</label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Foto Sampul & Detail</label>
+          <input type="text" id="form-image" placeholder="URL Gambar..." class="w-full px-3 py-2 border rounded-lg text-sm mb-2">
+          <div class="flex items-center space-x-2">
+            <input type="file" id="form-file" accept="image/*" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-gold file:text-white">
+            <button type="button" onclick="uploadToCloudinary()" class="px-3 py-2 bg-gray-200 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-300">Upload Cloudinary</button>
+          </div>
+          <p id="upload-status" class="text-xs text-gray-500 italic mt-1"></p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Isi Konten & Spesifikasi Halaman Detail</label>
+          <textarea id="form-description" rows="5" class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
+        </div>
+
+        <div class="pt-4 border-t flex justify-end space-x-3">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 border text-gray-600 rounded-lg text-sm">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-brand-gold text-white font-medium rounded-lg text-sm">Simpan Halaman</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "admin123";
+    let products = JSON.parse(localStorage.getItem('hop_products')) || [];
+
+    document.addEventListener('DOMContentLoaded', checkAuthStatus);
+
+    function checkAuthStatus() {
+      const isAuth = sessionStorage.getItem('hop_admin_logged') === 'true';
+      document.getElementById('section-login').classList.toggle('hidden', isAuth);
+      document.getElementById('section-dashboard').classList.toggle('hidden', !isAuth);
+      document.getElementById('btn-logout').classList.toggle('hidden', !isAuth);
+      if(isAuth) {
+        renderAdminTable();
+        loadCloudinaryConfig();
+        loadWaNumber();
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      if(document.getElementById('login-username').value === ADMIN_USER && document.getElementById('login-password').value === ADMIN_PASS) {
+        sessionStorage.setItem('hop_admin_logged', 'true');
+        checkAuthStatus();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('hop_admin_logged');
+      checkAuthStatus();
+    }
+
+    // WHATSAPP CONFIG LOGIC
+    function saveWaNumber() {
+      const num = document.getElementById('wa-number-input').value.trim();
+      if(!num) return alert('Masukkan nomor WhatsApp!');
+      localStorage.setItem('jp_wa_number', num);
+      alert('Nomor WhatsApp John Piano berhasil diperbarui!');
+    }
+
+    function loadWaNumber() {
+      document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '6281234567890';
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('admin-table-body');
+      document.getElementById('total-count').textContent = products.length;
+      tbody.innerHTML = '';
+
+      products.forEach(p => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 px-4"><img src="${p.image}" class="w-12 h-12 object-cover rounded-lg border"></td>
+            <td class="py-3 px-4 font-semibold text-gray-800">${p.title}</td>
+            <td class="py-3 px-4"><span class="px-2 py-1 text-xs bg-gray-100 rounded">${p.category}</span></td>
+            <td class="py-3 px-4">
+              ${p.isCarousel ? '<span class="px-2 py-1 text-[10px] bg-green-100 text-green-700 font-bold rounded-full">Aktif</span>' : '<span class="text-xs text-gray-400">Tidak</span>'}
+            </td>
+            <td class="py-3 px-4 text-center space-x-2">
+              <button onclick="editProduct('${p.id}')" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-semibold">Edit Halaman</button>
+              <button onclick="deleteProduct('${p.id}')" class="px-3 py-1 bg-red-50 text-red-600 rounded-md text-xs font-semibold">Hapus</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openModal(id = null) {
+      document.getElementById('product-form').reset();
+      if(id) {
+        const item = products.find(p => p.id === id);
+        if(item) {
+          document.getElementById('modal-title').textContent = "Edit Isi Halaman Piano";
+          document.getElementById('form-id').value = item.id;
+          document.getElementById('form-title').value = item.title;
+          document.getElementById('form-category').value = item.category;
+          document.getElementById('form-price').value = item.price;
+          document.getElementById('form-carousel').checked = item.isCarousel || false;
+          document.getElementById('form-image').value = item.image;
+          document.getElementById('form-description').value = item.description;
+        }
+      } else {
+        document.getElementById('modal-title').textContent = "Buat Halaman Piano Baru";
+        document.getElementById('form-id').value = '';
+      }
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('form-id').value;
+      const title = document.getElementById('form-title').value;
+      const category = document.getElementById('form-category').value;
+      const price = document.getElementById('form-price').value;
+      const isCarousel = document.getElementById('form-carousel').checked;
+      const image = document.getElementById('form-image').value || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
+      const description = document.getElementById('form-description').value;
+
+      if(id) {
+        const idx = products.findIndex(p => p.id === id);
+        if(idx !== -1) products[idx] = { id, title, category, price, isCarousel, image, description };
+      } else {
+        products.unshift({ id: Date.now().toString(), title, category, price, isCarousel, image, description });
+      }
+
+      localStorage.setItem('hop_products', JSON.stringify(products));
+      renderAdminTable();
+      closeModal();
+    }
+
+    function deleteProduct(id) {
+      if(confirm('Hapus halaman piano ini?')) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        renderAdminTable();
+      }
+    }
+
+    function editProduct(id) { openModal(id); }
+
+    function saveCloudinaryConfig() {
+      localStorage.setItem('hop_cld_name', document.getElementById('cld-cloud-name').value.trim());
+      localStorage.setItem('hop_cld_preset', document.getElementById('cld-upload-preset').value.trim());
+      updateCloudinaryStatus();
+      alert('Tersimpan!');
+    }
+
+    function loadCloudinaryConfig() {
+      document.getElementById('cld-cloud-name').value = localStorage.getItem('hop_cld_name') || '';
+      document.getElementById('cld-upload-preset').value = localStorage.getItem('hop_cld_preset') || '';
+      updateCloudinaryStatus();
+    }
+
+    function updateCloudinaryStatus() {
+      const name = localStorage.getItem('hop_cld_name');
+      const preset = localStorage.getItem('hop_cld_preset');
+      const el = document.getElementById('cld-status');
+      if(name && preset) { el.textContent = "Cloudinary Ready"; el.className = "px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"; }
+    }
+
+    async function uploadToCloudinary() {
+      const file = document.getElementById('form-file').files[0];
+      const name = localStorage.getItem('hop_cld_name');
+      const preset = localStorage.getItem('hop_cld_preset');
+      if (!file || !name || !preset) return alert('Lengkapi file dan kredensial Cloudinary!');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', preset);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${name}/image/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+        document.getElementById('form-image').value = data.secure_url;
+        document.getElementById('upload-status').textContent = "✓ Upload Berhasil!";
+      } catch (err) { alert('Upload Gagal'); }
+    }
+  </script>
+</body>
+</html>
