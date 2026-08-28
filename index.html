@@ -218,7 +218,7 @@
     </div>
   </main>
 
-  <!-- FOOTER DIKEMBALIKAN UTUH -->
+  <!-- FOOTER SHOWROOM -->
   <footer class="bg-brand-dark text-white border-t border-brand-gold/20 mt-12">
     <div class="max-w-7xl mx-auto px-4 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 items-start">
@@ -355,6 +355,13 @@
       populateCategoriesFilter();
       renderCarousel();
       renderProductGrid();
+
+      // MEMBACA PARAMETER ID DARI ADMIN TOMBOL VIEW
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id');
+      if (productId) {
+        showDetailView(productId);
+      }
     });
 
     function parseCSVData(csvText) {
@@ -571,6 +578,8 @@
     function showDetailView(id) {
       const item = products.find(p => p.id === id);
       if (!item) return;
+
+      currentProductDetailId = id;
       document.getElementById('catalog-view').classList.add('hidden');
       document.getElementById('detail-view').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -582,7 +591,31 @@
       document.getElementById('detail-warna').textContent = item.warna || '-';
       document.getElementById('detail-gudang').textContent = item.gudang || 'UTAMA';
       document.getElementById('detail-description').textContent = item.description;
+
+      const badge = document.getElementById('detail-status-badge');
+      if (item.status === 'SOLD OUT') {
+        badge.className = 'absolute top-4 right-4 text-[10px] font-bold px-3 py-1 bg-red-100 text-red-700 rounded-full shadow z-10';
+        badge.textContent = 'SOLD OUT';
+      } else {
+        badge.className = 'absolute top-4 right-4 text-[10px] font-bold px-3 py-1 bg-green-100 text-green-700 rounded-full shadow z-10';
+        badge.textContent = currentLang === 'en' ? 'AVAILABLE (READY)' : 'TERSEDIA (READY)';
+      }
+
       document.getElementById('detail-main-img').src = item.image;
+
+      const images = item.images && item.images.length > 0 ? item.images : [item.image];
+      const thumbContainer = document.getElementById('detail-thumbnails');
+      thumbContainer.innerHTML = '';
+
+      if (images.length > 1) {
+        images.forEach((imgUrl) => {
+          thumbContainer.innerHTML += `
+            <button onclick="document.getElementById('detail-main-img').src='${imgUrl}'" class="h-16 w-16 bg-white rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-gold focus:border-brand-gold transition-all shrink-0">
+              <img src="${imgUrl}" class="w-full h-full object-cover">
+            </button>
+          `;
+        });
+      }
 
       let cleanWa = waNumber.replace(/[^0-9]/g, '');
       if (cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1);
@@ -592,8 +625,10 @@
     }
 
     function showCatalogView() {
+      currentProductDetailId = null;
       document.getElementById('detail-view').classList.add('hidden');
       document.getElementById('catalog-view').classList.remove('hidden');
+      history.pushState("", document.title, window.location.pathname);
     }
   </script>
 </body>
