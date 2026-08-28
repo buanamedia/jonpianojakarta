@@ -508,19 +508,33 @@
       return url;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('lang-selector').value = currentLang;
-      initAudio();
-      applyLanguage(currentLang);
-      setupFooterContacts();
-      populateCategoriesFilter();
-      renderCarousel();
-      renderProductGrid();
+    document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('lang-selector').value = currentLang;
+  initAudio();
+  applyLanguage(currentLang);
+  setupFooterContacts();
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const productId = urlParams.get('id');
-      if (productId) showDetailView(productId);
-    });
+  // Membaca data dari file products.json
+  try {
+    const response = await fetch('products.json');
+    if (response.ok) {
+      products = await response.json();
+    } else {
+      // Fallback ke LocalStorage jika file JSON belum terakses
+      products = JSON.parse(localStorage.getItem('hop_products')) || [];
+    }
+  } catch (err) {
+    products = JSON.parse(localStorage.getItem('hop_products')) || [];
+  }
+
+  populateCategoriesFilter();
+  renderCarousel();
+  renderProductGrid();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('id');
+  if (productId) showDetailView(productId);
+});
 
     // SISTEM AUDIO SESUAI SETTING ADMIN (AUTOPLAY ATAU MUTE)
     function initAudio() {
