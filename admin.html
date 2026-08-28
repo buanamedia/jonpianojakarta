@@ -33,7 +33,6 @@
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <!-- LOGO ICON ADMIN -->
         <img src="icon jon piano.png" alt="Jon Piano Admin Icon" class="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0">
         <div>
           <span class="font-serif text-base sm:text-xl font-bold tracking-wider text-white block">JON PIANO ADMIN</span>
@@ -111,23 +110,21 @@
       </div>
     </div>
 
-    <!-- UTILITY CARDS -->
+    <!-- UTILITY & CONFIG CARDS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-link text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Write to Sheet)</h3>
+        <div class="flex space-x-2">
+          <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
+          <button onclick="saveScriptUrl()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 whitespace-nowrap">Simpan URL</button>
+        </div>
+      </div>
+
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
         <div class="flex space-x-2">
           <input type="text" id="wa-number-input" placeholder="082370958651" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
           <button onclick="saveWaNumber()" class="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 whitespace-nowrap">Simpan</button>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-music text-brand-gold mr-2"></i>Backsound Musik Website</h3>
-        <div class="space-y-2">
-          <div class="flex items-center space-x-2">
-            <input type="text" id="audio-url-input" placeholder="URL file MP3..." class="w-full px-2.5 py-1.5 border rounded-lg text-[11px] bg-gray-50">
-            <button onclick="saveAudioConfig()" class="px-3 py-1.5 bg-brand-gold text-white text-xs font-bold rounded-lg hover:bg-amber-600 whitespace-nowrap">Simpan Musik</button>
-          </div>
         </div>
       </div>
     </div>
@@ -222,7 +219,7 @@
           <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
-        <!-- FITUR MULTI FOTO + UPLOAD CLOUDINARY REALTIME -->
+        <!-- MULTI FOTO + CLOUDINARY UPLOAD & PREVIEW -->
         <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-gray-800 uppercase"><i class="fa-solid fa-images text-brand-gold mr-1"></i>Kelola Foto (Maksimal 5 Foto)</label>
@@ -246,6 +243,7 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
+    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRF8FT9P5IbzwxBt4DrKmjFLi8u2cETnsVnPfgDNOSt6xoFzW-73gQPe_XCdfB1nGofg/exec';
 
     let products = JSON.parse(localStorage.getItem('hop_products')) || [];
     let defaultWarehouses = ["ASSALAM", "G2", "K4", "KEDAUNG", "UTAMA"];
@@ -268,15 +266,16 @@
 
     function getCldEnv() {
       return {
-        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || '',
-        uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || ''
+        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || 'demo',
+        uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || 'unsigned'
       };
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDotEnv();
       checkAuthStatus();
-      loadAudioConfig();
+      loadWaNumber();
+      loadScriptUrl();
     });
 
     function checkAuthStatus() {
@@ -290,7 +289,6 @@
           populateChecklistWarehouses();
           renderAdminTable();
         }
-        loadWaNumber();
       }
     }
 
@@ -522,10 +520,12 @@
 
     async function uploadSingleFileToCloudinary(fileObject) {
       const cld = getCldEnv();
-      if (!fileObject || !cld.cloudName || !cld.uploadPreset) return null;
+      if (!fileObject || !cld.cloudName) return null;
+      
       const formData = new FormData();
       formData.append('file', fileObject);
       formData.append('upload_preset', cld.uploadPreset);
+
       try {
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/image/upload`, { method: 'POST', body: formData });
         const data = await res.json();
@@ -537,14 +537,16 @@
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan...`;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah Gambar...`;
 
       try {
-        // PROSES UPLOAD FILE KE STORAGE CLOUDINARY
+        // 1. Upload foto lokal ke Cloudinary secara otomatis
         for (let i = 0; i < 5; i++) {
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
-            if (uploadedUrl) document.getElementById(`form-img-${i}`).value = uploadedUrl;
+            if (uploadedUrl) {
+              document.getElementById(`form-img-${i}`).value = uploadedUrl;
+            }
           }
         }
 
@@ -596,24 +598,62 @@
         if (rawImages.length === 0) rawImages = [mainImage];
         let galleryImages = [mainImage, ...rawImages.filter(img => img !== mainImage)];
 
+        const newProductObj = {
+          id: id || Date.now().toString(),
+          title,
+          gudang: finalGudang,
+          category: finalCategory,
+          no_seri,
+          warna,
+          price,
+          status,
+          isCarousel,
+          image: mainImage,
+          images: galleryImages,
+          description
+        };
+
         if (id) {
           const idx = products.findIndex(p => p.id === id);
-          if (idx !== -1) products[idx] = { id, title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description };
+          if (idx !== -1) products[idx] = newProductObj;
         } else {
-          products.unshift({ id: Date.now().toString(), title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description });
+          products.unshift(newProductObj);
         }
 
+        // 2. Simpan ke LocalStorage agar index.html langsung merender foto Cloudinary
         localStorage.setItem('hop_products', JSON.stringify(products));
+
+        // 3. Kirim ke Google Sheets
+        const scriptUrl = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
+        if (scriptUrl) {
+          fetch(scriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newProductObj)
+          });
+        }
+
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano berhasil disimpan!');
+        alert('Unit piano & foto Cloudinary berhasil disimpan!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
       }
+    }
+
+    function saveScriptUrl() {
+      const url = document.getElementById('script-url-input').value.trim();
+      localStorage.setItem('jp_script_url', url || DEFAULT_SCRIPT_URL);
+      alert('Google Apps Script WebApp URL berhasil disimpan!');
+    }
+
+    function loadScriptUrl() {
+      document.getElementById('script-url-input').value = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
     }
 
     function deleteProduct(id) {
@@ -689,28 +729,28 @@
 
     function loadWaNumber() { document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; }
 
-    function loadAudioConfig() {
-      const audioUrl = localStorage.getItem('jp_backsound_url') || 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
-      document.getElementById('audio-url-input').value = audioUrl;
-    }
-
-    function saveAudioConfig() {
-      const url = document.getElementById('audio-url-input').value.trim();
-      if (!url) return;
-      localStorage.setItem('jp_backsound_url', url);
-      alert('Backsound disimpan!');
-    }
-
     function exportToCSV() {
       const checkboxes = document.querySelectorAll('.product-checkbox:checked');
       if (checkboxes.length === 0) return alert('Pilih unit piano yang ingin di-export!');
 
       const selectedIds = Array.from(checkboxes).map(cb => cb.value);
       const selectedProducts = products.filter(p => selectedIds.includes(p.id));
-      let csvContent = "data:text/csv;charset=utf-8,GUDANG,NO,MERK PIANO,CAROUSEL,CATEGORY,NO.SERI,WARNA,HARGA,STATUS\n";
+      let csvContent = "data:text/csv;charset=utf-8,GUDANG,NO,MERK PIANO,CAROUSEL,CATEGORY,NO.SERI,WARNA,HARGA,STATUS,FOTO UTAMA,FOTO GALERI\n";
 
       selectedProducts.forEach((p, idx) => {
-        const row = [`"${p.gudang}"`, `"${idx + 1}"`, `"${p.title}"`, `"${p.isCarousel ? 'YA' : 'TIDAK'}"`, `"${p.category}"`, `"${p.no_seri}"`, `"${p.warna}"`, `"${p.price}"`, `"${p.status}"`];
+        const row = [
+          `"${p.gudang}"`,
+          `"${idx + 1}"`,
+          `"${p.title}"`,
+          `"${p.isCarousel ? 'YA' : 'TIDAK'}"`,
+          `"${p.category}"`,
+          `"${p.no_seri}"`,
+          `"${p.warna}"`,
+          `"${p.price}"`,
+          `"${p.status}"`,
+          `"${p.image}"`,
+          `"${(p.images || []).join('|')}"`
+        ];
         csvContent += row.join(",") + "\n";
       });
 
