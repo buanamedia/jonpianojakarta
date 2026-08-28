@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John Piano - Admin Dashboard</title>
+  <title>Jon Piano Jakarta - Inventory Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="env.js"></script>
+  <script src="auth-config.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -20,109 +25,176 @@
 </head>
 <body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
 
+  <!-- HEADER ADMIN -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <i class="fa-solid fa-user-shield text-brand-gold text-2xl"></i>
-        <span class="font-serif text-xl font-bold tracking-wider text-white">JOHN PIANO ADMIN</span>
+        <span class="font-serif text-xl font-bold tracking-wider text-white">JON PIANO ADMIN</span>
       </div>
       <div class="flex items-center space-x-3">
-        <a href="index.html" class="px-4 py-2 rounded-md font-medium text-sm text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 transition-all"><i class="fa-solid fa-arrow-left mr-2"></i>Ke Website Utama</a>
-        <button id="btn-logout" onclick="logoutAdmin()" class="hidden px-4 py-2 rounded-md font-medium text-sm text-red-400 bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 transition-all"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
+        <a href="index.html" class="px-4 py-2 rounded-md font-medium text-sm text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 transition-all">
+          <i class="fa-solid fa-arrow-left mr-2"></i>Ke Website Utama
+        </a>
+        <button id="btn-logout" onclick="logoutAdmin()" class="hidden px-4 py-2 rounded-md font-medium text-sm text-red-400 bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 transition-all">
+          <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- FORM LOGIN -->
-  <div id="section-login" class="flex-grow flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      <div class="bg-brand-dark p-6 text-center text-white border-b border-brand-gold/30">
-        <i class="fa-solid fa-lock text-brand-gold text-4xl mb-3"></i>
-        <h2 class="font-serif text-2xl font-bold">Otentikasi John Piano Admin</h2>
+  <!-- FORM LOGIN ADMIN (DESAIN PRIVAT & EKSKLUSIF) -->
+  <div id="section-login" class="flex-grow flex items-center justify-center p-4 bg-brand-charcoal relative overflow-hidden">
+    <div class="absolute w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none -top-10 -left-10"></div>
+    <div class="absolute w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none -bottom-10 -right-10"></div>
+
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-brand-gold/20 overflow-hidden relative z-10">
+      <div class="bg-brand-dark p-8 text-center text-white border-b border-brand-gold/30">
+        <div class="w-16 h-16 bg-brand-gold/10 border border-brand-gold/40 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-user-lock text-brand-gold text-2xl"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold tracking-wide">Otentikasi Admin</h2>
+        <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Akses Terbatas Khusus Administrator</p>
       </div>
+
       <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
-        <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg">Username atau Password salah!</div>
+        <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg flex items-center">
+          <i class="fa-solid fa-circle-exclamation mr-2 text-sm"></i>
+          <span>Username atau Password salah!</span>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username Admin</label>
-          <input type="text" id="login-username" required placeholder="admin" class="w-full px-3 py-2 border rounded-lg text-sm">
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-solid fa-user text-xs"></i>
+            </span>
+            <input type="text" id="login-username" required placeholder="Masukkan username" class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent transition-all">
+          </div>
         </div>
+
         <div>
           <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
-          <input type="password" id="login-password" required placeholder="admin123" class="w-full px-3 py-2 border rounded-lg text-sm">
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <i class="fa-solid fa-key text-xs"></i>
+            </span>
+            <input type="password" id="login-password" required placeholder="Masukkan password" class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent transition-all">
+          </div>
         </div>
-        <button type="submit" class="w-full py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-bold text-sm rounded-lg">Masuk Dashboard</button>
+
+        <button type="submit" class="w-full py-3 bg-brand-gold hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Masuk Dashboard</span>
+        </button>
       </form>
     </div>
   </div>
 
-  <!-- DASHBOARD ADMIN -->
+  <!-- DASHBOARD UTAMA ADMIN -->
   <main id="section-dashboard" class="hidden max-w-7xl mx-auto px-4 py-10 flex-grow w-full">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
-        <h1 class="font-serif text-3xl font-bold">Dashboard Pengelola John Piano</h1>
-        <p class="text-gray-500 text-sm">Kelola halaman produk, nomor WhatsApp sales, dan konfigurasi Cloudinary.</p>
+        <h1 class="font-serif text-3xl font-bold">Kelola Inventaris Piano</h1>
+        <p class="text-gray-500 text-sm">Kelola unit, update status, upload foto & backsound musik website.</p>
       </div>
-      <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md"><i class="fa-solid fa-plus mr-2"></i>Buat Halaman Piano Baru</button>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="exportToCSV()" class="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-file-export mr-2"></i>Export CSV
+        </button>
+        <button onclick="openImportModal()" class="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-file-excel mr-2"></i>Import CSV
+        </button>
+        <button onclick="deleteSelectedProducts()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-trash-can mr-2"></i>Hapus Terpilih
+        </button>
+        <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-plus mr-2"></i>Tambah Unit
+        </button>
+      </div>
     </div>
 
-    <!-- CONFIGURATION SECTION (WHATSAPP + CLOUDINARY) -->
+    <!-- UTILITY CARDS: WHATSAPP & BACKSOUND AUDIO UTAMA -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <!-- PENGATURAN WHATSAPP -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center">
-            <i class="fa-brands fa-whatsapp text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-gray-800 text-base">Pengaturan WhatsApp Showroom</h3>
-            <p class="text-xs text-gray-500">Nomor ini akan digunakan untuk tombol inquiry di Katalog.</p>
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Nomor WA (Format: 628123...)</label>
-          <input type="text" id="wa-number-input" placeholder="6281234567890" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-        </div>
-        <div class="mt-4 flex justify-end">
-          <button onclick="saveWaNumber()" class="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700">Simpan Nomor WA</button>
+      <!-- WA SALES CARD -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 class="font-bold text-gray-800 text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
+        <div class="flex space-x-2">
+          <input type="text" id="wa-number-input" placeholder="082370958651" class="w-full px-3 py-1.5 border rounded-lg text-sm bg-gray-50">
+          <button onclick="saveWaNumber()" class="px-4 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 whitespace-nowrap">Simpan WA</button>
         </div>
       </div>
 
-      <!-- PENGATURAN CLOUDINARY -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-            </div>
-            <div>
-              <h3 class="font-bold text-gray-800 text-base">Storage Cloudinary</h3>
-              <p class="text-xs text-gray-500">Kredensial upload foto otomatis.</p>
-            </div>
+      <!-- KELOLA BACKSOUND AUDIO CARD -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 class="font-bold text-gray-800 text-sm mb-2"><i class="fa-solid fa-music text-brand-gold mr-2"></i>Backsound Musik Website</h3>
+        <div class="space-y-3">
+          <div class="flex items-center space-x-2">
+            <input type="text" id="audio-url-input" placeholder="URL file MP3 atau pilih file audio..." class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
+            <label for="audio-file-upload" class="px-3 py-1.5 bg-gray-800 text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-black whitespace-nowrap">
+              <i class="fa-solid fa-upload mr-1"></i>Upload File
+            </label>
+            <input type="file" id="audio-file-upload" accept="audio/*" onchange="uploadAudioFile(this)" class="hidden">
           </div>
-          <span id="cld-status" class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Lokal</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 mb-2">
-          <input type="text" id="cld-cloud-name" placeholder="Cloud Name" class="px-3 py-2 border rounded-lg text-sm bg-gray-50">
-          <input type="text" id="cld-upload-preset" placeholder="Upload Preset" class="px-3 py-2 border rounded-lg text-sm bg-gray-50">
-        </div>
-        <div class="flex justify-end">
-          <button onclick="saveCloudinaryConfig()" class="px-4 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg">Simpan Storage</button>
+          
+          <div class="flex items-center justify-between bg-amber-50 p-2.5 rounded-lg border border-amber-200 text-xs">
+            <span class="font-bold text-amber-900"><i class="fa-solid fa-sliders mr-1"></i>Mode Default Musik:</span>
+            <select id="audio-autoplay-mode" class="px-2 py-1 bg-white border border-amber-300 rounded font-bold text-gray-800 focus:outline-none">
+              <option value="autoplay">Autoplay Nyala (Langsung Bunyi)</option>
+              <option value="mute">Mute / Bisu (Manual Play)</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <audio id="admin-audio-preview" controls class="h-8 w-2/3"></audio>
+            <button onclick="saveAudioConfig()" class="px-4 py-1.5 bg-brand-gold text-white text-xs font-bold rounded-lg hover:bg-amber-600">Simpan Musik</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- TABEL MANAJEMEN HALAMAN PRODUK -->
+    <!-- TABEL UTAMA INVENTARIS -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="p-4 border-b border-gray-100 font-bold text-gray-800">Daftar Halaman Piano (<span id="total-count">0</span>)</div>
+      <div class="p-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <span class="font-bold text-gray-800 text-sm">Total Unit (<span id="total-count">0</span>)</span>
+          <span class="text-gray-300">|</span>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500 font-semibold">Centang Gudang:</span>
+            <select id="select-warehouse-checklist" onchange="checkWarehouseItems(this.value)" class="px-2.5 py-1 bg-amber-50 border border-amber-300 text-amber-900 rounded-lg text-xs font-bold focus:outline-none">
+              <option value="">-- Pilih Gudang --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <button onclick="deleteSelectedProducts()" class="text-xs text-red-600 font-bold hover:underline"><i class="fa-solid fa-trash mr-1"></i>Hapus Yang Dicentang</button>
+          <button onclick="clearAllData()" class="text-xs text-gray-400 hover:underline">Reset Semua Data</button>
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+        <table class="w-full text-left text-sm border-collapse">
           <thead>
-            <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase">
-              <th class="py-3 px-4">Gambar</th>
-              <th class="py-3 px-4">Nama Piano / Judul Halaman</th>
-              <th class="py-3 px-4">Kategori</th>
-              <th class="py-3 px-4">Carousel</th>
-              <th class="py-3 px-4 text-center">Aksi Edit</th>
+            <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase select-none">
+              <th class="py-3 px-4 text-center w-12">
+                <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold cursor-pointer">
+              </th>
+              <th onclick="sortTable('gudang')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">
+                GUDANG <i id="sort-icon-gudang" class="fa-solid fa-sort text-gray-400 ml-1"></i>
+              </th>
+              <th onclick="sortTable('title')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">
+                NAMA / MERK PIANO <i id="sort-icon-title" class="fa-solid fa-sort text-gray-400 ml-1"></i>
+              </th>
+              <th class="py-3 px-4">NO. SERI</th>
+              <th class="py-3 px-4">WARNA</th>
+              <th onclick="sortTable('price')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">
+                HARGA <i id="sort-icon-price" class="fa-solid fa-sort text-gray-400 ml-1"></i>
+              </th>
+              <th onclick="sortTable('status')" class="py-3 px-4 text-center cursor-pointer hover:bg-gray-100">
+                STATUS <i id="sort-icon-status" class="fa-solid fa-sort text-gray-400 ml-1"></i>
+              </th>
+              <th class="py-3 px-4 text-center">AKSI</th>
             </tr>
           </thead>
           <tbody id="admin-table-body" class="divide-y divide-gray-100"></tbody>
@@ -131,73 +203,177 @@
     </div>
   </main>
 
-  <!-- MODAL FORM EDIT / TAMBAH HALAMAN -->
+  <!-- MODAL FORM EDIT / TAMBAH UNIT -->
   <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
       <div class="bg-brand-dark px-6 py-4 text-white flex justify-between items-center">
-        <h3 id="modal-title" class="font-serif font-bold text-lg">Kelola Halaman Piano</h3>
+        <h3 id="modal-title" class="font-serif font-bold text-lg">Kelola Unit Piano</h3>
         <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
       </div>
 
-      <form id="product-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+      <form id="product-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
         <input type="hidden" id="form-id">
 
-        <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Judul Halaman / Nama Piano</label>
-          <input type="text" id="form-title" required class="w-full px-3 py-2 border rounded-lg text-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Merk / Tipe Piano</label>
+            <input type="text" id="form-title" required placeholder="Contoh: YAMAHA UX" class="w-full px-3 py-2 border rounded-lg text-sm">
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-gray-700 uppercase">Lokasi Gudang (Khusus Admin)</label>
+              <button type="button" id="btn-delete-gudang" onclick="deleteCurrentWarehouse()" class="hidden text-[10px] font-bold text-red-600 hover:underline">
+                <i class="fa-solid fa-trash mr-1"></i>Hapus Gudang Ini
+              </button>
+            </div>
+            <select id="form-gudang-select" onchange="handleGudangChange(this)" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 font-semibold text-amber-900 focus:outline-none focus:border-brand-gold">
+            </select>
+            <div id="wrapper-gudang-baru" class="hidden mt-2">
+              <input type="text" id="form-gudang-baru" placeholder="Ketik Nama Gudang Baru..." class="w-full px-3 py-2 border border-amber-400 bg-amber-50 rounded-lg text-sm uppercase font-bold text-amber-900 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-gray-700 uppercase">Kategori</label>
+              <button type="button" id="btn-delete-kategori" onclick="deleteCurrentCategory()" class="hidden text-[10px] font-bold text-red-600 hover:underline">
+                <i class="fa-solid fa-trash mr-1"></i>Hapus Kategori Ini
+              </button>
+            </div>
+            <select id="form-category-select" onchange="handleCategoryChange(this)" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 font-semibold text-gray-800 focus:outline-none focus:border-brand-gold">
+            </select>
+            <div id="wrapper-kategori-baru" class="hidden mt-2">
+              <input type="text" id="form-kategori-baru" placeholder="Ketik Kategori Baru..." class="w-full px-3 py-2 border border-blue-400 bg-blue-50 rounded-lg text-sm font-bold text-blue-900 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">No. Seri</label>
+            <input type="text" id="form-noseri" placeholder="3057895" class="w-full px-3 py-2 border rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Warna Kabinet</label>
+            <input type="text" id="form-warna" oninput="this.value = this.value.toUpperCase()" placeholder="HITAM / COKLAT" class="w-full px-3 py-2 border rounded-lg text-sm uppercase font-bold">
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kategori Produk</label>
-            <input type="text" id="form-category" list="category-list" required placeholder="Pilih / ketik kategori baru..." class="w-full px-3 py-2 border rounded-lg text-sm">
-            <datalist id="category-list">
-              <option value="Grand Piano">
-              <option value="Upright Piano">
-              <option value="Digital Piano">
-              <option value="Accessories">
-            </datalist>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Harga (Otomatis Format Rp)</label>
+            <input type="text" id="form-price" oninput="formatRupiahInput(this)" required placeholder="Cukup ketik angka misal: 4000000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-green-700">
           </div>
           <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Harga (IDR)</label>
-            <input type="text" id="form-price" required class="w-full px-3 py-2 border rounded-lg text-sm">
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Status Ketersediaan</label>
+            <select id="form-status" class="w-full px-3 py-2 border rounded-lg text-sm font-bold">
+              <option value="AVAILABLE" class="text-green-600">READY STOCK (AVAILABLE)</option>
+              <option value="SOLD OUT" class="text-red-600">SOLD OUT</option>
+            </select>
           </div>
         </div>
 
         <div class="flex items-center space-x-2 bg-amber-50 p-3 rounded-lg border border-amber-200">
           <input type="checkbox" id="form-carousel" class="w-4 h-4 text-brand-gold rounded">
-          <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan sebagai Slide Carousel di Halaman Depan</label>
+          <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Foto Sampul & Detail</label>
-          <input type="text" id="form-image" placeholder="URL Gambar..." class="w-full px-3 py-2 border rounded-lg text-sm mb-2">
-          <div class="flex items-center space-x-2">
-            <input type="file" id="form-file" accept="image/*" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-gold file:text-white">
-            <button type="button" onclick="uploadToCloudinary()" class="px-3 py-2 bg-gray-200 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-300">Upload Cloudinary</button>
+        <!-- FITUR MULTI FOTO -->
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-800 uppercase">
+                <i class="fa-solid fa-images text-brand-gold mr-1.5"></i>Upload & Kelola Foto (Maksimal 5 Foto)
+              </label>
+              <p class="text-[11px] text-gray-500">Pilih foto dari HP/Komputer. File terunggah ke Cloudinary saat tekan <b>Simpan Unit</b>.</p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <label for="form-file-multi" class="px-3 py-1.5 bg-brand-gold hover:bg-amber-600 text-white text-xs font-bold rounded-lg cursor-pointer flex items-center">
+                <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Pilih Multi Foto
+              </label>
+              <input type="file" id="form-file-multi" accept="image/*" multiple onchange="handleLocalFilesSelection(this)" class="hidden">
+            </div>
           </div>
-          <p id="upload-status" class="text-xs text-gray-500 italic mt-1"></p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3" id="photo-inputs-container"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Isi Konten & Spesifikasi Halaman Detail</label>
-          <textarea id="form-description" rows="5" class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Deskripsi Tambahan</label>
+          <textarea id="form-description" rows="3" class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
         </div>
 
         <div class="pt-4 border-t flex justify-end space-x-3">
           <button type="button" onclick="closeModal()" class="px-4 py-2 border text-gray-600 rounded-lg text-sm">Batal</button>
-          <button type="submit" class="px-5 py-2 bg-brand-gold text-white font-medium rounded-lg text-sm">Simpan Halaman</button>
+          <button type="submit" id="btn-submit-unit" class="px-5 py-2 bg-brand-gold text-white font-medium rounded-lg text-sm flex items-center">
+            <span>Simpan Unit</span>
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <script>
-    const ADMIN_USER = "admin";
-    const ADMIN_PASS = "admin123";
-    let products = JSON.parse(localStorage.getItem('hop_products')) || [];
+  <!-- MODAL IMPORT CSV -->
+  <div id="import-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-serif font-bold text-lg text-brand-dark"><i class="fa-solid fa-file-csv text-green-600 mr-2"></i>Upload File CSV Stok</h3>
+        <button onclick="closeImportModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      
+      <p class="text-xs text-gray-500">Pilih file `.csv` dari komputer/HP Anda untuk mengunggah stok piano secara massal.</p>
+      
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-brand-gold transition-colors bg-gray-50">
+        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+        <input type="file" id="import-file-input" accept=".csv" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-gold file:text-white font-bold cursor-pointer">
+      </div>
 
-    document.addEventListener('DOMContentLoaded', checkAuthStatus);
+      <div class="flex justify-end space-x-3 pt-2 border-t">
+        <button onclick="closeImportModal()" class="px-4 py-2 border text-gray-600 rounded-lg text-xs font-semibold">Batal</button>
+        <button onclick="processCSVFile()" class="px-5 py-2 bg-green-700 text-white font-bold text-xs rounded-lg hover:bg-green-800 flex items-center">
+          <i class="fa-solid fa-file-import mr-1.5"></i>Proses Upload File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let products = JSON.parse(localStorage.getItem('hop_products')) || [];
+    let defaultWarehouses = ["ASSALAM", "G2", "K4", "KEDAUNG", "UTAMA"];
+    let warehouses = JSON.parse(localStorage.getItem('jp_warehouses')) || defaultWarehouses;
+    let defaultCategories = ["Digital Piano", "Grand Piano", "Upright Piano"];
+    let categories = JSON.parse(localStorage.getItem('jp_categories')) || defaultCategories;
+
+    let currentSortColumn = null;
+    let currentSortAsc = true;
+    let pendingFileObjects = [null, null, null, null, null];
+
+    let envConfig = {
+      CLOUDINARY_CLOUD_NAME: '',
+      CLOUDINARY_UPLOAD_PRESET: ''
+    };
+
+    async function loadDotEnv() {
+      if (window.ENV) {
+        envConfig.CLOUDINARY_CLOUD_NAME = window.ENV.CLOUDINARY_CLOUD_NAME || '';
+        envConfig.CLOUDINARY_UPLOAD_PRESET = window.ENV.CLOUDINARY_UPLOAD_PRESET || '';
+      }
+    }
+
+    function getCldEnv() {
+      return {
+        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || '',
+        uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || ''
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDotEnv();
+      checkAuthStatus();
+      loadAudioConfig();
+    });
 
     function checkAuthStatus() {
       const isAuth = sessionStorage.getItem('hop_admin_logged') === 'true';
@@ -205,15 +381,25 @@
       document.getElementById('section-dashboard').classList.toggle('hidden', !isAuth);
       document.getElementById('btn-logout').classList.toggle('hidden', !isAuth);
       if(isAuth) {
+        populateChecklistWarehouses();
         renderAdminTable();
-        loadCloudinaryConfig();
         loadWaNumber();
       }
     }
 
+    // LOGIN DENGAN ENKRIPSI SHA-256
     function handleLogin(e) {
       e.preventDefault();
-      if(document.getElementById('login-username').value === ADMIN_USER && document.getElementById('login-password').value === ADMIN_PASS) {
+      const inputUser = document.getElementById('login-username').value;
+      const inputPass = document.getElementById('login-password').value;
+
+      const userHash = CryptoJS.SHA256(inputUser).toString();
+      const passHash = CryptoJS.SHA256(inputPass).toString();
+
+      const targetUserHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.USER_HASH : "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+      const targetPassHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.PASS_HASH : "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+
+      if(userHash === targetUserHash && passHash === targetPassHash) {
         sessionStorage.setItem('hop_admin_logged', 'true');
         checkAuthStatus();
       } else {
@@ -221,138 +407,557 @@
       }
     }
 
-    function logoutAdmin() {
-      sessionStorage.removeItem('hop_admin_logged');
-      checkAuthStatus();
-    }
+    function logoutAdmin() { sessionStorage.removeItem('hop_admin_logged'); checkAuthStatus(); }
 
-    // WHATSAPP CONFIG LOGIC
     function saveWaNumber() {
-      const num = document.getElementById('wa-number-input').value.trim();
-      if(!num) return alert('Masukkan nomor WhatsApp!');
-      localStorage.setItem('jp_wa_number', num);
-      alert('Nomor WhatsApp John Piano berhasil diperbarui!');
+      const waVal = document.getElementById('wa-number-input').value.trim();
+      if(!waVal) return alert('Silakan isi nomor WA!');
+      const cleanWa = waVal.replace(/[^0-9]/g, '');
+      localStorage.setItem('jp_wa_number', cleanWa);
+      alert('Nomor WhatsApp berhasil disimpan!');
     }
 
-    function loadWaNumber() {
-      document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '6281234567890';
+    function loadWaNumber() { 
+      document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; 
+    }
+
+    function loadAudioConfig() {
+      const audioUrl = localStorage.getItem('jp_backsound_url') || 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
+      const autoPlayMode = localStorage.getItem('jp_audio_mode') || 'autoplay';
+      
+      document.getElementById('audio-url-input').value = audioUrl;
+      document.getElementById('audio-autoplay-mode').value = autoPlayMode;
+      
+      const preview = document.getElementById('admin-audio-preview');
+      preview.src = audioUrl;
+    }
+
+    async function uploadAudioFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const cld = getCldEnv();
+      if (!cld.cloudName || !cld.uploadPreset) {
+        alert("Konfigurasi Cloudinary belum disetting!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', cld.uploadPreset);
+      formData.append('resource_type', 'auto');
+
+      try {
+        alert("Mengunggah file audio ke Cloudinary...");
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/auto/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.secure_url) {
+          document.getElementById('audio-url-input').value = data.secure_url;
+          document.getElementById('admin-audio-preview').src = data.secure_url;
+          alert("File audio berhasil diunggah!");
+        } else {
+          alert("Gagal mengunggah audio: " + (data.error ? data.error.message : "Error"));
+        }
+      } catch (err) {
+        alert("Terjadi kesalahan koneksi saat mengunggah audio!");
+      }
+    }
+
+    function saveAudioConfig() {
+      const url = document.getElementById('audio-url-input').value.trim();
+      const mode = document.getElementById('audio-autoplay-mode').value;
+
+      if (!url) return alert("Isi URL file audio terlebih dahulu!");
+      
+      localStorage.setItem('jp_backsound_url', url);
+      localStorage.setItem('jp_audio_mode', mode);
+
+      document.getElementById('admin-audio-preview').src = url;
+      alert(`Pengaturan backsound musik berhasil disimpan! (Mode: ${mode === 'autoplay' ? 'Autoplay Nyala' : 'Mute / Bisu'})`);
+    }
+
+    function formatRupiahInput(input) {
+      let value = input.value.replace(/[^0-9]/g, '');
+      if (!value) { input.value = ''; return; }
+      input.value = 'Rp ' + parseInt(value, 10).toLocaleString('id-ID');
+    }
+
+    async function uploadSingleFileToCloudinary(fileObject) {
+      const cld = getCldEnv();
+      if (!fileObject || !cld.cloudName || !cld.uploadPreset) return null;
+
+      const formData = new FormData();
+      formData.append('file', fileObject);
+      formData.append('upload_preset', cld.uploadPreset);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/image/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+        return data.secure_url || null;
+      } catch (err) { return null; }
+    }
+
+    function handleLocalFilesSelection(fileInput) {
+      const files = Array.from(fileInput.files).slice(0, 5);
+      files.forEach((file, index) => {
+        pendingFileObjects[index] = file;
+        const localPreviewUrl = URL.createObjectURL(file);
+        const inputField = document.getElementById(`form-img-${index}`);
+        if (inputField) {
+          inputField.value = localPreviewUrl;
+          updatePhotoPreview(index, localPreviewUrl);
+        }
+      });
+    }
+
+    async function deleteSinglePhotoSlot(index) {
+      const field = document.getElementById(`form-img-${index}`);
+      if (!field || !field.value.trim()) return;
+
+      if (confirm(`Hapus Foto ${index + 1}?`)) {
+        pendingFileObjects[index] = null;
+        field.value = '';
+        updatePhotoPreview(index, '');
+      }
+    }
+
+    function renderPhotoSlots(images = [], mainIndex = 0) {
+      const container = document.getElementById('photo-inputs-container');
+      container.innerHTML = '';
+      pendingFileObjects = [null, null, null, null, null];
+
+      for (let i = 0; i < 5; i++) {
+        const url = images[i] || '';
+        const isMain = i === mainIndex;
+
+        container.innerHTML += `
+          <div class="bg-white p-2 rounded-xl border border-gray-200 flex flex-col space-y-2 relative group hover:border-brand-gold transition-colors">
+            <div class="h-28 w-full bg-gray-100 rounded-lg overflow-hidden border relative flex items-center justify-center">
+              <img id="preview-img-${i}" src="${url || 'https://via.placeholder.com/150?text=No+Photo'}" class="w-full h-full object-cover">
+              <span id="badge-main-${i}" class="${isMain ? '' : 'hidden'} absolute top-1 left-1 bg-brand-gold text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">UTAMA</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-gray-600 uppercase">Foto ${i+1}</label>
+              <label class="inline-flex items-center text-[10px] text-gray-500 font-semibold cursor-pointer">
+                <input type="radio" name="main_photo_radio" value="${i}" ${isMain ? 'checked' : ''} onchange="setMainPhotoBadge(${i})" class="w-3 h-3 text-brand-gold">
+                Utama
+              </label>
+            </div>
+
+            <input type="text" id="form-img-${i}" value="${url}" oninput="updatePhotoPreview(${i}, this.value)" placeholder="URL Foto ${i+1}..." class="w-full px-2 py-1 border rounded text-[11px] bg-gray-50 focus:bg-white">
+            <button type="button" onclick="deleteSinglePhotoSlot(${i})" class="w-full py-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[10px] rounded">Hapus Foto</button>
+          </div>
+        `;
+      }
+    }
+
+    function updatePhotoPreview(index, url) {
+      const img = document.getElementById(`preview-img-${index}`);
+      if (img) img.src = url.trim() !== '' ? url.trim() : 'https://via.placeholder.com/150?text=No+Photo';
+    }
+
+    function setMainPhotoBadge(selectedIndex) {
+      for (let i = 0; i < 5; i++) {
+        const badge = document.getElementById(`badge-main-${i}`);
+        if (badge) badge.classList.toggle('hidden', i !== selectedIndex);
+      }
+    }
+
+    function renderCategoryOptions(selectedValue = '') {
+      const select = document.getElementById('form-category-select');
+      select.innerHTML = '';
+      const sortedCategories = [...new Set(categories)].sort((a, b) => a.localeCompare(b));
+      sortedCategories.forEach(cat => select.innerHTML += `<option value="${cat}">${cat}</option>`);
+      select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>`;
+      if (selectedValue && sortedCategories.includes(selectedValue)) select.value = selectedValue;
+      handleCategoryChange(select);
+    }
+
+    function handleCategoryChange(select) {
+      const wrapperNew = document.getElementById('wrapper-kategori-baru');
+      const btnDelete = document.getElementById('btn-delete-kategori');
+      if (select.value === '__NEW__') {
+        wrapperNew.classList.remove('hidden');
+        btnDelete.classList.add('hidden');
+      } else {
+        wrapperNew.classList.add('hidden');
+        btnDelete.classList.remove('hidden');
+      }
+    }
+
+    function deleteCurrentCategory() {
+      const select = document.getElementById('form-category-select');
+      const selectedCategory = select.value;
+      if (!selectedCategory || selectedCategory === '__NEW__') return;
+      if (confirm(`Hapus kategori "${selectedCategory}"?`)) {
+        categories = categories.filter(c => c !== selectedCategory);
+        localStorage.setItem('jp_categories', JSON.stringify(categories));
+        renderCategoryOptions(categories[0] || '');
+      }
+    }
+
+    function renderWarehouseOptions(selectedValue = '') {
+      const select = document.getElementById('form-gudang-select');
+      select.innerHTML = '';
+      const sortedWarehouses = [...new Set(warehouses)].sort((a, b) => a.localeCompare(b));
+      sortedWarehouses.forEach(wh => select.innerHTML += `<option value="${wh}">${wh}</option>`);
+      select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Gudang Baru...</option>`;
+      if (selectedValue && sortedWarehouses.includes(selectedValue)) select.value = selectedValue;
+      handleGudangChange(select);
+    }
+
+    function handleGudangChange(select) {
+      const wrapperNew = document.getElementById('wrapper-gudang-baru');
+      const btnDelete = document.getElementById('btn-delete-gudang');
+      if (select.value === '__NEW__') {
+        wrapperNew.classList.remove('hidden');
+        btnDelete.classList.add('hidden');
+      } else {
+        wrapperNew.classList.add('hidden');
+        btnDelete.classList.remove('hidden');
+      }
+    }
+
+    function deleteCurrentWarehouse() {
+      const select = document.getElementById('form-gudang-select');
+      const selectedWarehouse = select.value;
+      if (!selectedWarehouse || selectedWarehouse === '__NEW__') return;
+      if (confirm(`Hapus gudang "${selectedWarehouse}"?`)) {
+        warehouses = warehouses.filter(w => w !== selectedWarehouse);
+        localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+        renderWarehouseOptions(warehouses[0] || '');
+        populateChecklistWarehouses();
+      }
+    }
+
+    function populateChecklistWarehouses() {
+      const select = document.getElementById('select-warehouse-checklist');
+      select.innerHTML = '<option value="">-- Pilih Gudang --</option>';
+      const activeGudangList = [...new Set(products.map(p => (p.gudang || 'UTAMA').toUpperCase()))];
+      activeGudangList.sort().forEach(gudang => {
+        select.innerHTML += `<option value="${gudang}">Gudang: ${gudang}</option>`;
+      });
+    }
+
+    function checkWarehouseItems(selectedGudang) {
+      document.querySelectorAll('.product-checkbox').forEach(cb => {
+        cb.checked = selectedGudang && cb.getAttribute('data-gudang') === selectedGudang;
+      });
+    }
+
+    function parsePriceNumber(priceStr) {
+      if(!priceStr) return 0;
+      return parseInt(priceStr.replace(/[^0-9]/g, ''), 10) || 0;
+    }
+
+    function sortTable(columnKey) {
+      if (currentSortColumn === columnKey) {
+        currentSortAsc = !currentSortAsc;
+      } else {
+        currentSortColumn = columnKey;
+        currentSortAsc = true;
+      }
+
+      products.sort((a, b) => {
+        let valA = a[columnKey] || '';
+        let valB = b[columnKey] || '';
+        if (columnKey === 'price') {
+          valA = parsePriceNumber(valA);
+          valB = parsePriceNumber(valB);
+        } else {
+          valA = valA.toString().toLowerCase();
+          valB = valB.toString().toLowerCase();
+        }
+        if (valA < valB) return currentSortAsc ? -1 : 1;
+        if (valA > valB) return currentSortAsc ? 1 : -1;
+        return 0;
+      });
+
+      renderAdminTable();
     }
 
     function renderAdminTable() {
       const tbody = document.getElementById('admin-table-body');
       document.getElementById('total-count').textContent = products.length;
+      document.getElementById('select-all').checked = false;
       tbody.innerHTML = '';
 
       products.forEach(p => {
+        const isSold = p.status === 'SOLD OUT';
+        const itemGudang = (p.gudang || 'UTAMA').toUpperCase();
         tbody.innerHTML += `
           <tr class="hover:bg-gray-50">
-            <td class="py-3 px-4"><img src="${p.image}" class="w-12 h-12 object-cover rounded-lg border"></td>
-            <td class="py-3 px-4 font-semibold text-gray-800">${p.title}</td>
-            <td class="py-3 px-4"><span class="px-2 py-1 text-xs bg-gray-100 rounded">${p.category}</span></td>
-            <td class="py-3 px-4">
-              ${p.isCarousel ? '<span class="px-2 py-1 text-[10px] bg-green-100 text-green-700 font-bold rounded-full">Aktif</span>' : '<span class="text-xs text-gray-400">Tidak</span>'}
+            <td class="py-3 px-4 text-center">
+              <input type="checkbox" class="product-checkbox w-4 h-4 rounded text-brand-gold cursor-pointer" value="${p.id}" data-gudang="${itemGudang}">
             </td>
-            <td class="py-3 px-4 text-center space-x-2">
-              <button onclick="editProduct('${p.id}')" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-semibold">Edit Halaman</button>
-              <button onclick="deleteProduct('${p.id}')" class="px-3 py-1 bg-red-50 text-red-600 rounded-md text-xs font-semibold">Hapus</button>
+            <td class="py-3 px-4 font-bold text-xs text-amber-900">${itemGudang}</td>
+            <td class="py-3 px-4 font-semibold text-gray-800">${p.title}</td>
+            <td class="py-3 px-4 font-mono text-xs">${p.no_seri || '-'}</td>
+            <td class="py-3 px-4 text-xs">${p.warna || '-'}</td>
+            <td class="py-3 px-4 font-bold text-gray-900">${p.price}</td>
+            <td class="py-3 px-4 text-center">
+              ${isSold ? '<span class="px-2 py-0.5 text-[10px] bg-red-100 text-red-700 font-bold rounded-full">SOLD OUT</span>' : '<span class="px-2 py-0.5 text-[10px] bg-green-100 text-green-700 font-bold rounded-full">READY</span>'}
+            </td>
+            <td class="py-3 px-4 text-center space-x-1.5 whitespace-nowrap">
+              <a href="index.html?id=${p.id}" target="_blank" class="px-2.5 py-1 bg-green-50 text-green-700 rounded text-xs font-semibold hover:bg-green-100"><i class="fa-solid fa-eye mr-1"></i>View</a>
+              <button onclick="editProduct('${p.id}')" class="px-2.5 py-1 bg-blue-50 text-blue-600 rounded text-xs font-semibold hover:bg-blue-100">Edit</button>
+              <button onclick="deleteProduct('${p.id}')" class="px-2.5 py-1 bg-red-50 text-red-600 rounded text-xs font-semibold hover:bg-red-100">Hapus</button>
             </td>
           </tr>
         `;
       });
     }
 
+    function toggleSelectAll(master) {
+      document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    async function deleteSelectedProducts() {
+      const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+      if (checkboxes.length === 0) return alert('Pilih unit piano yang ingin dihapus!');
+
+      if (confirm(`Hapus ${checkboxes.length} unit terpilih?`)) {
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+        products = products.filter(p => !selectedIds.includes(p.id));
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+      }
+    }
+
     function openModal(id = null) {
       document.getElementById('product-form').reset();
-      if(id) {
+      if (id) {
         const item = products.find(p => p.id === id);
-        if(item) {
-          document.getElementById('modal-title').textContent = "Edit Isi Halaman Piano";
+        if (item) {
+          document.getElementById('modal-title').textContent = "Edit Unit Piano";
           document.getElementById('form-id').value = item.id;
           document.getElementById('form-title').value = item.title;
-          document.getElementById('form-category').value = item.category;
+          document.getElementById('form-noseri').value = item.no_seri || '';
+          document.getElementById('form-warna').value = item.warna || '';
           document.getElementById('form-price').value = item.price;
+          document.getElementById('form-status').value = item.status || 'AVAILABLE';
           document.getElementById('form-carousel').checked = item.isCarousel || false;
-          document.getElementById('form-image').value = item.image;
-          document.getElementById('form-description').value = item.description;
+          document.getElementById('form-description').value = item.description || '';
+
+          const imgList = item.images && item.images.length > 0 ? item.images : [item.image || ''];
+          let mainIndex = imgList.indexOf(item.image);
+          if (mainIndex === -1) mainIndex = 0;
+          renderPhotoSlots(imgList, mainIndex);
+          renderWarehouseOptions(item.gudang || 'UTAMA');
+          renderCategoryOptions(item.category || 'Upright Piano');
         }
       } else {
-        document.getElementById('modal-title').textContent = "Buat Halaman Piano Baru";
+        document.getElementById('modal-title').textContent = "Tambah Unit Piano Baru";
         document.getElementById('form-id').value = '';
+        renderPhotoSlots([], 0);
+        renderWarehouseOptions(warehouses[0]);
+        renderCategoryOptions(categories[0]);
       }
       document.getElementById('product-modal').classList.remove('hidden');
     }
 
     function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
+    function openImportModal() { document.getElementById('import-modal').classList.remove('hidden'); }
+    function closeImportModal() { document.getElementById('import-modal').classList.add('hidden'); }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('form-id').value;
-      const title = document.getElementById('form-title').value;
-      const category = document.getElementById('form-category').value;
-      const price = document.getElementById('form-price').value;
-      const isCarousel = document.getElementById('form-carousel').checked;
-      const image = document.getElementById('form-image').value || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-      const description = document.getElementById('form-description').value;
+      const btnSubmit = document.getElementById('btn-submit-unit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>Menyimpan...`;
 
-      if(id) {
-        const idx = products.findIndex(p => p.id === id);
-        if(idx !== -1) products[idx] = { id, title, category, price, isCarousel, image, description };
-      } else {
-        products.unshift({ id: Date.now().toString(), title, category, price, isCarousel, image, description });
+      try {
+        for (let i = 0; i < 5; i++) {
+          if (pendingFileObjects[i]) {
+            const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
+            if (uploadedUrl) document.getElementById(`form-img-${i}`).value = uploadedUrl;
+          }
+        }
+
+        const selectGudang = document.getElementById('form-gudang-select').value;
+        let finalGudang = selectGudang;
+        if (selectGudang === '__NEW__') {
+          finalGudang = document.getElementById('form-gudang-baru').value.trim().toUpperCase();
+          if (!warehouses.includes(finalGudang)) {
+            warehouses.push(finalGudang);
+            localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+          }
+        }
+
+        const selectCategory = document.getElementById('form-category-select').value;
+        let finalCategory = selectCategory;
+        if (selectCategory === '__NEW__') {
+          finalCategory = document.getElementById('form-kategori-baru').value.trim();
+          if (!categories.includes(finalCategory)) {
+            categories.push(finalCategory);
+            localStorage.setItem('jp_categories', JSON.stringify(categories));
+          }
+        }
+
+        const id = document.getElementById('form-id').value;
+        const title = document.getElementById('form-title').value;
+        const no_seri = document.getElementById('form-noseri').value;
+        const warna = document.getElementById('form-warna').value.toUpperCase();
+        const price = document.getElementById('form-price').value;
+        const status = document.getElementById('form-status').value;
+        const isCarousel = document.getElementById('form-carousel').checked;
+
+        let rawImages = [];
+        for (let i = 0; i < 5; i++) {
+          const field = document.getElementById(`form-img-${i}`);
+          if (field && field.value.trim() !== '' && !field.value.startsWith('blob:')) {
+            rawImages.push(field.value.trim());
+          }
+        }
+
+        const selectedRadio = document.querySelector('input[name="main_photo_radio"]:checked');
+        const selectedIndex = selectedRadio ? parseInt(selectedRadio.value, 10) : 0;
+        const mainImageField = document.getElementById(`form-img-${selectedIndex}`);
+        
+        let mainImage = mainImageField && mainImageField.value.trim() !== '' && !mainImageField.value.startsWith('blob:')
+          ? mainImageField.value.trim() 
+          : (rawImages[0] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800');
+
+        if (rawImages.length === 0) rawImages = [mainImage];
+        let galleryImages = [mainImage, ...rawImages.filter(img => img !== mainImage)];
+        const description = document.getElementById('form-description').value;
+
+        if (id) {
+          const idx = products.findIndex(p => p.id === id);
+          if (idx !== -1) products[idx] = { id, title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description };
+        } else {
+          products.unshift({ id: Date.now().toString(), title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description });
+        }
+
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+        closeModal();
+        alert('Unit piano berhasil disimpan!');
+      } catch (err) {
+        alert("Terjadi kesalahan saat menyimpan unit.");
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
       }
-
-      localStorage.setItem('hop_products', JSON.stringify(products));
-      renderAdminTable();
-      closeModal();
     }
 
-    function deleteProduct(id) {
-      if(confirm('Hapus halaman piano ini?')) {
+    function processCSVFile() {
+      const fileInput = document.getElementById('import-file-input');
+      const file = fileInput.files[0];
+      if (!file) return alert('Pilih file `.csv` terlebih dahulu!');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split(/\r\n|\n/);
+        let count = 0;
+
+        lines.forEach((line, index) => {
+          if(!line.trim()) return;
+          const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          if(index === 0 && cols[0].toUpperCase() === 'GUDANG') return;
+
+          if(cols.length >= 4) {
+            const importedGudang = (cols[0] || 'UTAMA').toUpperCase();
+            if (!warehouses.includes(importedGudang)) warehouses.push(importedGudang);
+
+            const importedCat = cols[3] || 'Upright Piano';
+            if (!categories.includes(importedCat)) categories.push(importedCat);
+
+            let rawPrice = cols[6] || 'Hubungi Sales';
+            let formattedPrice = rawPrice;
+            if (/^\d+$/.test(rawPrice)) {
+              formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
+            }
+
+            const mainImg = cols[8] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
+            const galleryImgs = cols[9] ? cols[9].split('|') : [mainImg];
+
+            products.unshift({
+              id: (Date.now() + count).toString(),
+              gudang: importedGudang,
+              title: cols[2] || cols[1] || 'PIANO',
+              category: importedCat,
+              no_seri: cols[4] || '-',
+              warna: cols[5] || 'HITAM',
+              price: formattedPrice,
+              status: cols[7] || 'AVAILABLE',
+              isCarousel: false,
+              image: mainImg,
+              images: galleryImgs,
+              description: `Piano ${cols[2] || cols[1]} kondisi terawat di Gudang ${cols[0]}.`
+            });
+            count++;
+          }
+        });
+
+        localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+        localStorage.setItem('jp_categories', JSON.stringify(categories));
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+        closeImportModal();
+        alert(`Berhasil mengimpor ${count} unit piano!`);
+      };
+      reader.readAsText(file);
+    }
+
+    function exportToCSV() {
+      const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+      if (checkboxes.length === 0) return alert('Pilih unit piano yang ingin di-export!');
+
+      const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+      const selectedProducts = products.filter(p => selectedIds.includes(p.id));
+      let csvContent = "data:text/csv;charset=utf-8,GUDANG,NO,MERK PIANO,CATEGORY,NO.SERI,WARNA,HARGA,STATUS,FOTO UTAMA,FOTO GALERI\n";
+
+      selectedProducts.forEach((p, idx) => {
+        const galleryJoined = (p.images || [p.image]).join('|');
+        const row = [
+          `"${(p.gudang || 'UTAMA').toUpperCase()}"`,
+          `"${idx + 1}"`,
+          `"${p.title.replace(/"/g, '""')}"`,
+          `"${p.category || 'Upright Piano'}"`,
+          `"${(p.no_seri || '-').replace(/"/g, '""')}"`,
+          `"${(p.warna || '-').replace(/"/g, '""')}"`,
+          `"${p.price}"`,
+          `"${p.status || 'AVAILABLE'}"`,
+          `"${p.image || ''}"`,
+          `"${galleryJoined}"`
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Export_Stok_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function clearAllData() {
+      if(confirm('Hapus SELURUH data stok piano?')) {
+        products = [];
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+      }
+    }
+
+    async function deleteProduct(id) {
+      if(confirm('Hapus unit ini?')) {
         products = products.filter(p => p.id !== id);
         localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
         renderAdminTable();
       }
     }
 
     function editProduct(id) { openModal(id); }
-
-    function saveCloudinaryConfig() {
-      localStorage.setItem('hop_cld_name', document.getElementById('cld-cloud-name').value.trim());
-      localStorage.setItem('hop_cld_preset', document.getElementById('cld-upload-preset').value.trim());
-      updateCloudinaryStatus();
-      alert('Tersimpan!');
-    }
-
-    function loadCloudinaryConfig() {
-      document.getElementById('cld-cloud-name').value = localStorage.getItem('hop_cld_name') || '';
-      document.getElementById('cld-upload-preset').value = localStorage.getItem('hop_cld_preset') || '';
-      updateCloudinaryStatus();
-    }
-
-    function updateCloudinaryStatus() {
-      const name = localStorage.getItem('hop_cld_name');
-      const preset = localStorage.getItem('hop_cld_preset');
-      const el = document.getElementById('cld-status');
-      if(name && preset) { el.textContent = "Cloudinary Ready"; el.className = "px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"; }
-    }
-
-    async function uploadToCloudinary() {
-      const file = document.getElementById('form-file').files[0];
-      const name = localStorage.getItem('hop_cld_name');
-      const preset = localStorage.getItem('hop_cld_preset');
-      if (!file || !name || !preset) return alert('Lengkapi file dan kredensial Cloudinary!');
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', preset);
-
-      try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${name}/image/upload`, { method: 'POST', body: formData });
-        const data = await res.json();
-        document.getElementById('form-image').value = data.secure_url;
-        document.getElementById('upload-status').textContent = "✓ Upload Berhasil!";
-      } catch (err) { alert('Upload Gagal'); }
-    }
   </script>
 </body>
 </html>
