@@ -21,7 +21,7 @@
 </head>
 <body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
 
-  <!-- BACKGROUND AUDIO TAG (AUTOPLAY LOOP) -->
+  <!-- BACKGROUND AUDIO TAG -->
   <audio id="bg-audio" loop preload="auto">
     <source id="bg-audio-source" src="https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3" type="audio/mpeg">
   </audio>
@@ -39,7 +39,6 @@
       
       <!-- MENU KANAN -->
       <div class="flex items-center space-x-3">
-        <!-- DROPDOWN BAHASA -->
         <div class="relative inline-block text-left">
           <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-white/10 border border-brand-gold/40 hover:bg-white/20 text-white text-xs font-bold rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-gold cursor-pointer transition-all">
             <option value="id" class="bg-brand-dark text-white">🇮🇩 ID (Indonesia)</option>
@@ -47,12 +46,10 @@
           </select>
         </div>
 
-        <!-- TOMBOL AUDIO -->
         <button id="btn-audio-toggle" onclick="toggleAudio()" class="p-2 text-brand-gold hover:text-white bg-white/10 hover:bg-white/20 border border-brand-gold/30 rounded-lg transition-all flex items-center justify-center w-9 h-9" title="Putar/Hentikan Musik Backsound">
           <i id="icon-audio" class="fa-solid fa-volume-high text-base"></i>
         </button>
 
-        <!-- LOGO ADMIN -->
         <a href="admin.html" class="p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
           <i class="fa-solid fa-user-gear text-lg"></i>
         </a>
@@ -285,8 +282,8 @@
   </footer>
 
   <script>
-    // MASUKKAN SPREADSHEET ID ANDA DI SINI
-    const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU'; 
+    // MASUKKAN SPREADSHEET ID GOOGLE SHEETS ANDA
+    const SPREADSHEET_ID = '1o5t26He2DzTweYeleXOGiDjlU4Jkx896f95VUHVgS8U'; 
     const SHEET_NAME = 'Sheet1';
 
     let products = [];
@@ -409,7 +406,7 @@
         const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
         const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
 
-        // MEMBACA STATUS CAROUSEL DARI GOOGLE SHEETS
+        // BACALAH STATUS CAROUSEL DARI GOOGLE SHEETS (KOLOM CAROUSEL)
         const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
         const isCarouselActive = (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1');
 
@@ -422,7 +419,7 @@
           warna: (row['WARNA'] || 'HITAM').toUpperCase(),
           price: formattedPrice,
           status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-          isCarousel: isCarouselActive, // SUDAH DIBACA DINAMIS
+          isCarousel: isCarouselActive,
           image: mainImg,
           images: galleryImgs,
           description: `Piano ${row['MERK PIANO']} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`
