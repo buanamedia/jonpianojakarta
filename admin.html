@@ -172,17 +172,18 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
-            <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase select-none">
-              <th class="py-3 px-4 text-center w-12"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold cursor-pointer"></th>
-              <th onclick="sortTable('gudang')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">GUDANG <i id="sort-icon-gudang" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-              <th onclick="sortTable('title')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">NAMA / MERK PIANO <i id="sort-icon-title" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-              <th class="py-3 px-4">NO. SERI</th>
-              <th class="py-3 px-4">WARNA</th>
-              <th onclick="sortTable('price')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">HARGA <i id="sort-icon-price" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-              <th onclick="sortTable('status')" class="py-3 px-4 text-center cursor-pointer hover:bg-gray-100">STATUS <i id="sort-icon-status" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-              <th class="py-3 px-4 text-center">AKSI</th>
-            </tr>
-          </thead>
+  <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase select-none">
+    <th class="py-3 px-4 text-center w-12"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold cursor-pointer"></th>
+    <th onclick="sortTable('gudang')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">GUDANG <i id="sort-icon-gudang" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+    <th onclick="sortTable('title')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">NAMA / MERK PIANO <i id="sort-icon-title" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+    <th class="py-3 px-4 text-center">CAROUSEL</th>
+    <th class="py-3 px-4">NO. SERI</th>
+    <th class="py-3 px-4">WARNA</th>
+    <th onclick="sortTable('price')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">HARGA <i id="sort-icon-price" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+    <th onclick="sortTable('status')" class="py-3 px-4 text-center cursor-pointer hover:bg-gray-100">STATUS <i id="sort-icon-status" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+    <th class="py-3 px-4 text-center">AKSI</th>
+  </tr>
+</thead>
           <tbody id="admin-table-body" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
