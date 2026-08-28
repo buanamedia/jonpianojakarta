@@ -409,6 +409,10 @@
         const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
         const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
 
+        // MEMBACA STATUS CAROUSEL DARI GOOGLE SHEETS
+        const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
+        const isCarouselActive = (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1');
+
         return {
           id: (index + 1).toString(),
           gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
@@ -418,7 +422,7 @@
           warna: (row['WARNA'] || 'HITAM').toUpperCase(),
           price: formattedPrice,
           status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-          isCarousel: false,
+          isCarousel: isCarouselActive, // SUDAH DIBACA DINAMIS
           image: mainImg,
           images: galleryImgs,
           description: `Piano ${row['MERK PIANO']} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`
