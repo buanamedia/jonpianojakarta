@@ -48,7 +48,7 @@
           </select>
         </div>
 
-        <!-- TOMBOL KONTROL SUARA AUDIO (DISAMPING LOGO ADMIN) -->
+        <!-- TOMBOL KONTROL SUARA AUDIO -->
         <button id="btn-audio-toggle" onclick="toggleAudio()" class="p-2 text-brand-gold hover:text-white bg-white/10 hover:bg-white/20 border border-brand-gold/30 rounded-lg transition-all flex items-center justify-center w-9 h-9" title="Putar/Hentikan Musik Backsound">
           <i id="icon-audio" class="fa-solid fa-volume-high text-base"></i>
         </button>
@@ -191,13 +191,11 @@
       
       <!-- FOTO DETAIL UTAMA & THUMBNAILS -->
       <div class="lg:col-span-6 space-y-4">
-        <!-- Wrapper Utama Foto Detail -->
         <div class="w-full aspect-[4/3] bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 flex items-center justify-center p-2 relative">
           <span id="detail-status-badge" class="absolute top-4 right-4 text-[10px] font-bold px-3 py-1 rounded-full shadow z-10"></span>
           <img id="detail-main-img" src="" class="w-full h-full object-contain rounded-xl">
         </div>
 
-        <!-- Thumbnail Galeri Multi Foto -->
         <div id="detail-thumbnails" class="flex space-x-3 overflow-x-auto pb-2">
           <!-- Thumbnail slot dirender via JS -->
         </div>
@@ -267,12 +265,12 @@
     </div>
   </main>
 
-  <!-- FOOTER SEIMBANG 3 KOLOM DENGAN PETA GOOGLE MAPS PRESISI -->
+  <!-- FOOTER -->
   <footer class="bg-brand-dark text-white border-t border-brand-gold/20 mt-12">
     <div class="max-w-7xl mx-auto px-4 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 items-start">
         
-        <!-- KOLOM 1: INFO BRAND & PROFIL -->
+        <!-- KOLOM 1: INFO BRAND -->
         <div class="space-y-4">
           <div class="flex items-center space-x-2">
             <i class="fa-solid fa-music text-brand-gold text-xl"></i>
@@ -318,7 +316,7 @@
           </div>
         </div>
 
-        <!-- KOLOM 3: ALAMAT SHOWROOM + PETA GOOGLE MAPS DENGAN TITIK LOKASI PRESISI -->
+        <!-- KOLOM 3: ALAMAT SHOWROOM -->
         <div class="space-y-3">
           <h4 data-lang="footer_addr_header" class="font-serif text-sm font-bold text-brand-gold uppercase tracking-wider border-b border-brand-gold/20 pb-2">ALAMAT SHOWROOM</h4>
           
@@ -347,7 +345,7 @@
   </footer>
 
   <script>
-    let products = JSON.parse(localStorage.getItem('hop_products')) || [];
+    let products = [];
     let waNumber = localStorage.getItem('jp_wa_number') || '082370958651';
     let currentCarouselIndex = 0;
     let carouselInterval = null;
@@ -498,10 +496,8 @@
       return translated;
     }
 
-    // FUNGSI TRANSFORMASI GAMBAR YANG AMAN DARI BROKEN IMAGE
     function getOptimizedImageUrl(url, width = 800, height = 600, fit = 'c_fill') {
       if (!url) return 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-      // Hanya lakukan substitusi jika URL berasal dari Cloudinary
       if (typeof url === 'string' && url.includes('cloudinary.com') && url.includes('/upload/')) {
         return url.replace('/upload/', `/upload/${fit},g_auto,w_${width},h_${height},f_auto,q_auto/`);
       }
@@ -509,34 +505,33 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('lang-selector').value = currentLang;
-  initAudio();
-  applyLanguage(currentLang);
-  setupFooterContacts();
+      document.getElementById('lang-selector').value = currentLang;
+      initAudio();
+      applyLanguage(currentLang);
+      setupFooterContacts();
 
-  // Membaca data dari file products.json
-  try {
-    const response = await fetch('products.json');
-    if (response.ok) {
-      products = await response.json();
-    } else {
-      // Fallback ke LocalStorage jika file JSON belum terakses
-      products = JSON.parse(localStorage.getItem('hop_products')) || [];
-    }
-  } catch (err) {
-    products = JSON.parse(localStorage.getItem('hop_products')) || [];
-  }
+      // MEMBACA DATA ONLINE DARI PRODUCTS.JSON
+      try {
+        const response = await fetch('products.json');
+        if (response.ok) {
+          products = await response.json();
+          localStorage.setItem('hop_products', JSON.stringify(products));
+        } else {
+          products = JSON.parse(localStorage.getItem('hop_products')) || [];
+        }
+      } catch (err) {
+        products = JSON.parse(localStorage.getItem('hop_products')) || [];
+      }
 
-  populateCategoriesFilter();
-  renderCarousel();
-  renderProductGrid();
+      populateCategoriesFilter();
+      renderCarousel();
+      renderProductGrid();
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get('id');
-  if (productId) showDetailView(productId);
-});
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get('id');
+      if (productId) showDetailView(productId);
+    });
 
-    // SISTEM AUDIO SESUAI SETTING ADMIN (AUTOPLAY ATAU MUTE)
     function initAudio() {
       const audio = document.getElementById('bg-audio');
       const savedAudioUrl = localStorage.getItem('jp_backsound_url');
@@ -627,6 +622,7 @@
 
     function populateCategoriesFilter() {
       const select = document.getElementById('category-filter');
+      select.innerHTML = `<option value="" data-lang="all_categories">${translations[currentLang]?.all_categories || 'Semua Kategori'}</option>`;
       const categories = [...new Set(products.map(p => p.category || 'Upright Piano'))].sort();
       categories.forEach(cat => select.innerHTML += `<option value="${cat}">${cat}</option>`);
     }
@@ -707,7 +703,6 @@
       goToSlide((currentCarouselIndex - 1 + slides.length) % slides.length);
     }
 
-    // RENDIR GRID KATALOG PRODUK
     function renderProductGrid(itemsToRender = products) {
       const dict = translations[currentLang] || translations.id;
       const grid = document.getElementById('product-grid');
@@ -742,7 +737,6 @@
               </div>
             </div>
 
-            <!-- TOMBOL LIHAT DETAIL UNIT BERWARNA EMAS MEWAH -->
             <div class="p-4 pt-0">
               <button onclick="showDetailView('${p.id}')" class="w-full py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
                 <span>${dict.view_detail_btn}</span>
@@ -767,7 +761,6 @@
       renderProductGrid(filtered);
     }
 
-    // HALAMAN DETAIL PRODUK
     function showDetailView(id) {
       const item = products.find(p => p.id === id);
       if (!item) return;
@@ -820,7 +813,6 @@
       document.getElementById('detail-wa-btn').href = `https://wa.me/${cleanWa}?text=${waText}`;
     }
 
-    // FUNGSI MEMASANG GAMBAR UTAMA DETAIL (MENGGUNAKAN URL ASLI TANPA FITUR TRANSFORMASI YANG MERUSAK)
     function setDetailMainImage(url) {
       const mainImg = document.getElementById('detail-main-img');
       if (!url) {
