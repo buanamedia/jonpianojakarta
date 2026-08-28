@@ -96,22 +96,24 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
         <h1 class="font-serif text-3xl font-bold">Kelola Inventaris Piano</h1>
-        <p class="text-gray-500 text-sm">Kelola unit, update status, upload foto & backsound musik website.</p>
+        <p class="text-gray-500 text-sm">Kelola unit, update status, upload foto, & download file JSON untuk GitHub.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md">
-          <i class="fa-solid fa-plus mr-2"></i>Tambah Unit
+        <button onclick="downloadJSON()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm rounded-lg shadow-md transition-all">
+          <i class="fa-solid fa-file-code mr-2"></i>Download products.json
         </button>
-                <button onclick="openImportModal()" class="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white font-medium text-sm rounded-lg shadow-md">
-          <i class="fa-solid fa-file-excel mr-2"></i>Import CSV
-        </button>
-        <button onclick="exportToCSV()" class="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg shadow-md">
+        <button onclick="exportToCSV()" class="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg shadow-md transition-all">
           <i class="fa-solid fa-file-export mr-2"></i>Export CSV
         </button>
-        <button onclick="deleteSelectedProducts()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-lg shadow-md">
+        <button onclick="openImportModal()" class="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white font-medium text-sm rounded-lg shadow-md transition-all">
+          <i class="fa-solid fa-file-excel mr-2"></i>Import CSV
+        </button>
+        <button onclick="deleteSelectedProducts()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-lg shadow-md transition-all">
           <i class="fa-solid fa-trash-can mr-2"></i>Hapus Terpilih
         </button>
-        
+        <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md transition-all">
+          <i class="fa-solid fa-plus mr-2"></i>Tambah Unit
+        </button>
       </div>
     </div>
 
@@ -372,6 +374,19 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDotEnv();
+
+      // BACA DARI PRODUCTS.JSON JIKA TERSEDIA
+      try {
+        const res = await fetch('products.json');
+        if (res.ok) {
+          const remoteData = await res.json();
+          if (remoteData && remoteData.length > 0) {
+            products = remoteData;
+            localStorage.setItem('hop_products', JSON.stringify(products));
+          }
+        }
+      } catch (e) {}
+
       checkAuthStatus();
       loadAudioConfig();
     });
@@ -388,7 +403,7 @@
       }
     }
 
-    // LOGIN DENGAN ENKRIPSI SHA-256
+    // LOGIN ENKRIPSI SHA-256
     function handleLogin(e) {
       e.preventDefault();
       const inputUser = document.getElementById('login-username').value;
@@ -837,13 +852,25 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano berhasil disimpan!');
+        alert('Unit piano berhasil disimpan! Tekan tombol "Download products.json" lalu commit ke GitHub agar data terupdate online.');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
       }
+    }
+
+    // FUNGSI UNTUK MENGUNDUH FILE PRODUCTS.JSON
+    function downloadJSON() {
+      if(products.length === 0) return alert('Tidak ada data piano untuk di-download!');
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(products, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "products.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
     }
 
     function processCSVFile() {
@@ -901,7 +928,7 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeImportModal();
-        alert(`Berhasil mengimpor ${count} unit piano!`);
+        alert(`Berhasil mengimpor ${count} unit piano! Jangan lupa klik "Download products.json" dan update di GitHub.`);
       };
       reader.readAsText(file);
     }
