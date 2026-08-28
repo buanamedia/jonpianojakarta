@@ -343,23 +343,28 @@
       applyLanguage(currentLang);
       setupFooterContacts();
 
-      // BACA DARI LOCAL STORAGE JIKA SUDAH DISIMPANKAN ADMIN
-      const localData = localStorage.getItem('hop_products');
-      if (localData) {
-        try { products = JSON.parse(localData); } catch (e) {}
-      }
-
-      // JIKA MASIH KOSONG, TARIK DARI GOOGLE SHEETS
-      if (!products || products.length === 0) {
-        try {
-          const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
-          const res = await fetch(csvUrl);
-          if (res.ok) {
-            const csvText = await res.text();
-            products = parseCSVData(csvText);
+      // 1. Dapatkan Data dari Google Sheets
+      try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
+        const res = await fetch(csvUrl);
+        if (res.ok) {
+          const csvText = await res.text();
+          const sheetProducts = parseCSVData(csvText);
+          
+          // Jika Sheets sudah memuat foto, utamakan data Sheets
+          if (sheetProducts.length > 0 && sheetProducts.some(p => p.image && !p.image.includes('unsplash'))) {
+            products = sheetProducts;
             localStorage.setItem('hop_products', JSON.stringify(products));
           }
-        } catch (err) { }
+        }
+      } catch (err) { }
+
+      // 2. Jika Sheets belum memuat foto, gunakan data dari LocalStorage
+      if (!products || products.length === 0) {
+        const localData = localStorage.getItem('hop_products');
+        if (localData) {
+          try { products = JSON.parse(localData); } catch (e) {}
+        }
       }
 
       populateCategoriesFilter();
