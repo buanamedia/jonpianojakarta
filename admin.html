@@ -184,15 +184,23 @@
             <input type="text" id="form-title" required placeholder="Contoh: YAMAHA UX" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Lokasi Gudang</label>
-            <select id="form-gudang-select" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm bg-gray-50 font-semibold text-amber-900"></select>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-[11px] font-bold text-gray-700 uppercase">Lokasi Gudang</label>
+              <button type="button" id="btn-delete-gudang" onclick="deleteCurrentWarehouse()" class="hidden text-[10px] font-bold text-red-600 hover:underline"><i class="fa-solid fa-trash mr-1"></i>Hapus Gudang Ini</button>
+            </div>
+            <select id="form-gudang-select" onchange="handleGudangChange(this)" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm bg-gray-50 font-semibold text-amber-900 focus:outline-none focus:border-brand-gold"></select>
+            <div id="wrapper-gudang-baru" class="hidden mt-2"><input type="text" id="form-gudang-baru" placeholder="Ketik Nama Gudang Baru..." class="w-full px-3 py-1.5 border border-amber-400 bg-amber-50 rounded-lg text-xs uppercase font-bold text-amber-900 focus:outline-none"></div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           <div>
-            <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Kategori</label>
-            <select id="form-category-select" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm bg-gray-50 font-semibold text-gray-800"></select>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-[11px] font-bold text-gray-700 uppercase">Kategori</label>
+              <button type="button" id="btn-delete-kategori" onclick="deleteCurrentCategory()" class="hidden text-[10px] font-bold text-red-600 hover:underline"><i class="fa-solid fa-trash mr-1"></i>Hapus Kategori Ini</button>
+            </div>
+            <select id="form-category-select" onchange="handleCategoryChange(this)" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm bg-gray-50 font-semibold text-gray-800 focus:outline-none focus:border-brand-gold"></select>
+            <div id="wrapper-kategori-baru" class="hidden mt-2"><input type="text" id="form-kategori-baru" placeholder="Ketik Kategori Baru..." class="w-full px-3 py-1.5 border border-blue-400 bg-blue-50 rounded-lg text-xs font-bold text-blue-900 focus:outline-none"></div>
           </div>
           <div><label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">No. Seri</label><input type="text" id="form-noseri" placeholder="3057895" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm"></div>
           <div><label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Warna Kabinet</label><input type="text" id="form-warna" oninput="this.value = this.value.toUpperCase()" placeholder="HITAM" class="w-full px-3 py-1.5 border rounded-lg text-xs sm:text-sm uppercase font-bold"></div>
@@ -214,7 +222,7 @@
           <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
-        <!-- FITUR MULTI FOTO DENGAN PREVIEW IMAGE REAL-TIME -->
+        <!-- FITUR MULTI FOTO + UPLOAD CLOUDINARY REALTIME -->
         <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-gray-800 uppercase"><i class="fa-solid fa-images text-brand-gold mr-1"></i>Kelola Foto (Maksimal 5 Foto)</label>
@@ -247,8 +255,26 @@
 
     let currentSortColumn = null;
     let currentSortAsc = true;
+    let pendingFileObjects = [null, null, null, null, null];
 
-    document.addEventListener('DOMContentLoaded', () => {
+    let envConfig = { CLOUDINARY_CLOUD_NAME: '', CLOUDINARY_UPLOAD_PRESET: '' };
+
+    async function loadDotEnv() {
+      if (window.ENV) {
+        envConfig.CLOUDINARY_CLOUD_NAME = window.ENV.CLOUDINARY_CLOUD_NAME || '';
+        envConfig.CLOUDINARY_UPLOAD_PRESET = window.ENV.CLOUDINARY_UPLOAD_PRESET || '';
+      }
+    }
+
+    function getCldEnv() {
+      return {
+        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || '',
+        uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || ''
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDotEnv();
       checkAuthStatus();
       loadAudioConfig();
     });
@@ -407,6 +433,8 @@
 
     function openModal(id = null) {
       document.getElementById('product-form').reset();
+      pendingFileObjects = [null, null, null, null, null];
+
       if (id) {
         const item = products.find(p => p.id === id);
         if (item) {
@@ -440,7 +468,6 @@
 
     function closeModal() { document.getElementById('product-modal').classList.add('hidden'); }
 
-    // RENDER SLOT FOTO + PREVIEW REALTIME
     function renderPhotoSlots(images = [], mainIndex = 0) {
       const container = document.getElementById('photo-inputs-container');
       container.innerHTML = '';
@@ -470,9 +497,7 @@
 
     function updatePhotoPreview(index, url) {
       const img = document.getElementById(`preview-img-${index}`);
-      if (img) {
-        img.src = url.trim() !== '' ? url.trim() : 'https://via.placeholder.com/150?text=No+Photo';
-      }
+      if (img) img.src = url.trim() !== '' ? url.trim() : 'https://via.placeholder.com/150?text=No+Photo';
     }
 
     function setMainPhotoBadge(selectedIndex) {
@@ -485,6 +510,7 @@
     function handleLocalFilesSelection(fileInput) {
       const files = Array.from(fileInput.files).slice(0, 5);
       files.forEach((file, index) => {
+        pendingFileObjects[index] = file;
         const localPreviewUrl = URL.createObjectURL(file);
         const inputField = document.getElementById(`form-img-${index}`);
         if (inputField) {
@@ -494,45 +520,100 @@
       });
     }
 
+    async function uploadSingleFileToCloudinary(fileObject) {
+      const cld = getCldEnv();
+      if (!fileObject || !cld.cloudName || !cld.uploadPreset) return null;
+      const formData = new FormData();
+      formData.append('file', fileObject);
+      formData.append('upload_preset', cld.uploadPreset);
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/image/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+        return data.secure_url || null;
+      } catch (err) { return null; }
+    }
+
     async function handleFormSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('form-id').value;
-      const title = document.getElementById('form-title').value;
-      const gudang = document.getElementById('form-gudang-select').value;
-      const category = document.getElementById('form-category-select').value;
-      const no_seri = document.getElementById('form-noseri').value;
-      const warna = document.getElementById('form-warna').value.toUpperCase();
-      const price = document.getElementById('form-price').value;
-      const status = document.getElementById('form-status').value;
-      const isCarousel = document.getElementById('form-carousel').checked;
-      const description = document.getElementById('form-description').value;
+      const btnSubmit = document.getElementById('btn-submit-unit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan...`;
 
-      let rawImages = [];
-      for (let i = 0; i < 5; i++) {
-        const field = document.getElementById(`form-img-${i}`);
-        if (field && field.value.trim() !== '') rawImages.push(field.value.trim());
+      try {
+        // PROSES UPLOAD FILE KE STORAGE CLOUDINARY
+        for (let i = 0; i < 5; i++) {
+          if (pendingFileObjects[i]) {
+            const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
+            if (uploadedUrl) document.getElementById(`form-img-${i}`).value = uploadedUrl;
+          }
+        }
+
+        const selectGudang = document.getElementById('form-gudang-select').value;
+        let finalGudang = selectGudang;
+        if (selectGudang === '__NEW__') {
+          finalGudang = document.getElementById('form-gudang-baru').value.trim().toUpperCase();
+          if (!warehouses.includes(finalGudang)) {
+            warehouses.push(finalGudang);
+            localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+          }
+        }
+
+        const selectCategory = document.getElementById('form-category-select').value;
+        let finalCategory = selectCategory;
+        if (selectCategory === '__NEW__') {
+          finalCategory = document.getElementById('form-kategori-baru').value.trim();
+          if (!categories.includes(finalCategory)) {
+            categories.push(finalCategory);
+            localStorage.setItem('jp_categories', JSON.stringify(categories));
+          }
+        }
+
+        const id = document.getElementById('form-id').value;
+        const title = document.getElementById('form-title').value;
+        const no_seri = document.getElementById('form-noseri').value;
+        const warna = document.getElementById('form-warna').value.toUpperCase();
+        const price = document.getElementById('form-price').value;
+        const status = document.getElementById('form-status').value;
+        const isCarousel = document.getElementById('form-carousel').checked;
+        const description = document.getElementById('form-description').value;
+
+        let rawImages = [];
+        for (let i = 0; i < 5; i++) {
+          const field = document.getElementById(`form-img-${i}`);
+          if (field && field.value.trim() !== '' && !field.value.startsWith('blob:')) {
+            rawImages.push(field.value.trim());
+          }
+        }
+
+        const selectedRadio = document.querySelector('input[name="main_photo_radio"]:checked');
+        const selectedIndex = selectedRadio ? parseInt(selectedRadio.value, 10) : 0;
+        const mainImageField = document.getElementById(`form-img-${selectedIndex}`);
+
+        let mainImage = mainImageField && mainImageField.value.trim() !== '' && !mainImageField.value.startsWith('blob:')
+          ? mainImageField.value.trim() 
+          : (rawImages[0] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800');
+
+        if (rawImages.length === 0) rawImages = [mainImage];
+        let galleryImages = [mainImage, ...rawImages.filter(img => img !== mainImage)];
+
+        if (id) {
+          const idx = products.findIndex(p => p.id === id);
+          if (idx !== -1) products[idx] = { id, title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description };
+        } else {
+          products.unshift({ id: Date.now().toString(), title, gudang: finalGudang, category: finalCategory, no_seri, warna, price, status, isCarousel, image: mainImage, images: galleryImages, description });
+        }
+
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+        closeModal();
+        alert('Unit piano berhasil disimpan!');
+      } catch (err) {
+        alert("Terjadi kesalahan saat menyimpan unit.");
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
       }
-
-      const selectedRadio = document.querySelector('input[name="main_photo_radio"]:checked');
-      const selectedIndex = selectedRadio ? parseInt(selectedRadio.value, 10) : 0;
-      const mainImageField = document.getElementById(`form-img-${selectedIndex}`);
-
-      let mainImage = mainImageField && mainImageField.value.trim() !== ''
-        ? mainImageField.value.trim() 
-        : (rawImages[0] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800');
-
-      if (id) {
-        const idx = products.findIndex(p => p.id === id);
-        if (idx !== -1) products[idx] = { id, title, gudang, category, no_seri, warna, price, status, isCarousel, image: mainImage, images: rawImages, description };
-      } else {
-        products.unshift({ id: Date.now().toString(), title, gudang, category, no_seri, warna, price, status, isCarousel, image: mainImage, images: rawImages, description });
-      }
-
-      localStorage.setItem('hop_products', JSON.stringify(products));
-      populateChecklistWarehouses();
-      renderAdminTable();
-      closeModal();
-      alert('Unit piano berhasil disimpan!');
     }
 
     function deleteProduct(id) {
@@ -652,14 +733,61 @@
       const select = document.getElementById('form-category-select');
       select.innerHTML = '';
       categories.forEach(cat => select.innerHTML += `<option value="${cat}">${cat}</option>`);
-      if (selectedValue) select.value = selectedValue;
+      select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>`;
+      if (selectedValue && categories.includes(selectedValue)) select.value = selectedValue;
+      handleCategoryChange(select);
+    }
+
+    function handleCategoryChange(select) {
+      const wrapperNew = document.getElementById('wrapper-kategori-baru');
+      const btnDelete = document.getElementById('btn-delete-kategori');
+      if (select.value === '__NEW__') {
+        wrapperNew.classList.remove('hidden'); btnDelete.classList.add('hidden');
+      } else {
+        wrapperNew.classList.add('hidden'); btnDelete.classList.remove('hidden');
+      }
+    }
+
+    function deleteCurrentCategory() {
+      const select = document.getElementById('form-category-select');
+      const selectedCategory = select.value;
+      if (!selectedCategory || selectedCategory === '__NEW__') return;
+      if (confirm(`Hapus kategori "${selectedCategory}"?`)) {
+        categories = categories.filter(c => c !== selectedCategory);
+        localStorage.setItem('jp_categories', JSON.stringify(categories));
+        renderCategoryOptions(categories[0] || '');
+      }
     }
 
     function renderWarehouseOptions(selectedValue = '') {
       const select = document.getElementById('form-gudang-select');
       select.innerHTML = '';
       warehouses.forEach(wh => select.innerHTML += `<option value="${wh}">${wh}</option>`);
-      if (selectedValue) select.value = selectedValue;
+      select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Gudang Baru...</option>`;
+      if (selectedValue && warehouses.includes(selectedValue)) select.value = selectedValue;
+      handleGudangChange(select);
+    }
+
+    function handleGudangChange(select) {
+      const wrapperNew = document.getElementById('wrapper-gudang-baru');
+      const btnDelete = document.getElementById('btn-delete-gudang');
+      if (select.value === '__NEW__') {
+        wrapperNew.classList.remove('hidden'); btnDelete.classList.add('hidden');
+      } else {
+        wrapperNew.classList.add('hidden'); btnDelete.classList.remove('hidden');
+      }
+    }
+
+    function deleteCurrentWarehouse() {
+      const select = document.getElementById('form-gudang-select');
+      const selectedWarehouse = select.value;
+      if (!selectedWarehouse || selectedWarehouse === '__NEW__') return;
+      if (confirm(`Hapus gudang "${selectedWarehouse}"?`)) {
+        warehouses = warehouses.filter(w => w !== selectedWarehouse);
+        localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+        renderWarehouseOptions(warehouses[0] || '');
+        populateChecklistWarehouses();
+      }
     }
   </script>
 </body>
