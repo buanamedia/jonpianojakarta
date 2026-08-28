@@ -99,18 +99,19 @@
         <p class="text-gray-500 text-sm">Kelola unit, update status, upload foto & backsound musik website.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-plus mr-2"></i>Tambah Unit
+        </button>
+                <button onclick="openImportModal()" class="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white font-medium text-sm rounded-lg shadow-md">
+          <i class="fa-solid fa-file-excel mr-2"></i>Import CSV
+        </button>
         <button onclick="exportToCSV()" class="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm rounded-lg shadow-md">
           <i class="fa-solid fa-file-export mr-2"></i>Export CSV
-        </button>
-        <button onclick="openImportModal()" class="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white font-medium text-sm rounded-lg shadow-md">
-          <i class="fa-solid fa-file-excel mr-2"></i>Import CSV
         </button>
         <button onclick="deleteSelectedProducts()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-lg shadow-md">
           <i class="fa-solid fa-trash-can mr-2"></i>Hapus Terpilih
         </button>
-        <button onclick="openModal()" class="px-5 py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-medium text-sm rounded-lg shadow-md">
-          <i class="fa-solid fa-plus mr-2"></i>Tambah Unit
-        </button>
+        
       </div>
     </div>
 
