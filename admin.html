@@ -296,7 +296,7 @@
       const tbody = document.getElementById('admin-table-body');
       tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-gray-500 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2 text-brand-gold"></i>Mengambil data...</td></tr>`;
 
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
 
       try {
         const res = await fetch(csvUrl);
@@ -537,10 +537,10 @@
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah Gambar...`;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah & Menyimpan...`;
 
       try {
-        // 1. Upload foto lokal ke Cloudinary secara otomatis
+        // 1. Upload foto lokal ke Cloudinary
         for (let i = 0; i < 5; i++) {
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
@@ -551,24 +551,14 @@
         }
 
         const selectGudang = document.getElementById('form-gudang-select').value;
-        let finalGudang = selectGudang;
-        if (selectGudang === '__NEW__') {
-          finalGudang = document.getElementById('form-gudang-baru').value.trim().toUpperCase();
-          if (!warehouses.includes(finalGudang)) {
-            warehouses.push(finalGudang);
-            localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
-          }
-        }
+        let finalGudang = selectGudang === '__NEW__' 
+          ? document.getElementById('form-gudang-baru').value.trim().toUpperCase() 
+          : selectGudang;
 
         const selectCategory = document.getElementById('form-category-select').value;
-        let finalCategory = selectCategory;
-        if (selectCategory === '__NEW__') {
-          finalCategory = document.getElementById('form-kategori-baru').value.trim();
-          if (!categories.includes(finalCategory)) {
-            categories.push(finalCategory);
-            localStorage.setItem('jp_categories', JSON.stringify(categories));
-          }
-        }
+        let finalCategory = selectCategory === '__NEW__' 
+          ? document.getElementById('form-kategori-baru').value.trim() 
+          : selectCategory;
 
         const id = document.getElementById('form-id').value;
         const title = document.getElementById('form-title').value;
@@ -613,31 +603,31 @@
           description
         };
 
+        // 2. Simpan ke LocalStorage agar web langsung terupdate
         if (id) {
           const idx = products.findIndex(p => p.id === id);
           if (idx !== -1) products[idx] = newProductObj;
         } else {
           products.unshift(newProductObj);
         }
-
-        // 2. Simpan ke LocalStorage agar index.html langsung merender foto Cloudinary
         localStorage.setItem('hop_products', JSON.stringify(products));
 
-        // 3. Kirim ke Google Sheets
+        // 3. Kirim ke Google Sheets via Apps Script Web App
         const scriptUrl = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
         if (scriptUrl) {
-          fetch(scriptUrl, {
+          await fetch(scriptUrl, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newProductObj)
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(newProductObj),
+            redirect: 'follow'
           });
         }
 
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano & foto Cloudinary berhasil disimpan!');
+        alert('Unit piano & URL Cloudinary berhasil disimpan!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
