@@ -149,7 +149,7 @@
       </div>
     </div>
 
-    <!-- TABEL INVENTARIS -->
+    <!-- TABEL INVENTARIS DENGAN KOLOM CAROUSEL BADGE -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="p-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center space-x-3">
@@ -172,18 +172,18 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
-  <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase select-none">
-    <th class="py-3 px-4 text-center w-12"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold cursor-pointer"></th>
-    <th onclick="sortTable('gudang')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">GUDANG <i id="sort-icon-gudang" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-    <th onclick="sortTable('title')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">NAMA / MERK PIANO <i id="sort-icon-title" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-    <th class="py-3 px-4 text-center">CAROUSEL</th>
-    <th class="py-3 px-4">NO. SERI</th>
-    <th class="py-3 px-4">WARNA</th>
-    <th onclick="sortTable('price')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">HARGA <i id="sort-icon-price" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-    <th onclick="sortTable('status')" class="py-3 px-4 text-center cursor-pointer hover:bg-gray-100">STATUS <i id="sort-icon-status" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
-    <th class="py-3 px-4 text-center">AKSI</th>
-  </tr>
-</thead>
+            <tr class="bg-gray-50 border-b text-gray-600 text-xs uppercase select-none">
+              <th class="py-3 px-4 text-center w-12"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold cursor-pointer"></th>
+              <th onclick="sortTable('gudang')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">GUDANG <i id="sort-icon-gudang" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+              <th onclick="sortTable('title')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">NAMA / MERK PIANO <i id="sort-icon-title" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+              <th class="py-3 px-4 text-center">CAROUSEL</th>
+              <th class="py-3 px-4">NO. SERI</th>
+              <th class="py-3 px-4">WARNA</th>
+              <th onclick="sortTable('price')" class="py-3 px-4 cursor-pointer hover:bg-gray-100">HARGA <i id="sort-icon-price" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+              <th onclick="sortTable('status')" class="py-3 px-4 text-center cursor-pointer hover:bg-gray-100">STATUS <i id="sort-icon-status" class="fa-solid fa-sort text-gray-400 ml-1"></i></th>
+              <th class="py-3 px-4 text-center">AKSI</th>
+            </tr>
+          </thead>
           <tbody id="admin-table-body" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
@@ -598,6 +598,7 @@
       renderAdminTable();
     }
 
+    // RENDERING TABEL ADMIN DENGAN BADGE & LOKASI CAROUSEL
     function renderAdminTable() {
       const tbody = document.getElementById('admin-table-body');
       document.getElementById('total-count').textContent = products.length;
@@ -607,13 +608,23 @@
       products.forEach(p => {
         const isSold = p.status === 'SOLD OUT';
         const itemGudang = (p.gudang || 'UTAMA').toUpperCase();
+        const isCarousel = p.isCarousel === true;
+
         tbody.innerHTML += `
-          <tr class="hover:bg-gray-50">
+          <tr class="hover:bg-gray-50 ${isCarousel ? 'bg-amber-50/40' : ''}">
             <td class="py-3 px-4 text-center">
               <input type="checkbox" class="product-checkbox w-4 h-4 rounded text-brand-gold cursor-pointer" value="${p.id}" data-gudang="${itemGudang}">
             </td>
             <td class="py-3 px-4 font-bold text-xs text-amber-900">${itemGudang}</td>
-            <td class="py-3 px-4 font-semibold text-gray-800">${p.title}</td>
+            <td class="py-3 px-4 font-semibold text-gray-800">
+              <div class="flex items-center space-x-2">
+                <span>${p.title}</span>
+                ${isCarousel ? '<span class="px-2 py-0.5 text-[9px] bg-amber-500 text-white font-bold rounded shadow-xs" title="Tampil di Banner Carousel Utama"><i class="fa-solid fa-star mr-1"></i>BANNER</span>' : ''}
+              </div>
+            </td>
+            <td class="py-3 px-4 text-center">
+              ${isCarousel ? '<span class="px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[10px] rounded-full"><i class="fa-solid fa-star text-amber-500 mr-1"></i>CAROUSEL</span>' : '<span class="text-gray-300 text-xs">-</span>'}
+            </td>
             <td class="py-3 px-4 font-mono text-xs">${p.no_seri || '-'}</td>
             <td class="py-3 px-4 text-xs">${p.warna || '-'}</td>
             <td class="py-3 px-4 font-bold text-gray-900">${p.price}</td>
@@ -756,7 +767,7 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano berhasil disimpan di local! Jangan lupa untuk memperbarui data di Google Sheets agar tampil online.');
+        alert('Unit piano berhasil disimpan! Untuk update tampilan online, jangan lupa memperbarui isian baris di Google Sheets.');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
@@ -784,28 +795,31 @@
             const importedGudang = (cols[0] || 'UTAMA').toUpperCase();
             if (!warehouses.includes(importedGudang)) warehouses.push(importedGudang);
 
-            const importedCat = cols[3] || 'Upright Piano';
+            const rawCarousel = (cols[3] || '').toUpperCase();
+            const isCarousel = (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1');
+
+            const importedCat = cols[4] || 'Upright Piano';
             if (!categories.includes(importedCat)) categories.push(importedCat);
 
-            let rawPrice = cols[6] || 'Hubungi Sales';
+            let rawPrice = cols[7] || 'Hubungi Sales';
             let formattedPrice = rawPrice;
             if (/^\d+$/.test(rawPrice)) {
               formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
             }
 
-            const mainImg = cols[8] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-            const galleryImgs = cols[9] ? cols[9].split('|') : [mainImg];
+            const mainImg = cols[9] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
+            const galleryImgs = cols[10] ? cols[10].split('|') : [mainImg];
 
             products.unshift({
               id: (Date.now() + count).toString(),
               gudang: importedGudang,
               title: cols[2] || cols[1] || 'PIANO',
+              isCarousel: isCarousel,
               category: importedCat,
-              no_seri: cols[4] || '-',
-              warna: cols[5] || 'HITAM',
+              no_seri: cols[5] || '-',
+              warna: cols[6] || 'HITAM',
               price: formattedPrice,
-              status: cols[7] || 'AVAILABLE',
-              isCarousel: false,
+              status: cols[8] || 'AVAILABLE',
               image: mainImg,
               images: galleryImgs,
               description: `Piano ${cols[2] || cols[1]} kondisi terawat di Gudang ${cols[0]}.`
@@ -831,7 +845,7 @@
 
       const selectedIds = Array.from(checkboxes).map(cb => cb.value);
       const selectedProducts = products.filter(p => selectedIds.includes(p.id));
-      let csvContent = "data:text/csv;charset=utf-8,GUDANG,NO,MERK PIANO,CATEGORY,NO.SERI,WARNA,HARGA,STATUS,FOTO UTAMA,FOTO GALERI\n";
+      let csvContent = "data:text/csv;charset=utf-8,GUDANG,NO,MERK PIANO,CAROUSEL,CATEGORY,NO.SERI,WARNA,HARGA,STATUS,FOTO UTAMA,FOTO GALERI\n";
 
       selectedProducts.forEach((p, idx) => {
         const galleryJoined = (p.images || [p.image]).join('|');
@@ -839,6 +853,7 @@
           `"${(p.gudang || 'UTAMA').toUpperCase()}"`,
           `"${idx + 1}"`,
           `"${p.title.replace(/"/g, '""')}"`,
+          `"${p.isCarousel ? 'YA' : 'TIDAK'}"`,
           `"${p.category || 'Upright Piano'}"`,
           `"${(p.no_seri || '-').replace(/"/g, '""')}"`,
           `"${(p.warna || '-').replace(/"/g, '""')}"`,
