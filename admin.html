@@ -339,8 +339,9 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
-    const OBFUSCATED_SCRIPT_URL = 'YUhSMGNITTZMeTl6WTNKcGNIUXVaMjl2ZDJ4bExtTnZiUzl0WVdOeWIzTXZjL0FGS2Z5Y2J3UkY4RlRQUA==';
-    const RAW_FALLBACK_URL = 'https://script.google.com/macros/s/AKfycbwRF8FT9P5IbzwxBt4DrKmjFLi8u2cETnsVnPfgDNOSt6xoFzW-73gQPe_XCdfB1nGofg/exec';
+    
+    // URL GOOGLE APPS SCRIPT NEW DEPLOYMENT (DENGAN SCRIPT API KEY CLOUDINARY TERPASANG)
+    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
 
     let products = JSON.parse(localStorage.getItem('hop_products')) || [];
     let defaultWarehouses = ["ASSALAM", "G2", "K4", "KEDAUNG", "UTAMA"];
@@ -351,19 +352,20 @@
     let currentSortColumn = null;
     let currentSortAsc = true;
     let pendingFileObjects = [null, null, null, null, null];
+    let oldImageUrlsToClean = []; // Menyimpan URL foto lama saat edit untuk dihapus dari Cloudinary
 
-    let envConfig = { CLOUDINARY_CLOUD_NAME: '', CLOUDINARY_UPLOAD_PRESET: '' };
+    let envConfig = { CLOUDINARY_CLOUD_NAME: 'jca7x4qo', CLOUDINARY_UPLOAD_PRESET: 'unsigned' };
 
     async function loadDotEnv() {
       if (window.ENV) {
-        envConfig.CLOUDINARY_CLOUD_NAME = window.ENV.CLOUDINARY_CLOUD_NAME || '';
-        envConfig.CLOUDINARY_UPLOAD_PRESET = window.ENV.CLOUDINARY_UPLOAD_PRESET || '';
+        envConfig.CLOUDINARY_CLOUD_NAME = window.ENV.CLOUDINARY_CLOUD_NAME || 'jca7x4qo';
+        envConfig.CLOUDINARY_UPLOAD_PRESET = window.ENV.CLOUDINARY_UPLOAD_PRESET || 'unsigned';
       }
     }
 
     function getCldEnv() {
       return {
-        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || 'demo',
+        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || 'jca7x4qo',
         uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || 'unsigned'
       };
     }
@@ -371,7 +373,7 @@
     function getActiveScriptUrl() {
       const savedUrl = localStorage.getItem('jp_script_url');
       if (savedUrl) return savedUrl;
-      return RAW_FALLBACK_URL;
+      return DEFAULT_SCRIPT_URL;
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -554,6 +556,7 @@
     function openModal(id = null) {
       document.getElementById('product-form').reset();
       pendingFileObjects = [null, null, null, null, null];
+      oldImageUrlsToClean = [];
 
       if (id) {
         const item = products.find(p => p.id === id);
@@ -571,6 +574,9 @@
           const imgList = item.images && item.images.length > 0 ? item.images : [item.image || ''];
           let mainIndex = imgList.indexOf(item.image);
           if (mainIndex === -1) mainIndex = 0;
+
+          // Catat foto lama untuk pembersihan Cloudinary jika diganti
+          oldImageUrlsToClean = [...imgList];
 
           renderPhotoSlots(imgList, mainIndex);
           renderWarehouseOptions(item.gudang || 'UTAMA');
@@ -640,6 +646,7 @@
       });
     }
 
+    // UPLOAD KE CLOUDINARY
     async function uploadSingleFileToCloudinary(fileObject) {
       const cld = getCldEnv();
       if (!fileObject || !cld.cloudName) return null;
@@ -655,6 +662,27 @@
       } catch (err) { return null; }
     }
 
+    // HAPUS SISA FOTO LAMA DI CLOUDINARY LEWAT APPS SCRIPT
+    async function deleteCloudinaryImageByUrl(imageUrl) {
+      if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
+      const scriptUrl = getActiveScriptUrl();
+      if (scriptUrl) {
+        try {
+          await fetch(scriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'DELETE_CLOUDINARY_IMAGE',
+              imageUrl: imageUrl
+            }),
+            redirect: 'follow'
+          });
+        } catch (err) {}
+      }
+    }
+
+    // SIMPAN UNIT (TAMBAH / EDIT)
     async function handleFormSubmit(e) {
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
@@ -662,10 +690,15 @@
       btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah & Menyimpan...`;
 
       try {
+        // 1. Upload foto lokal baru ke Cloudinary jika ada file yang dipilih
         for (let i = 0; i < 5; i++) {
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
             if (uploadedUrl) {
+              // Jika ada foto lama di slot ini, hapus dari Cloudinary
+              if (oldImageUrlsToClean[i] && oldImageUrlsToClean[i] !== uploadedUrl) {
+                deleteCloudinaryImageByUrl(oldImageUrlsToClean[i]);
+              }
               document.getElementById(`form-img-${i}`).value = uploadedUrl;
             }
           }
@@ -732,6 +765,7 @@
         }
         localStorage.setItem('hop_products', JSON.stringify(products));
 
+        // 2. Kirim Sinkronisasi Data ke Google Apps Script WebApp
         const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           await fetch(scriptUrl, {
@@ -746,7 +780,7 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano & URL Cloudinary berhasil disimpan!');
+        alert('Unit piano & foto Cloudinary berhasil disimpan!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
@@ -767,22 +801,22 @@
       const saved = localStorage.getItem('jp_script_url');
       if (saved) {
         document.getElementById('script-url-input').value = saved;
+      } else {
+        document.getElementById('script-url-input').value = DEFAULT_SCRIPT_URL;
       }
     }
 
-    // FUNGSI HAPUS SATU UNIT DENGAN INTERAKSI OTOMATIS KE GOOGLE SHEETS
+    // FUNGSI HAPUS SATU UNIT (OTOMATIS HAPUS DI GOOGLE SHEETS & CLOUDINARY)
     async function deleteProduct(id) {
       const item = products.find(p => p.id === id);
       if (!item) return;
 
-      if (confirm(`Hapus unit "${item.title}" (${item.no_seri})?`)) {
-        // 1. Hapus dari memori lokal & LocalStorage
+      if (confirm(`Hapus unit "${item.title}" (${item.no_seri})? Foto di Cloudinary dan data di Sheets juga akan terhapus!`)) {
         products = products.filter(p => p.id !== id);
         localStorage.setItem('hop_products', JSON.stringify(products));
         populateChecklistWarehouses();
         renderAdminTable();
 
-        // 2. Kirim sinyal DELETE ke Google Apps Script WebApp
         const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           try {
@@ -796,30 +830,28 @@
               }),
               redirect: 'follow'
             });
-            alert('Unit berhasil dihapus dari LocalStorage & Google Sheets!');
+            alert('Unit & foto berhasil terhapus dari Google Sheets & Cloudinary!');
           } catch (err) {
-            console.error('Gagal mengirim perintah hapus ke Apps Script', err);
+            console.error('Gagal menghapus via Apps Script:', err);
           }
         }
       }
     }
 
-    // FUNGSI HAPUS BANYAK UNIT TERPILIH (BULK DELETE) KE GOOGLE SHEETS
+    // FUNGSI HAPUS BEBERAPA UNIT SEKALIGUS (BULK DELETE)
     async function deleteSelectedProducts() {
       const checkboxes = document.querySelectorAll('.product-checkbox:checked');
       if (checkboxes.length === 0) return alert('Pilih unit yang ingin dihapus!');
 
-      if (confirm(`Hapus ${checkboxes.length} unit terpilih?`)) {
+      if (confirm(`Hapus ${checkboxes.length} unit terpilih? Data di Sheets & Cloudinary akan dibersihkan!`)) {
         const selectedIds = Array.from(checkboxes).map(cb => cb.value);
         const itemsToDelete = products.filter(p => selectedIds.includes(p.id));
 
-        // 1. Hapus dari memori lokal & LocalStorage
         products = products.filter(p => !selectedIds.includes(p.id));
         localStorage.setItem('hop_products', JSON.stringify(products));
         populateChecklistWarehouses();
         renderAdminTable();
 
-        // 2. Kirim sinyal DELETE ke Google Apps Script untuk masing-masing item
         const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           for (const item of itemsToDelete) {
@@ -838,7 +870,7 @@
               console.error('Gagal menghapus unit:', item.no_seri, err);
             }
           }
-          alert(`${itemsToDelete.length} unit berhasil dihapus dari Google Sheets!`);
+          alert(`${itemsToDelete.length} unit berhasil dihapus dari Sheets & Cloudinary!`);
         }
       }
     }
