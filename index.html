@@ -50,7 +50,7 @@
         </div>
 
         <button id="btn-audio-toggle" onclick="toggleAudio()" class="p-1.5 sm:p-2 text-brand-gold hover:text-white bg-white/10 hover:bg-white/20 border border-brand-gold/30 rounded-lg transition-all flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9" title="Putar/Hentikan Musik Backsound">
-          <i id="icon-audio" class="fa-solid fa-volume-high text-xs sm:text-base"></i>
+          <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
         </button>
 
         <a href="admin.html" class="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
@@ -433,17 +433,59 @@
     function initAudio() {
       const audio = document.getElementById('bg-audio');
       const savedAudioUrl = localStorage.getItem('jp_backsound_url');
+      const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
+
       if (savedAudioUrl) {
         document.getElementById('bg-audio-source').src = savedAudioUrl;
         audio.load();
+      }
+
+      if (audioMode === 'auto') {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            isAudioPlaying = true;
+            updateAudioIcon();
+          }).catch(error => {
+            // Autoplay diblokir oleh browser. Musik akan diputar otomatis begitu pengguna mengklik/tap halaman.
+            const handleFirstUserInteraction = () => {
+              audio.play().then(() => {
+                isAudioPlaying = true;
+                updateAudioIcon();
+              }).catch(() => {});
+              document.removeEventListener('click', handleFirstUserInteraction);
+              document.removeEventListener('touchstart', handleFirstUserInteraction);
+              document.removeEventListener('scroll', handleFirstUserInteraction);
+            };
+            document.addEventListener('click', handleFirstUserInteraction);
+            document.addEventListener('touchstart', handleFirstUserInteraction);
+            document.addEventListener('scroll', handleFirstUserInteraction);
+          });
+        }
       }
     }
 
     function toggleAudio() {
       const audio = document.getElementById('bg-audio');
-      if (isAudioPlaying) { audio.pause(); isAudioPlaying = false; }
-      else { audio.play(); isAudioPlaying = true; }
-      document.getElementById('icon-audio').className = isAudioPlaying ? 'fa-solid fa-volume-high text-xs sm:text-base text-brand-gold' : 'fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400';
+      if (isAudioPlaying) {
+        audio.pause();
+        isAudioPlaying = false;
+      } else {
+        audio.play().then(() => {
+          isAudioPlaying = true;
+          updateAudioIcon();
+        }).catch(err => {});
+      }
+      updateAudioIcon();
+    }
+
+    function updateAudioIcon() {
+      const icon = document.getElementById('icon-audio');
+      if (icon) {
+        icon.className = isAudioPlaying 
+          ? 'fa-solid fa-volume-high text-xs sm:text-base text-brand-gold' 
+          : 'fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400';
+      }
     }
 
     function changeLanguage(langKey) {
