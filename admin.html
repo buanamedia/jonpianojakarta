@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jon Piano Jakarta - Inventory Admin</title>
 
-  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +28,6 @@
 </head>
 <body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
 
-  <!-- HEADER ADMIN -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <div class="flex items-center space-x-2 sm:space-x-3">
@@ -52,7 +50,6 @@
     </div>
   </header>
 
-  <!-- FORM LOGIN ADMIN -->
   <div id="section-login" class="flex-grow flex items-center justify-center p-3 sm:p-4 bg-brand-charcoal relative overflow-hidden">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-brand-gold/20 overflow-hidden relative z-10">
       <div class="bg-brand-dark p-6 sm:p-8 text-center text-white border-b border-brand-gold/30">
@@ -87,7 +84,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD UTAMA ADMIN -->
   <main id="section-dashboard" class="hidden max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex-grow w-full">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
       <div>
@@ -110,9 +106,7 @@
       </div>
     </div>
 
-    <!-- UTILITY & CONFIG CARDS (GRID 2 KOLOM RAPI) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-      <!-- BARIS 1 (KIRI): SCRIPT URL -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Secured)</h3>
         <div class="flex space-x-2">
@@ -121,7 +115,6 @@
         </div>
       </div>
 
-      <!-- BARIS 1 (KANAN): WHATSAPP SALES -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
         <div class="flex space-x-2">
@@ -130,7 +123,6 @@
         </div>
       </div>
 
-      <!-- BARIS 2 (KIRI): JAM OPERASIONAL SHOWROOM -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-3 flex items-center justify-between">
           <span><i class="fa-solid fa-clock text-amber-600 mr-2"></i>Jam Operasional Showroom</span>
@@ -138,7 +130,6 @@
         </h3>
         
         <div class="space-y-3 text-xs">
-          <!-- PILIH HARI BUKA -->
           <div>
             <span class="block text-[11px] font-bold text-gray-600 uppercase mb-1.5">Pilih Hari Operasional:</span>
             <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
@@ -173,7 +164,6 @@
             </div>
           </div>
 
-          <!-- PILIH JAM BUKA & TUTUP -->
           <div class="grid grid-cols-3 gap-2 items-center">
             <div>
               <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Jam Buka</label>
@@ -199,9 +189,7 @@
         </div>
       </div>
 
-      <!-- BARIS 2 (KANAN): WRAPPER UNTUK IKON AKUN ADMIN & MUSIK BACKSOUND -->
       <div class="space-y-4 sm:space-y-6">
-        <!-- KARTU IKON AKUN ADMIN -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-user-gear text-purple-600 mr-2"></i>Ikon Akun Admin di Website Header</h3>
           <div class="flex items-center justify-between space-x-2">
@@ -213,7 +201,6 @@
           </div>
         </div>
 
-        <!-- KARTU PENGATURAN MUSIK BACKSOUND WEBSITE (BERADA DI BAWAH IKON AKUN ADMIN) -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 flex items-center justify-between">
             <span><i class="fa-solid fa-music text-amber-600 mr-2"></i>Pengaturan Musik Backsound Website</span>
@@ -241,7 +228,6 @@
       </div>
     </div>
 
-    <!-- TABEL INVENTARIS ADMIN -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="p-3 sm:p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center space-x-2">
@@ -276,7 +262,6 @@
     </div>
   </main>
 
-  <!-- MODAL EDIT / TAMBAH UNIT -->
   <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-3xl rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
       <div class="bg-brand-dark px-4 sm:px-6 py-3 sm:py-4 text-white flex justify-between items-center shrink-0">
@@ -331,7 +316,6 @@
           <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
-        <!-- MULTI FOTO + CLOUDINARY UPLOAD & PREVIEW -->
         <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-gray-800 uppercase"><i class="fa-solid fa-images text-brand-gold mr-1"></i>Kelola Foto (Maksimal 5 Foto)</label>
@@ -786,12 +770,76 @@
       }
     }
 
-    function deleteProduct(id) {
-      if(confirm('Hapus unit ini?')) {
+    // FUNGSI HAPUS SATU UNIT DENGAN INTERAKSI OTOMATIS KE GOOGLE SHEETS
+    async function deleteProduct(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+
+      if (confirm(`Hapus unit "${item.title}" (${item.no_seri})?`)) {
+        // 1. Hapus dari memori lokal & LocalStorage
         products = products.filter(p => p.id !== id);
         localStorage.setItem('hop_products', JSON.stringify(products));
         populateChecklistWarehouses();
         renderAdminTable();
+
+        // 2. Kirim sinyal DELETE ke Google Apps Script WebApp
+        const scriptUrl = getActiveScriptUrl();
+        if (scriptUrl) {
+          try {
+            await fetch(scriptUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'DELETE',
+                no_seri: item.no_seri
+              }),
+              redirect: 'follow'
+            });
+            alert('Unit berhasil dihapus dari LocalStorage & Google Sheets!');
+          } catch (err) {
+            console.error('Gagal mengirim perintah hapus ke Apps Script', err);
+          }
+        }
+      }
+    }
+
+    // FUNGSI HAPUS BANYAK UNIT TERPILIH (BULK DELETE) KE GOOGLE SHEETS
+    async function deleteSelectedProducts() {
+      const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+      if (checkboxes.length === 0) return alert('Pilih unit yang ingin dihapus!');
+
+      if (confirm(`Hapus ${checkboxes.length} unit terpilih?`)) {
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+        const itemsToDelete = products.filter(p => selectedIds.includes(p.id));
+
+        // 1. Hapus dari memori lokal & LocalStorage
+        products = products.filter(p => !selectedIds.includes(p.id));
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+
+        // 2. Kirim sinyal DELETE ke Google Apps Script untuk masing-masing item
+        const scriptUrl = getActiveScriptUrl();
+        if (scriptUrl) {
+          for (const item of itemsToDelete) {
+            try {
+              await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                  action: 'DELETE',
+                  no_seri: item.no_seri
+                }),
+                redirect: 'follow'
+              });
+            } catch (err) {
+              console.error('Gagal menghapus unit:', item.no_seri, err);
+            }
+          }
+          alert(`${itemsToDelete.length} unit berhasil dihapus dari Google Sheets!`);
+        }
       }
     }
 
@@ -814,19 +862,6 @@
 
     function toggleSelectAll(master) {
       document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = master.checked);
-    }
-
-    function deleteSelectedProducts() {
-      const checkboxes = document.querySelectorAll('.product-checkbox:checked');
-      if (checkboxes.length === 0) return alert('Pilih unit yang ingin dihapus!');
-
-      if (confirm(`Hapus ${checkboxes.length} unit terpilih?`)) {
-        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-        products = products.filter(p => !selectedIds.includes(p.id));
-        localStorage.setItem('hop_products', JSON.stringify(products));
-        populateChecklistWarehouses();
-        renderAdminTable();
-      }
     }
 
     function handleLogin(e) {
