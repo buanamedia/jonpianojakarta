@@ -332,14 +332,12 @@
       setupAdminIconVisibility();
       setupOperatingHours();
 
-      // Set bahasa tersimpan setelah Google Translate siap
       setTimeout(() => {
         if (currentLang && currentLang !== 'id') {
           translatePage(currentLang);
         }
       }, 1000);
 
-      // 1. Dapatkan Data dari Google Sheets
       try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
         const res = await fetch(csvUrl);
@@ -354,7 +352,6 @@
         }
       } catch (err) { }
 
-      // 2. Jika Sheets belum memuat foto, gunakan data dari LocalStorage
       if (!products || products.length === 0) {
         const localData = localStorage.getItem('hop_products');
         if (localData) {
@@ -371,7 +368,6 @@
       if (productId) showDetailView(productId);
     });
 
-    // AMBIL KONTROL TAMPILAN IKON ADMIN HEADER
     function setupAdminIconVisibility() {
       const showAdmin = localStorage.getItem('jp_show_admin_icon');
       const adminLink = document.getElementById('header-admin-link');
@@ -384,7 +380,6 @@
       }
     }
 
-    // AMBIL TEKS JAM OPERASIONAL SHOWROOM DARI ADMIN
     function setupOperatingHours() {
       const hours = localStorage.getItem('jp_operating_hours');
       const hoursEl = document.getElementById('footer-operating-hours');
@@ -393,7 +388,6 @@
       }
     }
 
-    // FUNGSI PENERJEMAH OTOMATIS BERBASIS ENGINE GOOGLE SCRIPT
     function translatePage(langCode) {
       localStorage.setItem('jp_language', langCode);
       const googleCombo = document.querySelector('.goog-te-combo');
