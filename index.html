@@ -40,9 +40,7 @@
 <body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
 
   <!-- BACKGROUND AUDIO TAG -->
-  <audio id="bg-audio" loop preload="auto">
-    <source id="bg-audio-source" src="https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="bg-audio" loop preload="auto"></audio>
 
   <!-- HEADER / NAVBAR -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
@@ -327,10 +325,9 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('lang-selector').value = currentLang;
-      initAudio();
-      setupFooterContacts();
-      setupAdminIconVisibility();
-      setupOperatingHours();
+
+      // 1. Muat Pengaturan Terpusat dari Google Sheets (Jam, Backsound, WA, Ikon Admin)
+      await loadSettingsFromGoogleSheets();
 
       setTimeout(() => {
         if (currentLang && currentLang !== 'id') {
@@ -338,6 +335,7 @@
         }
       }, 1000);
 
+      // 2. Ambil Stok Produk Piano dari Google Sheets
       try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
         const res = await fetch(csvUrl);
@@ -368,6 +366,36 @@
       if (productId) showDetailView(productId);
     });
 
+    // AMBIL SETTING DARI GOOGLE SHEETS TAB "SETTINGS"
+    async function loadSettingsFromGoogleSheets() {
+      try {
+        const csvSettingsUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=SETTINGS&cacheBust=${Date.now()}`;
+        const res = await fetch(csvSettingsUrl);
+        if (res.ok) {
+          const text = await res.text();
+          const lines = text.split(/\r\n|\n/);
+          lines.forEach(line => {
+            const parts = parseCSVLine(line);
+            if (parts.length >= 2) {
+              const key = parts[0].trim();
+              const val = parts[1].trim();
+              if (key && val) {
+                localStorage.setItem(key, val);
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Menggunakan fallback setting lokal");
+      }
+
+      // Terapkan hasil setting
+      setupAdminIconVisibility();
+      setupOperatingHours();
+      setupFooterContacts();
+      initAudio();
+    }
+
     function setupAdminIconVisibility() {
       const showAdmin = localStorage.getItem('jp_show_admin_icon');
       const adminLink = document.getElementById('header-admin-link');
@@ -386,6 +414,17 @@
       if (hoursEl && hours) {
         hoursEl.textContent = hours;
       }
+    }
+
+    function setupFooterContacts() {
+      waNumber = localStorage.getItem('jp_wa_number') || waNumber;
+      const footerWaLink = document.getElementById('footer-wa-link');
+      const footerWaText = document.getElementById('footer-wa-text');
+      const cleanWa = waNumber.replace(/[^0-9]/g, '');
+      const formattedWa = cleanWa.startsWith('62') ? '0' + cleanWa.substring(2) : cleanWa;
+
+      if (footerWaText) footerWaText.textContent = `📞 Kontak / WA: ${formattedWa}`;
+      if (footerWaLink) footerWaLink.href = `https://wa.me/${cleanWa.startsWith('0') ? '62' + cleanWa.substring(1) : cleanWa}?text=${encodeURIComponent('Halo Jon Piano Jakarta, saya ingin bertanya info stok unit piano.')}`;
     }
 
     function translatePage(langCode) {
@@ -451,37 +490,30 @@
       return array;
     }
 
+    // INISIALISASI PEMUTAR MUSIK & HANDLING AUTOPLAY BROWSER
     function initAudio() {
       const audio = document.getElementById('bg-audio');
-      const savedAudioUrl = localStorage.getItem('jp_backsound_url');
+      const savedAudioUrl = localStorage.getItem('jp_backsound_url') || 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
       const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
 
-      if (savedAudioUrl) {
-        document.getElementById('bg-audio-source').src = savedAudioUrl;
-        audio.load();
-      }
+      audio.src = savedAudioUrl;
 
       if (audioMode === 'auto') {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            isAudioPlaying = true;
-            updateAudioIcon();
-          }).catch(error => {
-            const handleFirstUserInteraction = () => {
-              audio.play().then(() => {
-                isAudioPlaying = true;
-                updateAudioIcon();
-              }).catch(() => {});
-              document.removeEventListener('click', handleFirstUserInteraction);
-              document.removeEventListener('touchstart', handleFirstUserInteraction);
-              document.removeEventListener('scroll', handleFirstUserInteraction);
-            };
-            document.addEventListener('click', handleFirstUserInteraction);
-            document.addEventListener('touchstart', handleFirstUserInteraction);
-            document.addEventListener('scroll', handleFirstUserInteraction);
-          });
-        }
+        const startPlay = () => {
+          if (!isAudioPlaying && audio.src) {
+            audio.play().then(() => {
+              isAudioPlaying = true;
+              updateAudioIcon();
+            }).catch(err => console.log("Autoplay ditahan browser:", err));
+          }
+          document.removeEventListener('click', startPlay);
+          document.removeEventListener('touchstart', startPlay);
+          document.removeEventListener('scroll', startPlay);
+        };
+
+        document.addEventListener('click', startPlay, { once: true });
+        document.addEventListener('touchstart', startPlay, { once: true });
+        document.addEventListener('scroll', startPlay, { once: true });
       }
     }
 
@@ -494,7 +526,7 @@
         audio.play().then(() => {
           isAudioPlaying = true;
           updateAudioIcon();
-        }).catch(err => {});
+        }).catch(err => alert("Gagal memutar audio, pastikan format link valid."));
       }
       updateAudioIcon();
     }
@@ -503,19 +535,9 @@
       const icon = document.getElementById('icon-audio');
       if (icon) {
         icon.className = isAudioPlaying 
-          ? 'fa-solid fa-volume-high text-xs sm:text-base text-brand-gold' 
+          ? 'fa-solid fa-volume-high text-xs sm:text-base text-brand-gold animate-pulse' 
           : 'fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400';
       }
-    }
-
-    function setupFooterContacts() {
-      const footerWaLink = document.getElementById('footer-wa-link');
-      const footerWaText = document.getElementById('footer-wa-text');
-      const cleanWa = waNumber.replace(/[^0-9]/g, '');
-      const formattedWa = cleanWa.startsWith('62') ? '0' + cleanWa.substring(2) : cleanWa;
-
-      if (footerWaText) footerWaText.textContent = `📞 Kontak / WA: ${formattedWa}`;
-      if (footerWaLink) footerWaLink.href = `https://wa.me/${cleanWa.startsWith('0') ? '62' + cleanWa.substring(1) : cleanWa}?text=${encodeURIComponent('Halo Jon Piano Jakarta, saya ingin bertanya info stok unit piano.')}`;
     }
 
     function populateCategoriesFilter() {
