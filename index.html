@@ -68,7 +68,8 @@
           <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
         </button>
 
-        <a href="admin.html" class="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
+        <!-- IKON AKUN ADMIN (BISA DITAMPILKAN/DISEMBUNYIKAN VIA ADMIN) -->
+        <a id="header-admin-link" href="admin.html" class="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
           <i class="fa-solid fa-user-gear text-sm sm:text-lg"></i>
         </a>
       </div>
@@ -268,7 +269,7 @@
               <i class="fa-solid fa-clock text-brand-gold mt-0.5"></i>
               <div>
                 <span class="font-bold text-white block">Jam Operasional Showroom</span>
-                <span class="text-gray-400 text-[11px]">Buka Setiap Hari: 09.00 - 18.00 WIB</span>
+                <span id="footer-operating-hours" class="text-gray-400 text-[11px]">Buka Setiap Hari: 09.00 - 18.00 WIB</span>
               </div>
             </div>
             <div class="flex items-start space-x-3 p-2.5 bg-white/5 rounded-lg border border-white/5">
@@ -328,6 +329,8 @@
       document.getElementById('lang-selector').value = currentLang;
       initAudio();
       setupFooterContacts();
+      setupAdminIconVisibility();
+      setupOperatingHours();
 
       // Set bahasa tersimpan setelah Google Translate siap
       setTimeout(() => {
@@ -367,6 +370,28 @@
       const productId = urlParams.get('id');
       if (productId) showDetailView(productId);
     });
+
+    // AMBIL KONTROL TAMPILAN IKON ADMIN HEADER
+    function setupAdminIconVisibility() {
+      const showAdmin = localStorage.getItem('jp_show_admin_icon');
+      const adminLink = document.getElementById('header-admin-link');
+      if (adminLink) {
+        if (showAdmin === 'false') {
+          adminLink.classList.add('hidden');
+        } else {
+          adminLink.classList.remove('hidden');
+        }
+      }
+    }
+
+    // AMBIL TEKS JAM OPERASIONAL SHOWROOM DARI ADMIN
+    function setupOperatingHours() {
+      const hours = localStorage.getItem('jp_operating_hours');
+      const hoursEl = document.getElementById('footer-operating-hours');
+      if (hoursEl && hours) {
+        hoursEl.textContent = hours;
+      }
+    }
 
     // FUNGSI PENERJEMAH OTOMATIS BERBASIS ENGINE GOOGLE SCRIPT
     function translatePage(langCode) {
