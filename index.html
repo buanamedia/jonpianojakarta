@@ -23,25 +23,51 @@
   </script>
 
   <style>
-    .goog-te-banner-frame.skiptranslate { display: none !important; }
-    body { top: 0px !important; }
+    /* Sembunyikan banner Google Translate di bagian paling atas */
+    .goog-te-banner-frame, 
+    .goog-te-banner-frame.skiptranslate,
+    iframe.goog-te-banner-frame { 
+      display: none !important; 
+    }
+    
+    /* Mencegah body bergeser ke bawah akibat banner Google */
+    body { 
+      top: 0px !important; 
+      position: static !important;
+    }
+    
+    /* Sembunyikan Logo Google, teks 'Powered by', dan atribut pengganggu lainnya */
+    .goog-logo-link, 
+    .goog-te-gadget span, 
+    .goog-te-gadget-icon { 
+      display: none !important; 
+    }
+    
+    .goog-te-gadget { 
+      color: transparent !important; 
+      font-size: 0px !important; 
+    }
+
+    /* Style rapi untuk dropdown pilihan bahasa di header */
     #google_translate_element select {
       background-color: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(197, 160, 89, 0.4);
-      color: white;
+      color: #ffffff;
       font-size: 11px;
       font-weight: bold;
       border-radius: 0.5rem;
-      padding: 0.25rem 0.5rem;
+      padding: 4px 8px;
       outline: none;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    #google_translate_element select:hover {
+      background-color: rgba(255, 255, 255, 0.2);
     }
     #google_translate_element select option {
       background-color: #111111;
-      color: white;
+      color: #ffffff;
     }
-    .goog-te-gadget { color: transparent !important; font-size: 0px !important; }
-    .goog-te-gadget span { display: none !important; }
   </style>
 </head>
 <body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
