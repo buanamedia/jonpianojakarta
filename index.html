@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jon Piano Jakarta - Luxury Keys & Showroom</title>
   
-  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,15 +21,35 @@
       }
     }
   </script>
+
+  <style>
+    .goog-te-banner-frame.skiptranslate { display: none !important; }
+    body { top: 0px !important; }
+    #google_translate_element select {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      outline: none;
+      cursor: pointer;
+    }
+    #google_translate_element select option {
+      background-color: #111111;
+      color: white;
+    }
+    .goog-te-gadget { color: transparent !important; font-size: 0px !important; }
+    .goog-te-gadget span { display: none !important; }
+  </style>
 </head>
 <body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
 
-  <!-- BACKGROUND AUDIO TAG -->
   <audio id="bg-audio" loop preload="auto">
     <source id="bg-audio-source" src="https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- HEADER / NAVBAR -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <a href="index.html" onclick="showCatalogView()" class="flex items-center space-x-2 sm:space-x-3">
@@ -42,12 +61,7 @@
       </a>
       
       <div class="flex items-center space-x-1.5 sm:space-x-3">
-        <div class="relative inline-block text-left">
-          <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-white/10 border border-brand-gold/40 hover:bg-white/20 text-white text-[10px] sm:text-xs font-bold rounded-lg px-1.5 sm:px-2.5 py-1 sm:py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-gold cursor-pointer transition-all">
-            <option value="id" class="bg-brand-dark text-white">🇮🇩 ID</option>
-            <option value="en" class="bg-brand-dark text-white">🇬🇧 EN</option>
-          </select>
-        </div>
+        <div id="google_translate_element" class="text-xs"></div>
 
         <button id="btn-audio-toggle" onclick="toggleAudio()" class="p-1.5 sm:p-2 text-brand-gold hover:text-white bg-white/10 hover:bg-white/20 border border-brand-gold/30 rounded-lg transition-all flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9" title="Putar/Hentikan Musik Backsound">
           <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
@@ -60,9 +74,7 @@
     </div>
   </header>
 
-  <!-- VIEW KATALOG UTAMA -->
   <main id="catalog-view" class="flex-grow">
-    <!-- CAROUSEL BANNER UTAMA -->
     <section id="carousel-section" class="relative bg-brand-dark overflow-hidden">
       <div id="carousel-container" class="relative w-full h-[260px] sm:h-[380px] md:h-[480px]"></div>
       <button onclick="prevSlide()" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all z-10">
@@ -74,72 +86,70 @@
       <div id="carousel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 sm:space-x-2 z-10"></div>
     </section>
 
-    <!-- HIGHLIGHT FITUR -->
     <section class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
         <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-2.5 sm:space-x-3">
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center shrink-0"><i class="fa-solid fa-gem text-sm sm:text-lg"></i></div>
-          <div><h4 data-lang="feat_1_title" class="font-bold text-[11px] sm:text-xs text-gray-800">Piano Baru & Bekas</h4><p data-lang="feat_1_desc" class="text-[9px] sm:text-[11px] text-gray-500">Yamaha, Kawai, Petrof, Steinway</p></div>
+          <div><h4 class="font-bold text-[11px] sm:text-xs text-gray-800">Piano Baru & Bekas</h4><p class="text-[9px] sm:text-[11px] text-gray-500">Yamaha, Kawai, Petrof, Steinway</p></div>
         </div>
         <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-2.5 sm:space-x-3">
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center shrink-0"><i class="fa-solid fa-sliders text-sm sm:text-lg"></i></div>
-          <div><h4 data-lang="feat_2_title" class="font-bold text-[11px] sm:text-xs text-gray-800">Stem & Pindahan</h4><p data-lang="feat_2_desc" class="text-[9px] sm:text-[11px] text-gray-500">Jasa Tuning & Pindahan Khusus</p></div>
+          <div><h4 class="font-bold text-[11px] sm:text-xs text-gray-800">Stem & Pindahan</h4><p class="text-[9px] sm:text-[11px] text-gray-500">Jasa Tuning & Pindahan Khusus</p></div>
         </div>
         <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-2.5 sm:space-x-3">
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center shrink-0"><i class="fa-solid fa-truck-fast text-sm sm:text-lg"></i></div>
-          <div><h4 data-lang="feat_3_title" class="font-bold text-[11px] sm:text-xs text-gray-800">Kirim Luar Kota</h4><p data-lang="feat_3_desc" class="text-[9px] sm:text-[11px] text-gray-500">Free Ongkir Jabodetabek</p></div>
+          <div><h4 class="font-bold text-[11px] sm:text-xs text-gray-800">Kirim Luar Kota</h4><p class="text-[9px] sm:text-[11px] text-gray-500">Free Ongkir Jabodetabek</p></div>
         </div>
         <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-2.5 sm:space-x-3">
           <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center shrink-0"><i class="fa-solid fa-shield-halved text-sm sm:text-lg"></i></div>
-          <div><h4 data-lang="feat_4_title" class="font-bold text-[11px] sm:text-xs text-gray-800">Cash & Kredit</h4><p data-lang="feat_4_desc" class="text-[9px] sm:text-[11px] text-gray-500">Garansi Mekanik 3 Tahun</p></div>
+          <div><h4 class="font-bold text-[11px] sm:text-xs text-gray-800">Cash & Kredit</h4><p class="text-[9px] sm:text-[11px] text-gray-500">Garansi Mekanik 3 Tahun</p></div>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl border border-gray-200/80 p-4 sm:p-6 shadow-sm">
-        <h3 data-lang="about_title" class="font-serif text-base sm:text-lg font-bold text-brand-dark mb-2 flex items-center">
+        <h3 class="font-serif text-base sm:text-lg font-bold text-brand-dark mb-2 flex items-center">
           <i class="fa-solid fa-award text-brand-gold mr-2"></i>JUAL-BELI & STEM UPRIGHT DAN GRAND PIANO
         </h3>
-        <p data-lang="about_desc" class="text-xs text-gray-600 leading-relaxed mb-4">
+        <p class="text-xs text-gray-600 leading-relaxed mb-4">
           Melayani unit piano baru maupun bekas berbagai merk ternama: <strong>Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, dll</strong>. Bergaransi resmi dan kualitas terbaik impor.
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 bg-amber-50/50 p-3 sm:p-4 rounded-xl border border-amber-200/60 text-xs">
           <div>
-            <span data-lang="services_header" class="font-bold text-amber-900 block mb-1 uppercase"><i class="fa-solid fa-circle-info mr-1"></i>Layanan Kami:</span>
+            <span class="font-bold text-amber-900 block mb-1 uppercase"><i class="fa-solid fa-circle-info mr-1"></i>Layanan Kami:</span>
             <ul class="space-y-1 text-gray-700 text-[11px] sm:text-xs">
-              <li data-lang="srv_1">• Jual Piano Baru & Bekas Kualitas Baik</li>
-              <li data-lang="srv_2">• Melayani Stem / Tuning Piano Profesional</li>
-              <li data-lang="srv_3">• Menerima Jasa Pindahan Piano Khusus</li>
-              <li data-lang="srv_4">• Pengiriman Luar Kota (Biaya Kirim Terjangkau & Negotiable)</li>
-              <li data-lang="srv_5">• Pembayaran Fleksibel (Bisa Cash & Kredit)</li>
+              <li>• Jual Piano Baru & Bekas Kualitas Baik</li>
+              <li>• Melayani Stem / Tuning Piano Profesional</li>
+              <li>• Menerima Jasa Pindahan Piano Khusus</li>
+              <li>• Pengiriman Luar Kota (Biaya Kirim Terjangkau & Negotiable)</li>
+              <li>• Pembayaran Fleksibel (Bisa Cash & Kredit)</li>
             </ul>
           </div>
           <div>
-            <span data-lang="includes_header" class="font-bold text-amber-900 block mb-1 uppercase"><i class="fa-solid fa-gift mr-1"></i>Gratis Fasilitas Pembelian:</span>
+            <span class="font-bold text-amber-900 block mb-1 uppercase"><i class="fa-solid fa-gift mr-1"></i>Gratis Fasilitas Pembelian:</span>
             <ul class="space-y-1 text-gray-700 text-[11px] sm:text-xs">
-              <li data-lang="inc_1">• Free Pengiriman Se-Jabodetabek</li>
-              <li data-lang="inc_2">• Bangku Piano + Pemanas / Heater</li>
-              <li data-lang="inc_3">• Cover Atas + Cover Tuts + Kunci</li>
-              <li data-lang="inc_4">• Garansi Mekanik 3 Tahun</li>
-              <li data-lang="inc_5">• Free Stem / Tuning 2 Kali</li>
+              <li>• Free Pengiriman Se-Jabodetabek</li>
+              <li>• Bangku Piano + Pemanas / Heater</li>
+              <li>• Cover Atas + Cover Tuts + Kunci</li>
+              <li>• Garansi Mekanik 3 Tahun</li>
+              <li>• Free Stem / Tuning 2 Kali</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- FILTER & LIST KATALOG PRODUK -->
     <section class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div>
-          <h2 data-lang="catalog_title" class="font-serif text-xl sm:text-2xl font-bold">Katalog Piano Pilihan</h2>
-          <p data-lang="catalog_subtitle" class="text-xs text-gray-500">Temukan unit piano impian Anda dengan kualitas terbaik.</p>
+          <h2 class="font-serif text-xl sm:text-2xl font-bold">Katalog Piano Pilihan</h2>
+          <p class="text-xs text-gray-500">Temukan unit piano impian Anda dengan kualitas terbaik.</p>
         </div>
         
         <div class="flex items-center space-x-2">
           <input type="text" id="search-input" oninput="filterProducts()" placeholder="Cari tipe/merk piano..." class="w-1/2 sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white focus:outline-none focus:border-brand-gold">
           <select id="category-filter" onchange="filterProducts()" class="w-1/2 sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white font-semibold text-gray-700 focus:outline-none focus:border-brand-gold">
-            <option value="" data-lang="all_categories">Semua Kategori</option>
+            <option value="">Semua Kategori</option>
           </select>
         </div>
       </div>
@@ -148,10 +158,9 @@
     </section>
   </main>
 
-  <!-- VIEW DETAIL PRODUK -->
   <main id="detail-view" class="hidden flex-grow max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 w-full">
     <button onclick="showCatalogView()" class="mb-4 sm:mb-6 px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 inline-flex items-center shadow-sm">
-      <i class="fa-solid fa-arrow-left mr-2"></i><span data-lang="back_catalog">Kembali ke Katalog Utama</span>
+      <i class="fa-solid fa-arrow-left mr-2"></i><span>Kembali ke Katalog Utama</span>
     </button>
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
@@ -171,57 +180,56 @@
 
           <div class="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-200/80 grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
             <div>
-              <span data-lang="label_serial" class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">NO. SERI</span>
+              <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">NO. SERI</span>
               <span id="detail-noseri" class="text-xs font-bold text-gray-800 font-mono"></span>
             </div>
             <div>
-              <span data-lang="label_color" class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">WARNA KABINET</span>
+              <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">WARNA KABINET</span>
               <span id="detail-warna" class="text-xs font-bold text-gray-800 uppercase"></span>
             </div>
             <div>
-              <span data-lang="label_warehouse" class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">GUDANG</span>
+              <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase block">GUDANG</span>
               <span id="detail-gudang" class="text-xs font-bold text-amber-900 uppercase"></span>
             </div>
           </div>
 
           <div>
             <h3 class="text-xs font-bold text-gray-700 uppercase mb-1.5 flex items-center">
-              <i class="fa-solid fa-bars-staggered text-brand-gold mr-2"></i><span data-lang="label_description">DESKRIPSI UNIT</span>
+              <i class="fa-solid fa-bars-staggered text-brand-gold mr-2"></i><span>DESKRIPSI UNIT</span>
             </h3>
             <div id="detail-description" class="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200/80"></div>
           </div>
 
           <div class="mt-4 sm:mt-6 bg-amber-50/70 p-4 sm:p-5 rounded-xl border border-amber-300/80 shadow-xs">
-            <p data-lang="tagline_quote" class="text-xs sm:text-base font-serif italic font-bold text-amber-950 mb-2 sm:mb-3 leading-relaxed">
+            <p class="text-xs sm:text-base font-serif italic font-bold text-amber-950 mb-2 sm:mb-3 leading-relaxed">
               <i class="fa-solid fa-heart mr-1 text-red-500"></i>"Boleh Di Tanya-Tanya Dulu Kak, piano Bagus Dan Mulus Yang Terbaik Buat Anda"
             </p>
-            <span data-lang="include_title" class="text-[10px] font-bold text-amber-900 uppercase block mb-2 tracking-wider">FASILITAS GRATIS PEMBELIAN (INCLUDE):</span>
+            <span class="text-[10px] font-bold text-amber-900 uppercase block mb-2 tracking-wider">FASILITAS GRATIS PEMBELIAN (INCLUDE):</span>
             <div class="grid grid-cols-2 gap-1.5 text-[11px] sm:text-xs text-gray-800">
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_bench">Bangku Piano</span></div>
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_heater">Pemanas / Heater</span></div>
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_topcover">Cover Atas</span></div>
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_keycover">Cover Tuts + Kunci</span></div>
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_garansi">Garansi 3 Tahun</span></div>
-              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span data-lang="inc_tuning">Free Stem 2x</span></div>
-              <div class="flex items-center col-span-2 font-bold text-amber-950 pt-1"><i class="fa-solid fa-truck-shield text-green-600 mr-1.5"></i><span data-lang="inc_shipping">Free Ongkir Se-Jabodetabek</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Bangku Piano</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Pemanas / Heater</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Cover Atas</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Cover Tuts + Kunci</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Garansi 3 Tahun</span></div>
+              <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-600 mr-1.5"></i><span>Free Stem 2x</span></div>
+              <div class="flex items-center col-span-2 font-bold text-amber-950 pt-1"><i class="fa-solid fa-truck-shield text-green-600 mr-1.5"></i><span>Free Ongkir Se-Jabodetabek</span></div>
             </div>
           </div>
         </div>
 
         <div class="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="text-center sm:text-left">
-            <span data-lang="wa_ask_prompt" class="text-[10px] sm:text-[11px] text-gray-500 block">Tertarik dengan unit piano ini?</span>
-            <span data-lang="wa_ask_sub" class="text-xs font-bold text-gray-800">Hubungi Showroom Jakarta</span>
+            <span class="text-[10px] sm:text-[11px] text-gray-500 block">Tertarik dengan unit piano ini?</span>
+            <span class="text-xs font-bold text-gray-800">Hubungi Showroom Jakarta</span>
           </div>
           <a id="detail-wa-btn" href="#" target="_blank" class="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-lg flex items-center justify-center transition-all">
-            <i class="fa-brands fa-whatsapp text-base sm:text-lg mr-2"></i><span data-lang="wa_button_text">Tanya Unit via WA</span>
+            <i class="fa-brands fa-whatsapp text-base sm:text-lg mr-2"></i><span>Tanya Unit via WA</span>
           </a>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- FOOTER SHOWROOM -->
   <footer class="bg-brand-dark text-white border-t border-brand-gold/20 mt-8 sm:mt-12">
     <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8 items-start">
@@ -230,59 +238,71 @@
             <img src="icon jon piano.png" alt="Jon Piano Icon" class="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0">
             <span class="font-serif font-bold text-base sm:text-lg text-white tracking-wider">JON PIANO JAKARTA</span>
           </div>
-          <p data-lang="footer_about" class="text-xs text-gray-400 leading-relaxed">
+          <p class="text-xs text-gray-400 leading-relaxed">
             Jual-Beli & Stem Upright dan Grand Piano. Melayani piano baru maupun bekas berbagai merk ternama: <strong>Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, dll</strong>. Bergaransi resmi dan kualitas terbaik impor.
           </p>
           <div class="p-3 bg-white/5 rounded-xl border border-white/10 text-[11px] text-gray-300">
-            <span data-lang="footer_special" class="text-brand-gold font-bold block mb-0.5"><i class="fa-solid fa-star text-amber-400 mr-1"></i>Layanan Spesialis:</span>
-            <span data-lang="footer_special_desc">Jasa Pindahan Piano Khusus & Pengiriman Luar Kota (Biaya terjangkau & Negotiable). Pembayaran Cash & Kredit.</span>
+            <span class="text-brand-gold font-bold block mb-0.5"><i class="fa-solid fa-star text-amber-400 mr-1"></i>Layanan Spesialis:</span>
+            <span>Jasa Pindahan Piano Khusus & Pengiriman Luar Kota (Biaya terjangkau & Negotiable). Pembayaran Cash & Kredit.</span>
           </div>
         </div>
 
         <div class="space-y-4">
-          <h4 data-lang="footer_contact_header" class="font-serif text-xs sm:text-sm font-bold text-brand-gold uppercase tracking-wider border-b border-brand-gold/20 pb-2">KONTAK SHOWROOM</h4>
+          <h4 class="font-serif text-xs sm:text-sm font-bold text-brand-gold uppercase tracking-wider border-b border-brand-gold/20 pb-2">KONTAK SHOWROOM</h4>
           <div class="space-y-3 text-xs text-gray-300">
             <a id="footer-wa-link" href="#" target="_blank" class="flex items-center space-x-3 p-3 bg-green-950/40 hover:bg-green-900/60 border border-green-700/50 rounded-xl transition-all group">
               <i class="fa-brands fa-whatsapp text-green-400 text-2xl group-hover:scale-110 transition-transform"></i>
               <div>
-                <span data-lang="footer_cs_label" class="text-[10px] text-gray-400 uppercase block font-semibold">Customer Service & Sales</span>
+                <span class="text-[10px] text-gray-400 uppercase block font-semibold">Customer Service & Sales</span>
                 <span id="footer-wa-text" class="font-bold text-white text-xs sm:text-sm">📞 Kontak / WA: 0823-7095-8651</span>
               </div>
             </a>
             <div class="flex items-start space-x-3 p-2.5 bg-white/5 rounded-lg border border-white/5">
               <i class="fa-solid fa-clock text-brand-gold mt-0.5"></i>
               <div>
-                <span data-lang="footer_hours_header" class="font-bold text-white block">Jam Operasional Showroom</span>
-                <span data-lang="footer_hours_val" class="text-gray-400 text-[11px]">Buka Setiap Hari: 09.00 - 18.00 WIB</span>
+                <span class="font-bold text-white block">Jam Operasional Showroom</span>
+                <span class="text-gray-400 text-[11px]">Buka Setiap Hari: 09.00 - 18.00 WIB</span>
               </div>
             </div>
             <div class="flex items-start space-x-3 p-2.5 bg-white/5 rounded-lg border border-white/5">
               <i class="fa-solid fa-credit-card text-brand-gold mt-0.5"></i>
               <div>
-                <span data-lang="footer_payment_header" class="font-bold text-white block">Metode Pembayaran</span>
-                <span data-lang="footer_payment_val" class="text-gray-400 text-[11px]">Cash, Transfer & Kredit Bergaransi</span>
+                <span class="font-bold text-white block">Metode Pembayaran</span>
+                <span class="text-gray-400 text-[11px]">Cash, Transfer & Kredit Bergaransi</span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="space-y-3">
-          <h4 data-lang="footer_addr_header" class="font-serif text-xs sm:text-sm font-bold text-brand-gold uppercase tracking-wider border-b border-brand-gold/20 pb-2">ALAMAT SHOWROOM</h4>
+          <h4 class="font-serif text-xs sm:text-sm font-bold text-brand-gold uppercase tracking-wider border-b border-brand-gold/20 pb-2">ALAMAT SHOWROOM</h4>
           <div class="w-full h-36 sm:h-44 rounded-xl overflow-hidden border border-brand-gold/30 shadow-md">
             <iframe src="https://maps.google.com/maps?q=-6.2236647,106.7284725&hl=id&z=17&output=embed" class="w-full h-full border-0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
           <p class="text-[11px] sm:text-xs text-gray-300 flex items-start space-x-2 leading-relaxed pt-1">
             <i class="fa-solid fa-location-dot text-red-500 mt-0.5 shrink-0"></i>
-            <span><strong>Jl. Mesjid Assalam No. 46</strong> <span data-lang="footer_addr_landmark">(Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640.</span></span>
+            <span><strong>Jl. Mesjid Assalam No. 46</strong> <span>(Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640.</span></span>
           </p>
         </div>
       </div>
 
       <div class="border-t border-gray-800 pt-6 text-center text-[10px] sm:text-xs text-gray-500">
-        <p>&copy; 2026 Jon Piano Jakarta. All Rights Reserved.</p>
+        <p>© 2026 Jon Piano Jakarta. All Rights Reserved.</p>
       </div>
     </div>
   </footer>
+
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'id',
+        includedLanguages: 'en,id',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
@@ -291,56 +311,10 @@
     let waNumber = localStorage.getItem('jp_wa_number') || '082370958651';
     let currentCarouselIndex = 0;
     let carouselInterval = null;
-    let currentLang = localStorage.getItem('jp_language') || 'id';
     let isAudioPlaying = false;
 
-    const translations = {
-      id: {
-        feat_1_title: "Piano Baru & Bekas", feat_1_desc: "Yamaha, Kawai, Petrof, Steinway",
-        feat_2_title: "Stem & Pindahan", feat_2_desc: "Jasa Tuning & Pindahan Khusus",
-        feat_3_title: "Kirim Luar Kota", feat_3_desc: "Free Ongkir Jabodetabek",
-        feat_4_title: "Cash & Kredit", feat_4_desc: "Garansi Mekanik 3 Tahun",
-        about_title: "JUAL-BELI & STEM UPRIGHT DAN GRAND PIANO",
-        about_desc: "Melayani unit piano baru maupun bekas berbagai merk ternama: Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, dll. Bergaransi resmi dan kualitas terbaik impor.",
-        services_header: "Layanan Kami:", srv_1: "• Jual Piano Baru & Bekas Kualitas Baik", srv_2: "• Melayani Stem / Tuning Piano Profesional", srv_3: "• Menerima Jasa Pindahan Piano Khusus", srv_4: "• Pengiriman Luar Kota (Biaya Kirim Terjangkau & Negotiable)", srv_5: "• Pembayaran Fleksibel (Bisa Cash & Kredit)",
-        includes_header: "Gratis Fasilitas Pembelian:", inc_1: "• Free Pengiriman Se-Jabodetabek", inc_2: "• Bangku Piano + Pemanas / Heater", inc_3: "• Cover Atas + Cover Tuts + Kunci", inc_4: "• Garansi Mekanik 3 Tahun", inc_5: "• Free Stem / Tuning 2 Kali",
-        catalog_title: "Katalog Piano Pilihan", catalog_subtitle: "Temukan unit piano impian Anda dengan kualitas terbaik.",
-        search_placeholder: "Cari tipe/merk piano...", all_categories: "Semua Kategori", back_catalog: "Kembali ke Katalog Utama",
-        label_serial: "NO. SERI", label_color: "WARNA KABINET", label_warehouse: "LOKASI GUDANG", label_description: "DESKRIPSI UNIT",
-        tagline_quote: '"Boleh Di Tanya-Tanya Dulu Kak, piano Bagus Dan Mulus Yang Terbaik Buat Anda"',
-        include_title: "FASILITAS GRATIS PEMBELIAN (INCLUDE):", inc_bench: "Bangku Piano", inc_heater: "Pemanas Piano / Heater", inc_topcover: "Cover Atas", inc_keycover: "Cover Tuts + Kunci", inc_garansi: "Garansi Mekanik 3 Tahun", inc_tuning: "Free Stem / Tuning 2x", inc_shipping: "Free Ongkir Se-Jabodetabek",
-        wa_ask_prompt: "Tertarik dengan unit piano ini?", wa_ask_sub: "Hubungi Showroom Jakarta", wa_button_text: "Tanya Unit via WA",
-        footer_about: "Jual-Beli & Stem Upright dan Grand Piano. Melayani piano baru maupun bekas berbagai merk ternama: Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, dll. Bergaransi resmi dan kualitas terbaik impor.",
-        footer_special: "Layanan Spesialis:", footer_special_desc: "Jasa Pindahan Piano Khusus & Pengiriman Luar Kota (Biaya terjangkau & Negotiable). Pembayaran Cash & Kredit.",
-        footer_contact_header: "KONTAK SHOWROOM", footer_cs_label: "Customer Service & Sales", footer_hours_header: "Jam Operasional Showroom", footer_hours_val: "Buka Setiap Hari: 08.00 - 22.00 WIB",
-        footer_payment_header: "Metode Pembayaran", footer_payment_val: "Cash, Transfer & Kredit Bergaransi", footer_addr_header: "ALAMAT SHOWROOM", footer_addr_landmark: "(Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640."
-      },
-      en: {
-        feat_1_title: "New & Used Pianos", feat_1_desc: "Yamaha, Kawai, Petrof, Steinway",
-        feat_2_title: "Tuning & Moving", feat_2_desc: "Professional Tuning & Piano Moving",
-        feat_3_title: "Intercity Shipping", feat_3_desc: "Free Shipping in Jabodetabek",
-        feat_4_title: "Cash & Credit", feat_4_desc: "3-Year Mechanical Warranty",
-        about_title: "BUY-SELL & TUNING UPRIGHT AND GRAND PIANOS",
-        about_desc: "Serving new and pre-owned pianos from top global brands: Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, etc. Officially warranted with premium import quality.",
-        services_header: "Our Services:", srv_1: "• High Quality New & Used Piano Sales", srv_2: "• Professional Piano Tuning & Voicing", srv_3: "• Specialized Piano Relocation & Moving", srv_4: "• Nationwide Delivery (Affordable & Negotiable)", srv_5: "• Flexible Payment (Cash & Installment)",
-        includes_header: "Free Included Amenities:", inc_1: "• Free Delivery across Greater Jakarta (Jabodetabek)", inc_2: "• Piano Bench + Heater Dehumidifier", inc_3: "• Top Cover + Key Cover + Lock Key", inc_4: "• 3-Year Mechanical Warranty", inc_5: "• Free Tuning 2 Times",
-        catalog_title: "Curated Piano Catalog", catalog_subtitle: "Find your dream piano crafted with superior acoustic quality.",
-        search_placeholder: "Search model or brand...", all_categories: "All Categories", back_catalog: "Back to Main Catalog",
-        label_serial: "SERIAL NO.", label_color: "CABINET COLOR", label_warehouse: "WAREHOUSE LOCATION", label_description: "UNIT DESCRIPTION",
-        tagline_quote: '"Feel free to ask us any questions! We offer the finest, beautifully maintained pianos for you."',
-        include_title: "FREE INCLUDED AMENITIES:", inc_bench: "Piano Bench", inc_heater: "Piano Heater / Dehumidifier", inc_topcover: "Top Dust Cover", inc_keycover: "Key Cover + Lock Key", inc_garansi: "3-Year Mechanical Warranty", inc_tuning: "Free Tuning 2x", inc_shipping: "Free Greater Jakarta Delivery",
-        wa_ask_prompt: "Interested in this piano?", wa_ask_sub: "Contact Jakarta Showroom", wa_button_text: "Inquire via WA",
-        footer_about: "Trading & Tuning Upright & Grand Pianos. Offering new and pre-owned pianos from top brands: Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, etc. Warranted import quality.",
-        footer_special: "Specialized Services:", footer_special_desc: "Specialized Piano Moving & Nationwide Delivery (Affordable & Negotiable rates). Cash & Credit accepted.",
-        footer_contact_header: "SHOWROOM CONTACT", footer_cs_label: "Customer Service & Sales", footer_hours_header: "Showroom Business Hours", footer_hours_val: "Open Daily: 08:00 AM - 10:00 PM WIB",
-        footer_payment_header: "Payment Options", footer_payment_val: "Cash, Wire Transfer & Guaranteed Credit", footer_addr_header: "SHOWROOM ADDRESS", footer_addr_landmark: "(Opposite Toko Beras Padi Mas), Komplek DKI Joglo, Joglo, Kembangan, West Jakarta, DKI Jakarta 11640."
-      }
-    };
-
     document.addEventListener('DOMContentLoaded', async () => {
-      document.getElementById('lang-selector').value = currentLang;
       initAudio();
-      applyLanguage(currentLang);
       setupFooterContacts();
 
       // 1. Dapatkan Data dari Google Sheets
@@ -351,7 +325,6 @@
           const csvText = await res.text();
           const sheetProducts = parseCSVData(csvText);
           
-          // Jika Sheets sudah memuat foto, utamakan data Sheets
           if (sheetProducts.length > 0 && sheetProducts.some(p => p.image && !p.image.includes('unsplash'))) {
             products = sheetProducts;
             localStorage.setItem('hop_products', JSON.stringify(products));
@@ -447,7 +420,6 @@
             isAudioPlaying = true;
             updateAudioIcon();
           }).catch(error => {
-            // Autoplay diblokir oleh browser. Musik akan diputar otomatis begitu pengguna mengklik/tap halaman.
             const handleFirstUserInteraction = () => {
               audio.play().then(() => {
                 isAudioPlaying = true;
@@ -486,22 +458,6 @@
           ? 'fa-solid fa-volume-high text-xs sm:text-base text-brand-gold' 
           : 'fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400';
       }
-    }
-
-    function changeLanguage(langKey) {
-      currentLang = langKey;
-      localStorage.setItem('jp_language', langKey);
-      applyLanguage(langKey);
-      renderProductGrid();
-      renderCarousel();
-    }
-
-    function applyLanguage(langKey) {
-      const dict = translations[langKey] || translations.id;
-      document.querySelectorAll('[data-lang]').forEach(el => {
-        const key = el.getAttribute('data-lang');
-        if (dict[key]) el.textContent = dict[key];
-      });
     }
 
     function setupFooterContacts() {
@@ -651,7 +607,7 @@
         badge.textContent = 'SOLD OUT';
       } else {
         badge.className = 'absolute top-3 right-3 text-[9px] font-bold px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full shadow z-10';
-        badge.textContent = currentLang === 'en' ? 'READY' : 'TERSEDIA';
+        badge.textContent = 'TERSEDIA';
       }
 
       document.getElementById('detail-main-img').src = item.image;
