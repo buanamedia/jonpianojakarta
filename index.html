@@ -315,6 +315,7 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
+    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
 
     let products = [];
     let waNumber = localStorage.getItem('jp_wa_number') || '082370958651';
@@ -326,7 +327,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('lang-selector').value = currentLang;
 
-      // 1. Muat Pengaturan Terpusat dari Google Sheets (Jam, Backsound, WA, Ikon Admin)
+      // 1. Ambil Setting Terpusat via WebApp doGet (Bypass Cache CSV)
       await loadSettingsFromGoogleSheets();
 
       setTimeout(() => {
@@ -366,30 +367,24 @@
       if (productId) showDetailView(productId);
     });
 
-    // AMBIL SETTING DARI GOOGLE SHEETS TAB "SETTINGS"
+    // FUNGSI MEMBACA SETTING DIRECT DARI APPS SCRIPT WEBAPP
     async function loadSettingsFromGoogleSheets() {
+      const scriptUrl = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
+
       try {
-        const csvSettingsUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=SETTINGS&cacheBust=${Date.now()}`;
-        const res = await fetch(csvSettingsUrl);
+        const res = await fetch(scriptUrl);
         if (res.ok) {
-          const text = await res.text();
-          const lines = text.split(/\r\n|\n/);
-          lines.forEach(line => {
-            const parts = parseCSVLine(line);
-            if (parts.length >= 2) {
-              const key = parts[0].trim();
-              const val = parts[1].trim();
-              if (key && val) {
-                localStorage.setItem(key, val);
-              }
+          const settingsData = await res.json();
+          Object.keys(settingsData).forEach(key => {
+            if (settingsData[key]) {
+              localStorage.setItem(key, settingsData[key]);
             }
           });
         }
       } catch (e) {
-        console.log("Menggunakan fallback setting lokal");
+        console.log("Gagal membaca API Settings, menggunakan fallback lokal:", e);
       }
 
-      // Terapkan hasil setting
       setupAdminIconVisibility();
       setupOperatingHours();
       setupFooterContacts();
