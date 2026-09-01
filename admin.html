@@ -351,8 +351,6 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
-    
-    // URL GOOGLE APPS SCRIPT NEW DEPLOYMENT
     const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
 
     let products = JSON.parse(localStorage.getItem('hop_products')) || [];
@@ -366,34 +364,15 @@
     let pendingFileObjects = [null, null, null, null, null];
     let oldImageUrlsToClean = [];
 
-    let envConfig = { CLOUDINARY_CLOUD_NAME: 'jca7x4qo', CLOUDINARY_UPLOAD_PRESET: 'unsigned' };
-
-    async function loadDotEnv() {
-      if (window.ENV) {
-        envConfig.CLOUDINARY_CLOUD_NAME = window.ENV.CLOUDINARY_CLOUD_NAME || 'jca7x4qo';
-        envConfig.CLOUDINARY_UPLOAD_PRESET = window.ENV.CLOUDINARY_UPLOAD_PRESET || 'unsigned';
-      }
-    }
-
-    function getCldEnv() {
-      return {
-        cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || 'jca7x4qo',
-        uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || 'unsigned'
-      };
-    }
-
     function getActiveScriptUrl() {
-      const savedUrl = localStorage.getItem('jp_script_url');
-      if (savedUrl) return savedUrl;
-      return DEFAULT_SCRIPT_URL;
+      return localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      await loadDotEnv();
       populateTimeOptions();
       checkAuthStatus();
-      loadWaNumber();
       loadScriptUrl();
+      loadWaNumber();
       loadBacksoundSettings();
       loadAdminIconSetting();
       loadOperatingHoursSetting();
@@ -443,7 +422,7 @@
           populateChecklistWarehouses();
           renderAdminTable();
         }
-      } catch (err) { }
+      } catch (err) {}
     }
 
     function parseCSVData(csvText) {
@@ -467,9 +446,7 @@
 
         const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
         const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
-
         const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
-        const isCarouselActive = (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1');
 
         result.push({
           id: i.toString(),
@@ -480,7 +457,7 @@
           warna: (row['WARNA'] || 'HITAM').toUpperCase(),
           price: formattedPrice,
           status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-          isCarousel: isCarouselActive,
+          isCarousel: (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1'),
           image: mainImg,
           images: galleryImgs,
           description: `Piano ${row['MERK PIANO'] || 'Piano'} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`
@@ -657,22 +634,21 @@
       });
     }
 
-    // UPLOAD KE CLOUDINARY
+    // UPLOAD KE CLOUDINARY (Preset ml_default Unsigned)
     async function uploadSingleFileToCloudinary(fileObject) {
       if (!fileObject) return null;
 
-      const cld = getCldEnv();
-      const cloudName = cld.cloudName && cld.cloudName !== 'demo' ? cld.cloudName : 'jca7x4qo';
-      const uploadPreset = cld.uploadPreset && cld.uploadPreset !== 'unsigned' ? cld.uploadPreset : 'ml_default';
+      const cloudName = 'jca7x4qo';
+      const uploadPreset = 'ml_default';
 
       const formData = new FormData();
       formData.append('file', fileObject);
       formData.append('upload_preset', uploadPreset);
 
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { 
-          method: 'POST', 
-          body: formData 
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
         });
         
         const data = await res.json();
@@ -680,36 +656,38 @@
           return data.secure_url;
         } else {
           console.error("Cloudinary Error Response:", data);
-          alert(`Gagal upload ke Cloudinary: ${data.error ? data.error.message : 'Upload Preset / Cloud Name Salah'}`);
+          alert(`Gagal upload ke Cloudinary: ${data.error ? data.error.message : 'Preset Upload Gagal'}`);
           return null;
         }
-      } catch (err) { 
+      } catch (err) {
         console.error("Gagal melakukan fetch upload:", err);
-        return null; 
+        return null;
       }
     }
 
-    // HAPUS FOTO LAMA DI CLOUDINARY LEWAT APPS SCRIPT
-    async function deleteCloudinaryImageByUrl(imageUrl) {
-      if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
+    // SIMPAN PENGATURAN TERPUSAT KE GOOGLE SHEETS
+    async function sendSettingToGoogleSheets(key, value) {
       const scriptUrl = getActiveScriptUrl();
-      if (scriptUrl) {
-        try {
-          await fetch(scriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'DELETE_CLOUDINARY_IMAGE',
-              imageUrl: imageUrl
-            }),
-            redirect: 'follow'
-          });
-        } catch (err) {}
+      if (!scriptUrl) return;
+
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'SAVE_SETTINGS',
+            key: key,
+            value: value
+          }),
+          redirect: 'follow'
+        });
+      } catch (err) {
+        console.error("Gagal mengirim setting ke Sheets:", err);
       }
     }
 
-    // PROSES SIMPAN FORM (TAMBAH / EDIT)
+    // PROSES SIMPAN FORM UNIT PIANO
     async function handleFormSubmit(e) {
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
@@ -721,14 +699,11 @@
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
             if (uploadedUrl) {
-              if (oldImageUrlsToClean[i] && oldImageUrlsToClean[i] !== uploadedUrl) {
-                deleteCloudinaryImageByUrl(oldImageUrlsToClean[i]);
-              }
               document.getElementById(`form-img-${i}`).value = uploadedUrl;
             } else {
               btnSubmit.disabled = false;
               btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
-              return alert(`Proses dibatalkan karena Foto ${i+1} gagal terunggah ke Cloudinary.`);
+              return alert(`Proses dibatalkan karena Foto ${i+1} gagal terunggah.`);
             }
           }
         }
@@ -809,7 +784,7 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano & foto Cloudinary berhasil diperbarui di Sheets!');
+        alert('Unit piano & foto Cloudinary berhasil disimpan di Sheets!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
@@ -827,12 +802,7 @@
     }
 
     function loadScriptUrl() {
-      const saved = localStorage.getItem('jp_script_url');
-      if (saved) {
-        document.getElementById('script-url-input').value = saved;
-      } else {
-        document.getElementById('script-url-input').value = DEFAULT_SCRIPT_URL;
-      }
+      document.getElementById('script-url-input').value = getActiveScriptUrl();
     }
 
     // FUNGSI HAPUS SATU UNIT
@@ -946,27 +916,39 @@
 
     function logoutAdmin() { sessionStorage.removeItem('hop_admin_logged'); checkAuthStatus(); }
 
-    function saveWaNumber() {
+    // SIMPAN NO. WA KE SHEETS & LOKAL
+    async function saveWaNumber() {
       const waVal = document.getElementById('wa-number-input').value.trim();
       if(!waVal) return;
-      localStorage.setItem('jp_wa_number', waVal.replace(/[^0-9]/g, ''));
-      alert('Nomor WA disimpan!');
+      const cleanWa = waVal.replace(/[^0-9]/g, '');
+      localStorage.setItem('jp_wa_number', cleanWa);
+      await sendSettingToGoogleSheets('jp_wa_number', cleanWa);
+      alert('Nomor WA disimpan ke database terpusat!');
     }
 
-    function loadWaNumber() { document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; }
+    function loadWaNumber() { 
+      document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; 
+    }
+
+    // SIMPAN BACKSOUND KE SHEETS & LOKAL
+    async function saveBacksoundSettings() {
+      const url = document.getElementById('backsound-url-input').value.trim();
+      const mode = document.getElementById('backsound-mode-select').value;
+      
+      if (url) {
+        localStorage.setItem('jp_backsound_url', url);
+        await sendSettingToGoogleSheets('jp_backsound_url', url);
+      }
+      localStorage.setItem('jp_backsound_mode', mode);
+      await sendSettingToGoogleSheets('jp_backsound_mode', mode);
+
+      alert('Pengaturan Musik Backsound tersimpan di database terpusat!');
+    }
 
     function loadBacksoundSettings() {
       const defaultAudio = 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
       document.getElementById('backsound-url-input').value = localStorage.getItem('jp_backsound_url') || defaultAudio;
       document.getElementById('backsound-mode-select').value = localStorage.getItem('jp_backsound_mode') || 'manual';
-    }
-
-    function saveBacksoundSettings() {
-      const url = document.getElementById('backsound-url-input').value.trim();
-      const mode = document.getElementById('backsound-mode-select').value;
-      if (url) localStorage.setItem('jp_backsound_url', url);
-      localStorage.setItem('jp_backsound_mode', mode);
-      alert('Pengaturan Musik Backsound berhasil disimpan!');
     }
 
     async function uploadAudioToCloudinary(fileInput) {
@@ -976,19 +958,12 @@
       statusLbl.textContent = 'Mengunggah audio...';
       statusLbl.className = 'text-[10px] text-amber-600 font-bold animate-pulse';
 
-      const cld = getCldEnv();
-      if (!cld.cloudName) {
-        alert('Cloudinary Cloud Name belum terkonfigurasi.');
-        statusLbl.textContent = '';
-        return;
-      }
-
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', cld.uploadPreset);
+      formData.append('upload_preset', 'ml_default');
 
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/video/upload`, { method: 'POST', body: formData });
+        const res = await fetch(`https://api.cloudinary.com/v1_1/jca7x4qo/video/upload`, { method: 'POST', body: formData });
         const data = await res.json();
         if (data.secure_url) {
           document.getElementById('backsound-url-input').value = data.secure_url;
@@ -1004,15 +979,41 @@
       }
     }
 
+    // SIMPAN IKON ADMIN KE SHEETS & LOKAL
+    async function saveAdminIconSetting() {
+      const isVisible = document.getElementById('show-admin-icon-select').value;
+      localStorage.setItem('jp_show_admin_icon', isVisible);
+      await sendSettingToGoogleSheets('jp_show_admin_icon', isVisible);
+      alert('Pengaturan Tampilan Ikon Admin tersimpan di database terpusat!');
+    }
+
     function loadAdminIconSetting() {
       const isVisible = localStorage.getItem('jp_show_admin_icon');
       document.getElementById('show-admin-icon-select').value = isVisible === 'false' ? 'false' : 'true';
     }
 
-    function saveAdminIconSetting() {
-      const isVisible = document.getElementById('show-admin-icon-select').value;
-      localStorage.setItem('jp_show_admin_icon', isVisible);
-      alert('Pengaturan Tampilan Ikon Akun Admin disimpan!');
+    // SIMPAN JAM OPERASIONAL KE SHEETS & LOKAL
+    async function saveOperatingHoursSetting() {
+      const checkedDays = Array.from(document.querySelectorAll('input[name="op_day"]:checked')).map(cb => cb.value);
+      const openTime = document.getElementById('op-time-open').value;
+      const closeTime = document.getElementById('op-time-close').value;
+      const timezone = document.getElementById('op-timezone').value;
+
+      if (checkedDays.length === 0) {
+        return alert('Pilih setidaknya 1 hari operasional!');
+      }
+
+      const config = { days: checkedDays, open: openTime, close: closeTime, timezone: timezone };
+      const formattedText = formatOperatingHoursText(config);
+
+      localStorage.setItem('jp_operating_hours_config', JSON.stringify(config));
+      localStorage.setItem('jp_operating_hours', formattedText);
+
+      await sendSettingToGoogleSheets('jp_operating_hours_config', config);
+      await sendSettingToGoogleSheets('jp_operating_hours', formattedText);
+
+      updateHoursPreview(config);
+      alert(`Jam Operasional Disimpan ke Database Terpusat:\n"${formattedText}"`);
     }
 
     function loadOperatingHoursSetting() {
@@ -1039,30 +1040,8 @@
       updateHoursPreview(config);
     }
 
-    function saveOperatingHoursSetting() {
-      const checkedDays = Array.from(document.querySelectorAll('input[name="op_day"]:checked')).map(cb => cb.value);
-      const openTime = document.getElementById('op-time-open').value;
-      const closeTime = document.getElementById('op-time-close').value;
-      const timezone = document.getElementById('op-timezone').value;
-
-      if (checkedDays.length === 0) {
-        return alert('Pilih setidaknya 1 hari operasional!');
-      }
-
-      const config = { days: checkedDays, open: openTime, close: closeTime, timezone: timezone };
-      const formattedText = formatOperatingHoursText(config);
-
-      localStorage.setItem('jp_operating_hours_config', JSON.stringify(config));
-      localStorage.setItem('jp_operating_hours', formattedText);
-
-      updateHoursPreview(config);
-      alert(`Jam Operasional Disimpan:\n"${formattedText}"`);
-    }
-
     function formatOperatingHoursText(config) {
-      const allWeek = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
       let dayText = "";
-
       if (config.days.length === 7) {
         dayText = "Buka Setiap Hari";
       } else if (config.days.length === 6 && !config.days.includes("Minggu")) {
@@ -1072,15 +1051,12 @@
       } else {
         dayText = config.days.join(", ");
       }
-
       return `${dayText}: ${config.open} - ${config.close} ${config.timezone}`;
     }
 
     function updateHoursPreview(config) {
       const badge = document.getElementById('hours-preview-badge');
-      if (badge) {
-        badge.textContent = formatOperatingHoursText(config);
-      }
+      if (badge) badge.textContent = formatOperatingHoursText(config);
     }
 
     function exportToCSV() {
