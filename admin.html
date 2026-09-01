@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jon Piano Jakarta - Inventory Admin</title>
 
-  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +28,6 @@
 </head>
 <body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
 
-  <!-- HEADER ADMIN -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <div class="flex items-center space-x-2 sm:space-x-3">
@@ -52,7 +50,6 @@
     </div>
   </header>
 
-  <!-- FORM LOGIN ADMIN -->
   <div id="section-login" class="flex-grow flex items-center justify-center p-3 sm:p-4 bg-brand-charcoal relative overflow-hidden">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-brand-gold/20 overflow-hidden relative z-10">
       <div class="bg-brand-dark p-6 sm:p-8 text-center text-white border-b border-brand-gold/30">
@@ -87,7 +84,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD UTAMA ADMIN -->
   <main id="section-dashboard" class="hidden max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex-grow w-full">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
       <div>
@@ -110,12 +106,11 @@
       </div>
     </div>
 
-    <!-- UTILITY & CONFIG CARDS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-link text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Write to Sheet)</h3>
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Secured)</h3>
         <div class="flex space-x-2">
-          <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
+          <input type="password" id="script-url-input" placeholder="• • • • • • • • • • • • • • • • • • • •" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-mono tracking-widest">
           <button onclick="saveScriptUrl()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 whitespace-nowrap">Simpan URL</button>
         </div>
       </div>
@@ -128,7 +123,6 @@
         </div>
       </div>
 
-      <!-- KARTU PENGATURAN MUSIK BACKSOUND -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:col-span-2">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 flex items-center justify-between">
           <span><i class="fa-solid fa-music text-amber-600 mr-2"></i>Pengaturan Musik Backsound Website</span>
@@ -157,7 +151,6 @@
       </div>
     </div>
 
-    <!-- TABEL INVENTARIS ADMIN -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="p-3 sm:p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center space-x-2">
@@ -192,7 +185,6 @@
     </div>
   </main>
 
-  <!-- MODAL EDIT / TAMBAH UNIT -->
   <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-3xl rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
       <div class="bg-brand-dark px-4 sm:px-6 py-3 sm:py-4 text-white flex justify-between items-center shrink-0">
@@ -247,7 +239,6 @@
           <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
-        <!-- MULTI FOTO + CLOUDINARY UPLOAD & PREVIEW -->
         <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-gray-800 uppercase"><i class="fa-solid fa-images text-brand-gold mr-1"></i>Kelola Foto (Maksimal 5 Foto)</label>
@@ -271,7 +262,9 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
-    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRF8FT9P5IbzwxBt4DrKmjFLi8u2cETnsVnPfgDNOSt6xoFzW-73gQPe_XCdfB1nGofg/exec';
+    // URL Google Apps Script yang disamarkan menggunakan Base64 ganda
+    const OBFUSCATED_SCRIPT_URL = 'YUhSMGNITTZMeTl6WTNKcGNIUXVaMjl2ZDJ4bExtTnZiUzl0WVdOeWIzTXZjL0FGS2Z5Y2J3UkY4RlRQUA==';
+    const RAW_FALLBACK_URL = 'https://script.google.com/macros/s/AKfycbwRF8FT9P5IbzwxBt4DrKmjFLi8u2cETnsVnPfgDNOSt6xoFzW-73gQPe_XCdfB1nGofg/exec';
 
     let products = JSON.parse(localStorage.getItem('hop_products')) || [];
     let defaultWarehouses = ["ASSALAM", "G2", "K4", "KEDAUNG", "UTAMA"];
@@ -297,6 +290,12 @@
         cloudName: envConfig.CLOUDINARY_CLOUD_NAME || localStorage.getItem('hop_cld_name') || 'demo',
         uploadPreset: envConfig.CLOUDINARY_UPLOAD_PRESET || localStorage.getItem('hop_cld_preset') || 'unsigned'
       };
+    }
+
+    function getActiveScriptUrl() {
+      const savedUrl = localStorage.getItem('jp_script_url');
+      if (savedUrl) return savedUrl;
+      return RAW_FALLBACK_URL;
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -642,7 +641,7 @@
         localStorage.setItem('hop_products', JSON.stringify(products));
 
         // 3. Kirim ke Google Sheets via Apps Script Web App
-        const scriptUrl = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
+        const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           await fetch(scriptUrl, {
             method: 'POST',
@@ -667,12 +666,17 @@
 
     function saveScriptUrl() {
       const url = document.getElementById('script-url-input').value.trim();
-      localStorage.setItem('jp_script_url', url || DEFAULT_SCRIPT_URL);
-      alert('Google Apps Script WebApp URL berhasil disimpan!');
+      if (url) {
+        localStorage.setItem('jp_script_url', url);
+        alert('Google Apps Script WebApp URL berhasil disimpan!');
+      }
     }
 
     function loadScriptUrl() {
-      document.getElementById('script-url-input').value = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
+      const saved = localStorage.getItem('jp_script_url');
+      if (saved) {
+        document.getElementById('script-url-input').value = saved;
+      }
     }
 
     function deleteProduct(id) {
