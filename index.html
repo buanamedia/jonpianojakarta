@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
+  <!-- CONFIG SECURITY & URL APPS SCRIPT -->
+  <script src="auth-config.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -66,7 +69,7 @@
           <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
         </button>
 
-        <!-- IKON AKUN ADMIN (BISA DITAMPILKAN/DISEMBUNYIKAN VIA ADMIN) -->
+        <!-- IKON AKUN ADMIN -->
         <a id="header-admin-link" href="admin.html" class="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
           <i class="fa-solid fa-user-gear text-sm sm:text-lg"></i>
         </a>
@@ -315,20 +318,34 @@
 
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
-    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
 
     let products = [];
-    let waNumber = localStorage.getItem('jp_wa_number') || '082370958651';
+    let waNumber = '082370958651';
     let currentCarouselIndex = 0;
     let carouselInterval = null;
     let isAudioPlaying = false;
     let currentLang = localStorage.getItem('jp_language') || 'id';
 
+    // HELPER UNTUK MENGAMBIL SCRIPT URL DECODED DARI auth-config.js
+    function getDecodedScriptUrl() {
+      if (window.AUTH_CONFIG && window.AUTH_CONFIG.SCRIPT_URL_ENCODED) {
+        try {
+          return atob(window.AUTH_CONFIG.SCRIPT_URL_ENCODED);
+        } catch (e) {
+          console.error("Gagal decode SCRIPT_URL_ENCODED:", e);
+        }
+      }
+      return 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('lang-selector').value = currentLang;
 
-      // 1. Ambil Setting Terpusat via WebApp doGet (Bypass Cache CSV)
+      // 1. Ambil Setting Terpusat dari WebApp Sheets TERLEBIH DAHULU (Menghindari Stale Cache)
       await loadSettingsFromGoogleSheets();
+
+      // 2. Baru inisialisasi audio setelah setting terbaru dari Sheets ter-update di LocalStorage
+      initAudio();
 
       setTimeout(() => {
         if (currentLang && currentLang !== 'id') {
@@ -336,7 +353,7 @@
         }
       }, 1000);
 
-      // 2. Ambil Stok Produk Piano dari Google Sheets
+      // 3. Ambil Stok Produk Piano dari Google Sheets
       try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
         const res = await fetch(csvUrl);
@@ -369,10 +386,11 @@
 
     // FUNGSI MEMBACA SETTING DIRECT DARI APPS SCRIPT WEBAPP
     async function loadSettingsFromGoogleSheets() {
-      const scriptUrl = localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
+      const scriptUrl = localStorage.getItem('jp_script_url') || getDecodedScriptUrl();
 
       try {
-        const res = await fetch(scriptUrl);
+        // Parameter timestamp nocache memaksa browser mengambil data paling baru dari server Apps Script
+        const res = await fetch(`${scriptUrl}?nocache=${Date.now()}`);
         if (res.ok) {
           const settingsData = await res.json();
           Object.keys(settingsData).forEach(key => {
@@ -388,7 +406,6 @@
       setupAdminIconVisibility();
       setupOperatingHours();
       setupFooterContacts();
-      initAudio();
     }
 
     function setupAdminIconVisibility() {
@@ -412,7 +429,9 @@
     }
 
     function setupFooterContacts() {
-      waNumber = localStorage.getItem('jp_wa_number') || waNumber;
+      const defaultWa = (window.AUTH_CONFIG && window.AUTH_CONFIG.DEFAULT_WA_NUMBER) ? window.AUTH_CONFIG.DEFAULT_WA_NUMBER : '082370958651';
+      waNumber = localStorage.getItem('jp_wa_number') || defaultWa;
+      
       const footerWaLink = document.getElementById('footer-wa-link');
       const footerWaText = document.getElementById('footer-wa-text');
       const cleanWa = waNumber.replace(/[^0-9]/g, '');
@@ -488,10 +507,18 @@
     // INISIALISASI PEMUTAR MUSIK & HANDLING AUTOPLAY BROWSER
     function initAudio() {
       const audio = document.getElementById('bg-audio');
-      const savedAudioUrl = localStorage.getItem('jp_backsound_url') || 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
+      
+      const fallbackAudio = (window.AUTH_CONFIG && window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL) 
+        ? window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL 
+        : 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
+
+      const savedAudioUrl = localStorage.getItem('jp_backsound_url') || fallbackAudio;
       const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
 
-      audio.src = savedAudioUrl;
+      // Selalu update sumber audio jika nilainya berubah
+      if (audio.src !== savedAudioUrl) {
+        audio.src = savedAudioUrl;
+      }
 
       if (audioMode === 'auto') {
         const startPlay = () => {
