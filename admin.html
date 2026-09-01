@@ -112,7 +112,7 @@
 
     <!-- UTILITY & CONFIG CARDS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-      <!-- KARTU SCRIPT URL (DISEMBUNYIKAN SEBAGAI INPUT PASSWORD) -->
+      <!-- KARTU SCRIPT URL -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Secured)</h3>
         <div class="flex space-x-2">
@@ -121,6 +121,7 @@
         </div>
       </div>
 
+      <!-- KARTU WHATSAPP -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
         <div class="flex space-x-2">
@@ -129,7 +130,7 @@
         </div>
       </div>
 
-      <!-- KARTU PENGATURAN TAMPILAN IKON AKUN ADMIN DI INDEX -->
+      <!-- KARTU IKON ADMIN -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-user-gear text-purple-600 mr-2"></i>Ikon Akun Admin di Website Header</h3>
         <div class="flex items-center justify-between space-x-2">
@@ -141,12 +142,72 @@
         </div>
       </div>
 
-      <!-- KARTU PENGATURAN JAM OPERASIONAL SHOWROOM -->
+      <!-- KARTU JAM OPERASIONAL SHOWROOM (TIPE CENTANG HARI & PILIH JAM) -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-clock text-amber-600 mr-2"></i>Jam Operasional Showroom</h3>
-        <div class="flex space-x-2">
-          <input type="text" id="operating-hours-input" placeholder="Buka Setiap Hari: 09.00 - 18.00 WIB" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
-          <button onclick="saveOperatingHoursSetting()" class="px-3 py-1.5 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 whitespace-nowrap">Simpan Jam</button>
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-3 flex items-center justify-between">
+          <span><i class="fa-solid fa-clock text-amber-600 mr-2"></i>Jam Operasional Showroom</span>
+          <span id="hours-preview-badge" class="text-[10px] bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded font-bold"></span>
+        </h3>
+        
+        <div class="space-y-3 text-xs">
+          <!-- PILIH HARI BUKA -->
+          <div>
+            <span class="block text-[11px] font-bold text-gray-600 uppercase mb-1.5">Pilih Hari Operasional:</span>
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Senin" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Sen</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Selasa" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Sel</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Rabu" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Rab</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Kamis" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Kam</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Jumat" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Jum</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Sabtu" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Sab</span>
+              </label>
+              <label class="flex flex-col items-center p-1.5 border rounded-lg bg-gray-50 hover:bg-amber-50 cursor-pointer text-center">
+                <input type="checkbox" name="op_day" value="Minggu" class="w-3.5 h-3.5 text-amber-600 rounded">
+                <span class="text-[10px] font-bold text-gray-700 mt-1">Ming</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- PILIH JAM BUKA & TUTUP -->
+          <div class="grid grid-cols-3 gap-2 items-center">
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Jam Buka</label>
+              <select id="op-time-open" class="w-full px-2 py-1.5 border rounded-lg text-xs bg-gray-50 font-bold text-gray-800"></select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Jam Tutup</label>
+              <select id="op-time-close" class="w-full px-2 py-1.5 border rounded-lg text-xs bg-gray-50 font-bold text-gray-800"></select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Zona Waktu</label>
+              <select id="op-timezone" class="w-full px-2 py-1.5 border rounded-lg text-xs bg-gray-50 font-bold text-gray-800">
+                <option value="WIB">WIB</option>
+                <option value="WITA">WITA</option>
+                <option value="WIT">WIT</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="saveOperatingHoursSetting()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition-all flex items-center justify-center">
+            <i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Jam Operasional
+          </button>
         </div>
       </div>
 
@@ -330,6 +391,7 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDotEnv();
+      populateTimeOptions();
       checkAuthStatus();
       loadWaNumber();
       loadScriptUrl();
@@ -337,6 +399,22 @@
       loadAdminIconSetting();
       loadOperatingHoursSetting();
     });
+
+    // GENERATE DROPDOWN PILIHAN JAM (00:00 - 23:30)
+    function populateTimeOptions() {
+      const openSelect = document.getElementById('op-time-open');
+      const closeSelect = document.getElementById('op-time-close');
+      openSelect.innerHTML = ''; closeSelect.innerHTML = '';
+
+      for (let h = 0; h < 24; h++) {
+        for (let m of ['00', '30']) {
+          const hh = h.toString().padStart(2, '0');
+          const timeStr = `${hh}.${m}`;
+          openSelect.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
+          closeSelect.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
+        }
+      }
+    }
 
     function checkAuthStatus() {
       const isAuth = sessionStorage.getItem('hop_admin_logged') === 'true';
@@ -600,7 +678,6 @@
       btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah & Menyimpan...`;
 
       try {
-        // 1. Upload foto lokal ke Cloudinary
         for (let i = 0; i < 5; i++) {
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
@@ -663,7 +740,6 @@
           description
         };
 
-        // 2. Simpan ke LocalStorage agar web langsung terupdate
         if (id) {
           const idx = products.findIndex(p => p.id === id);
           if (idx !== -1) products[idx] = newProductObj;
@@ -672,7 +748,6 @@
         }
         localStorage.setItem('hop_products', JSON.stringify(products));
 
-        // 3. Kirim ke Google Sheets via Apps Script Web App
         const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           await fetch(scriptUrl, {
@@ -784,7 +859,6 @@
 
     function loadWaNumber() { document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; }
 
-    /* FUNGSI PENGATURAN MUSIK BACKSOUND */
     function loadBacksoundSettings() {
       const defaultAudio = 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
       document.getElementById('backsound-url-input').value = localStorage.getItem('jp_backsound_url') || defaultAudio;
@@ -834,7 +908,6 @@
       }
     }
 
-    /* FUNGSI PENGATURAN TAMPILAN IKON AKUN ADMIN */
     function loadAdminIconSetting() {
       const isVisible = localStorage.getItem('jp_show_admin_icon');
       document.getElementById('show-admin-icon-select').value = isVisible === 'false' ? 'false' : 'true';
@@ -846,17 +919,75 @@
       alert('Pengaturan Tampilan Ikon Akun Admin disimpan!');
     }
 
-    /* FUNGSI PENGATURAN JAM OPERASIONAL SHOWROOM */
+    /* BARU: FUNGSI JAM OPERASIONAL SHOWROOM (CENTANG HARI & DROP DOWN JAM) */
     function loadOperatingHoursSetting() {
-      const defaultHours = 'Buka Setiap Hari: 09.00 - 18.00 WIB';
-      document.getElementById('operating-hours-input').value = localStorage.getItem('jp_operating_hours') || defaultHours;
+      const savedConfig = localStorage.getItem('jp_operating_hours_config');
+      let config = {
+        days: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
+        open: "09.00",
+        close: "18.00",
+        timezone: "WIB"
+      };
+
+      if (savedConfig) {
+        try { config = JSON.parse(savedConfig); } catch (e) {}
+      }
+
+      // Set Checkbox Hari
+      document.querySelectorAll('input[name="op_day"]').forEach(cb => {
+        cb.checked = config.days.includes(cb.value);
+      });
+
+      // Set Dropdown Jam & Zona
+      document.getElementById('op-time-open').value = config.open || "09.00";
+      document.getElementById('op-time-close').value = config.close || "18.00";
+      document.getElementById('op-timezone').value = config.timezone || "WIB";
+
+      updateHoursPreview(config);
     }
 
     function saveOperatingHoursSetting() {
-      const hoursVal = document.getElementById('operating-hours-input').value.trim();
-      if (!hoursVal) return;
-      localStorage.setItem('jp_operating_hours', hoursVal);
-      alert('Jam Operasional Showroom berhasil disimpan!');
+      const checkedDays = Array.from(document.querySelectorAll('input[name="op_day"]:checked')).map(cb => cb.value);
+      const openTime = document.getElementById('op-time-open').value;
+      const closeTime = document.getElementById('op-time-close').value;
+      const timezone = document.getElementById('op-timezone').value;
+
+      if (checkedDays.length === 0) {
+        return alert('Pilih setidaknya 1 hari operasional!');
+      }
+
+      const config = { days: checkedDays, open: openTime, close: closeTime, timezone: timezone };
+      const formattedText = formatOperatingHoursText(config);
+
+      localStorage.setItem('jp_operating_hours_config', JSON.stringify(config));
+      localStorage.setItem('jp_operating_hours', formattedText);
+
+      updateHoursPreview(config);
+      alert(`Jam Operasional Disimpan:\n"${formattedText}"`);
+    }
+
+    function formatOperatingHoursText(config) {
+      const allWeek = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+      let dayText = "";
+
+      if (config.days.length === 7) {
+        dayText = "Buka Setiap Hari";
+      } else if (config.days.length === 6 && !config.days.includes("Minggu")) {
+        dayText = "Senin - Sabtu";
+      } else if (config.days.length === 5 && !config.days.includes("Sabtu") && !config.days.includes("Minggu")) {
+        dayText = "Senin - Jumat";
+      } else {
+        dayText = config.days.join(", ");
+      }
+
+      return `${dayText}: ${config.open} - ${config.close} ${config.timezone}`;
+    }
+
+    function updateHoursPreview(config) {
+      const badge = document.getElementById('hours-preview-badge');
+      if (badge) {
+        badge.textContent = formatOperatingHoursText(config);
+      }
     }
 
     function exportToCSV() {
