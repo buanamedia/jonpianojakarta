@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jon Piano Jakarta - Inventory Admin</title>
 
+  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -28,6 +29,7 @@
 </head>
 <body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
 
+  <!-- HEADER ADMIN -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <div class="flex items-center space-x-2 sm:space-x-3">
@@ -50,6 +52,7 @@
     </div>
   </header>
 
+  <!-- FORM LOGIN ADMIN -->
   <div id="section-login" class="flex-grow flex items-center justify-center p-3 sm:p-4 bg-brand-charcoal relative overflow-hidden">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-brand-gold/20 overflow-hidden relative z-10">
       <div class="bg-brand-dark p-6 sm:p-8 text-center text-white border-b border-brand-gold/30">
@@ -84,6 +87,7 @@
     </div>
   </div>
 
+  <!-- DASHBOARD UTAMA ADMIN -->
   <main id="section-dashboard" class="hidden max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex-grow w-full">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
       <div>
@@ -106,7 +110,9 @@
       </div>
     </div>
 
+    <!-- UTILITY & CONFIG CARDS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <!-- KARTU SCRIPT URL -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Secured)</h3>
         <div class="flex space-x-2">
@@ -115,6 +121,7 @@
         </div>
       </div>
 
+      <!-- KARTU WHATSAPP SALES -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
         <div class="flex space-x-2">
@@ -123,6 +130,7 @@
         </div>
       </div>
 
+      <!-- KARTU JAM OPERASIONAL SHOWROOM -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-3 flex items-center justify-between">
           <span><i class="fa-solid fa-clock text-amber-600 mr-2"></i>Jam Operasional Showroom</span>
@@ -189,6 +197,7 @@
         </div>
       </div>
 
+      <!-- WRAPPER UNTUK IKON AKUN ADMIN & MUSIK BACKSOUND -->
       <div class="space-y-4 sm:space-y-6">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-user-gear text-purple-600 mr-2"></i>Ikon Akun Admin di Website Header</h3>
@@ -228,6 +237,7 @@
       </div>
     </div>
 
+    <!-- TABEL INVENTARIS ADMIN -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="p-3 sm:p-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center space-x-2">
@@ -262,6 +272,7 @@
     </div>
   </main>
 
+  <!-- MODAL EDIT / TAMBAH UNIT -->
   <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-3xl rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
       <div class="bg-brand-dark px-4 sm:px-6 py-3 sm:py-4 text-white flex justify-between items-center shrink-0">
@@ -316,6 +327,7 @@
           <label for="form-carousel" class="text-xs font-bold text-gray-800">Tampilkan di Banner Carousel Utama</label>
         </div>
 
+        <!-- MULTI FOTO + CLOUDINARY UPLOAD & PREVIEW -->
         <div class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-gray-800 uppercase"><i class="fa-solid fa-images text-brand-gold mr-1"></i>Kelola Foto (Maksimal 5 Foto)</label>
@@ -340,7 +352,7 @@
   <script>
     const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
     
-    // URL GOOGLE APPS SCRIPT NEW DEPLOYMENT (DENGAN SCRIPT API KEY CLOUDINARY TERPASANG)
+    // URL GOOGLE APPS SCRIPT NEW DEPLOYMENT
     const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
 
     let products = JSON.parse(localStorage.getItem('hop_products')) || [];
@@ -352,7 +364,7 @@
     let currentSortColumn = null;
     let currentSortAsc = true;
     let pendingFileObjects = [null, null, null, null, null];
-    let oldImageUrlsToClean = []; // Menyimpan URL foto lama saat edit untuk dihapus dari Cloudinary
+    let oldImageUrlsToClean = [];
 
     let envConfig = { CLOUDINARY_CLOUD_NAME: 'jca7x4qo', CLOUDINARY_UPLOAD_PRESET: 'unsigned' };
 
@@ -575,7 +587,6 @@
           let mainIndex = imgList.indexOf(item.image);
           if (mainIndex === -1) mainIndex = 0;
 
-          // Catat foto lama untuk pembersihan Cloudinary jika diganti
           oldImageUrlsToClean = [...imgList];
 
           renderPhotoSlots(imgList, mainIndex);
@@ -648,21 +659,37 @@
 
     // UPLOAD KE CLOUDINARY
     async function uploadSingleFileToCloudinary(fileObject) {
+      if (!fileObject) return null;
+
       const cld = getCldEnv();
-      if (!fileObject || !cld.cloudName) return null;
-      
+      const cloudName = cld.cloudName && cld.cloudName !== 'demo' ? cld.cloudName : 'jca7x4qo';
+      const uploadPreset = cld.uploadPreset && cld.uploadPreset !== 'unsigned' ? cld.uploadPreset : 'ml_default';
+
       const formData = new FormData();
       formData.append('file', fileObject);
-      formData.append('upload_preset', cld.uploadPreset);
+      formData.append('upload_preset', uploadPreset);
 
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/image/upload`, { method: 'POST', body: formData });
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { 
+          method: 'POST', 
+          body: formData 
+        });
+        
         const data = await res.json();
-        return data.secure_url || null;
-      } catch (err) { return null; }
+        if (data.secure_url) {
+          return data.secure_url;
+        } else {
+          console.error("Cloudinary Error Response:", data);
+          alert(`Gagal upload ke Cloudinary: ${data.error ? data.error.message : 'Upload Preset / Cloud Name Salah'}`);
+          return null;
+        }
+      } catch (err) { 
+        console.error("Gagal melakukan fetch upload:", err);
+        return null; 
+      }
     }
 
-    // HAPUS SISA FOTO LAMA DI CLOUDINARY LEWAT APPS SCRIPT
+    // HAPUS FOTO LAMA DI CLOUDINARY LEWAT APPS SCRIPT
     async function deleteCloudinaryImageByUrl(imageUrl) {
       if (!imageUrl || !imageUrl.includes('cloudinary.com')) return;
       const scriptUrl = getActiveScriptUrl();
@@ -682,24 +709,26 @@
       }
     }
 
-    // SIMPAN UNIT (TAMBAH / EDIT)
+    // PROSES SIMPAN FORM (TAMBAH / EDIT)
     async function handleFormSubmit(e) {
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah & Menyimpan...`;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Mengunggah ke Cloudinary...`;
 
       try {
-        // 1. Upload foto lokal baru ke Cloudinary jika ada file yang dipilih
         for (let i = 0; i < 5; i++) {
           if (pendingFileObjects[i]) {
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
             if (uploadedUrl) {
-              // Jika ada foto lama di slot ini, hapus dari Cloudinary
               if (oldImageUrlsToClean[i] && oldImageUrlsToClean[i] !== uploadedUrl) {
                 deleteCloudinaryImageByUrl(oldImageUrlsToClean[i]);
               }
               document.getElementById(`form-img-${i}`).value = uploadedUrl;
+            } else {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
+              return alert(`Proses dibatalkan karena Foto ${i+1} gagal terunggah ke Cloudinary.`);
             }
           }
         }
@@ -726,7 +755,7 @@
         let rawImages = [];
         for (let i = 0; i < 5; i++) {
           const field = document.getElementById(`form-img-${i}`);
-          if (field && field.value.trim() !== '' && !field.value.startsWith('blob:')) {
+          if (field && field.value.trim() !== '') {
             rawImages.push(field.value.trim());
           }
         }
@@ -735,7 +764,7 @@
         const selectedIndex = selectedRadio ? parseInt(selectedRadio.value, 10) : 0;
         const mainImageField = document.getElementById(`form-img-${selectedIndex}`);
 
-        let mainImage = mainImageField && mainImageField.value.trim() !== '' && !mainImageField.value.startsWith('blob:')
+        let mainImage = mainImageField && mainImageField.value.trim() !== ''
           ? mainImageField.value.trim() 
           : (rawImages[0] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800');
 
@@ -765,7 +794,7 @@
         }
         localStorage.setItem('hop_products', JSON.stringify(products));
 
-        // 2. Kirim Sinkronisasi Data ke Google Apps Script WebApp
+        btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan ke Google Sheets...`;
         const scriptUrl = getActiveScriptUrl();
         if (scriptUrl) {
           await fetch(scriptUrl, {
@@ -780,7 +809,7 @@
         populateChecklistWarehouses();
         renderAdminTable();
         closeModal();
-        alert('Unit piano & foto Cloudinary berhasil disimpan!');
+        alert('Unit piano & foto Cloudinary berhasil diperbarui di Sheets!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
@@ -806,7 +835,7 @@
       }
     }
 
-    // FUNGSI HAPUS SATU UNIT (OTOMATIS HAPUS DI GOOGLE SHEETS & CLOUDINARY)
+    // FUNGSI HAPUS SATU UNIT
     async function deleteProduct(id) {
       const item = products.find(p => p.id === id);
       if (!item) return;
