@@ -127,6 +127,34 @@
           <button onclick="saveWaNumber()" class="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 whitespace-nowrap">Simpan</button>
         </div>
       </div>
+
+      <!-- KARTU PENGATURAN MUSIK BACKSOUND -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:col-span-2">
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 flex items-center justify-between">
+          <span><i class="fa-solid fa-music text-amber-600 mr-2"></i>Pengaturan Musik Backsound Website</span>
+          <span id="audio-upload-status" class="text-[10px] text-gray-500 font-normal"></span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div class="md:col-span-6 flex space-x-2">
+            <input type="text" id="backsound-url-input" placeholder="https://res.cloudinary.com/.../audio.mp3" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
+            <label for="backsound-file-input" id="lbl-upload-audio" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap flex items-center">
+              <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Upload MP3
+            </label>
+            <input type="file" id="backsound-file-input" accept="audio/*" onchange="uploadAudioToCloudinary(this)" class="hidden">
+          </div>
+          <div class="md:col-span-3">
+            <select id="backsound-mode-select" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-semibold text-gray-700">
+              <option value="manual">Manual Play (User Klik Icon)</option>
+              <option value="auto">Auto Play (Putar Otomatis)</option>
+            </select>
+          </div>
+          <div class="md:col-span-3">
+            <button onclick="saveBacksoundSettings()" class="w-full px-3 py-1.5 bg-brand-gold hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-all">
+              <i class="fa-solid fa-floppy-disk mr-1"></i>Simpan Backsound
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- TABEL INVENTARIS ADMIN -->
@@ -276,6 +304,7 @@
       checkAuthStatus();
       loadWaNumber();
       loadScriptUrl();
+      loadBacksoundSettings();
     });
 
     function checkAuthStatus() {
@@ -718,6 +747,56 @@
     }
 
     function loadWaNumber() { document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; }
+
+    /* FUNGSI PENGATURAN MUSIK BACKSOUND */
+    function loadBacksoundSettings() {
+      const defaultAudio = 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
+      document.getElementById('backsound-url-input').value = localStorage.getItem('jp_backsound_url') || defaultAudio;
+      document.getElementById('backsound-mode-select').value = localStorage.getItem('jp_backsound_mode') || 'manual';
+    }
+
+    function saveBacksoundSettings() {
+      const url = document.getElementById('backsound-url-input').value.trim();
+      const mode = document.getElementById('backsound-mode-select').value;
+      if (url) localStorage.setItem('jp_backsound_url', url);
+      localStorage.setItem('jp_backsound_mode', mode);
+      alert('Pengaturan Musik Backsound berhasil disimpan!');
+    }
+
+    async function uploadAudioToCloudinary(fileInput) {
+      if (!fileInput.files || fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const statusLbl = document.getElementById('audio-upload-status');
+      statusLbl.textContent = 'Mengunggah audio...';
+      statusLbl.className = 'text-[10px] text-amber-600 font-bold animate-pulse';
+
+      const cld = getCldEnv();
+      if (!cld.cloudName) {
+        alert('Cloudinary Cloud Name belum terkonfigurasi.');
+        statusLbl.textContent = '';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', cld.uploadPreset);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cld.cloudName}/video/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.secure_url) {
+          document.getElementById('backsound-url-input').value = data.secure_url;
+          statusLbl.textContent = 'Upload Sukses!';
+          statusLbl.className = 'text-[10px] text-green-600 font-bold';
+        } else {
+          throw new Error('Gagal mengunggah');
+        }
+      } catch (err) {
+        alert('Gagal mengunggah file musik ke Cloudinary.');
+        statusLbl.textContent = 'Upload Gagal';
+        statusLbl.className = 'text-[10px] text-red-600 font-bold';
+      }
+    }
 
     function exportToCSV() {
       const checkboxes = document.querySelectorAll('.product-checkbox:checked');
