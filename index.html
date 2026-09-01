@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Jon Piano Jakarta - Luxury Keys & Showroom</title>
   
+  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,60 +23,28 @@
     }
   </script>
 
+  <!-- HIDE GOOGLE TRANSLATE BANNER & FRAME -->
   <style>
-    /* Sembunyikan banner Google Translate di bagian paling atas */
     .goog-te-banner-frame, 
     .goog-te-banner-frame.skiptranslate,
-    iframe.goog-te-banner-frame { 
+    iframe.goog-te-banner-frame,
+    .skiptranslate { 
       display: none !important; 
     }
-    
-    /* Mencegah body bergeser ke bawah akibat banner Google */
     body { 
       top: 0px !important; 
       position: static !important;
-    }
-    
-    /* Sembunyikan Logo Google, teks 'Powered by', dan atribut pengganggu lainnya */
-    .goog-logo-link, 
-    .goog-te-gadget span, 
-    .goog-te-gadget-icon { 
-      display: none !important; 
-    }
-    
-    .goog-te-gadget { 
-      color: transparent !important; 
-      font-size: 0px !important; 
-    }
-
-    /* Style rapi untuk dropdown pilihan bahasa di header */
-    #google_translate_element select {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(197, 160, 89, 0.4);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: bold;
-      border-radius: 0.5rem;
-      padding: 4px 8px;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    #google_translate_element select:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-    #google_translate_element select option {
-      background-color: #111111;
-      color: #ffffff;
     }
   </style>
 </head>
 <body class="bg-brand-cream text-brand-dark font-sans flex flex-col min-h-screen">
 
+  <!-- BACKGROUND AUDIO TAG -->
   <audio id="bg-audio" loop preload="auto">
     <source id="bg-audio-source" src="https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- HEADER / NAVBAR -->
   <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 sm:h-20 flex items-center justify-between">
       <a href="index.html" onclick="showCatalogView()" class="flex items-center space-x-2 sm:space-x-3">
@@ -87,7 +56,13 @@
       </a>
       
       <div class="flex items-center space-x-1.5 sm:space-x-3">
-        <div id="google_translate_element" class="text-xs"></div>
+        <!-- DROPDOWN BAHASA DENGAN TAMPILAN AWAL -->
+        <div class="relative inline-block text-left">
+          <select id="lang-selector" onchange="translatePage(this.value)" class="bg-white/10 border border-brand-gold/40 hover:bg-white/20 text-white text-[10px] sm:text-xs font-bold rounded-lg px-1.5 sm:px-2.5 py-1 sm:py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-gold cursor-pointer transition-all">
+            <option value="id" class="bg-brand-dark text-white">🇮🇩 ID</option>
+            <option value="en" class="bg-brand-dark text-white">🇬🇧 EN</option>
+          </select>
+        </div>
 
         <button id="btn-audio-toggle" onclick="toggleAudio()" class="p-1.5 sm:p-2 text-brand-gold hover:text-white bg-white/10 hover:bg-white/20 border border-brand-gold/30 rounded-lg transition-all flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9" title="Putar/Hentikan Musik Backsound">
           <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
@@ -100,7 +75,9 @@
     </div>
   </header>
 
+  <!-- VIEW KATALOG UTAMA -->
   <main id="catalog-view" class="flex-grow">
+    <!-- CAROUSEL BANNER UTAMA -->
     <section id="carousel-section" class="relative bg-brand-dark overflow-hidden">
       <div id="carousel-container" class="relative w-full h-[260px] sm:h-[380px] md:h-[480px]"></div>
       <button onclick="prevSlide()" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all z-10">
@@ -112,6 +89,7 @@
       <div id="carousel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 sm:space-x-2 z-10"></div>
     </section>
 
+    <!-- HIGHLIGHT FITUR -->
     <section class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
         <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200/60 shadow-sm flex items-center space-x-2.5 sm:space-x-3">
@@ -165,6 +143,7 @@
       </div>
     </section>
 
+    <!-- FILTER & LIST KATALOG PRODUK -->
     <section class="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div>
@@ -184,6 +163,7 @@
     </section>
   </main>
 
+  <!-- VIEW DETAIL PRODUK -->
   <main id="detail-view" class="hidden flex-grow max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 w-full">
     <button onclick="showCatalogView()" class="mb-4 sm:mb-6 px-3.5 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 inline-flex items-center shadow-sm">
       <i class="fa-solid fa-arrow-left mr-2"></i><span>Kembali ke Katalog Utama</span>
@@ -256,6 +236,7 @@
     </div>
   </main>
 
+  <!-- FOOTER SHOWROOM -->
   <footer class="bg-brand-dark text-white border-t border-brand-gold/20 mt-8 sm:mt-12">
     <div class="max-w-7xl mx-auto px-4 py-8 sm:py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8 items-start">
@@ -318,12 +299,15 @@
     </div>
   </footer>
 
+  <!-- ELEMENT HIDDEN UNTUK WIDGET GOOGLE TRANSLATE -->
+  <div id="google_translate_element" style="display:none;"></div>
+
+  <!-- SCRIPT GOOGLE TRANSLATE ENGINE -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
         pageLanguage: 'id',
         includedLanguages: 'en,id',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
         autoDisplay: false
       }, 'google_translate_element');
     }
@@ -338,10 +322,19 @@
     let currentCarouselIndex = 0;
     let carouselInterval = null;
     let isAudioPlaying = false;
+    let currentLang = localStorage.getItem('jp_language') || 'id';
 
     document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('lang-selector').value = currentLang;
       initAudio();
       setupFooterContacts();
+
+      // Set bahasa tersimpan setelah Google Translate siap
+      setTimeout(() => {
+        if (currentLang && currentLang !== 'id') {
+          translatePage(currentLang);
+        }
+      }, 1000);
 
       // 1. Dapatkan Data dari Google Sheets
       try {
@@ -374,6 +367,16 @@
       const productId = urlParams.get('id');
       if (productId) showDetailView(productId);
     });
+
+    // FUNGSI PENERJEMAH OTOMATIS BERBASIS ENGINE GOOGLE SCRIPT
+    function translatePage(langCode) {
+      localStorage.setItem('jp_language', langCode);
+      const googleCombo = document.querySelector('.goog-te-combo');
+      if (googleCombo) {
+        googleCombo.value = langCode;
+        googleCombo.dispatchEvent(new Event('change'));
+      }
+    }
 
     function parseCSVData(csvText) {
       const lines = csvText.split(/\r\n|\n/);
