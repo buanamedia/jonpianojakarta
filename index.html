@@ -12,7 +12,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- CONFIG SECURITY & URL APPS SCRIPT -->
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="auth-config.js"></script>
 
   <script>
@@ -57,7 +59,6 @@
       </a>
       
       <div class="flex items-center space-x-1.5 sm:space-x-3">
-        <!-- DROPDOWN BAHASA DENGAN TAMPILAN AWAL -->
         <div class="relative inline-block text-left">
           <select id="lang-selector" onchange="translatePage(this.value)" class="bg-white/10 border border-brand-gold/40 hover:bg-white/20 text-white text-[10px] sm:text-xs font-bold rounded-lg px-1.5 sm:px-2.5 py-1 sm:py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-gold cursor-pointer transition-all">
             <option value="id" class="bg-brand-dark text-white">🇮🇩 ID</option>
@@ -69,7 +70,6 @@
           <i id="icon-audio" class="fa-solid fa-volume-xmark text-xs sm:text-base text-gray-400"></i>
         </button>
 
-        <!-- IKON AKUN ADMIN -->
         <a id="header-admin-link" href="admin.html" class="p-1.5 sm:p-2 text-gray-400 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-lg" title="Dashboard Admin">
           <i class="fa-solid fa-user-gear text-sm sm:text-lg"></i>
         </a>
@@ -301,10 +301,8 @@
     </div>
   </footer>
 
-  <!-- ELEMENT HIDDEN UNTUK WIDGET GOOGLE TRANSLATE -->
   <div id="google_translate_element" style="display:none;"></div>
 
-  <!-- SCRIPT GOOGLE TRANSLATE ENGINE -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
@@ -317,7 +315,11 @@
   <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <script>
-    const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
+    // INISIALISASI FIREBASE
+    if (window.AUTH_CONFIG && window.AUTH_CONFIG.FIREBASE_CONFIG) {
+      firebase.initializeApp(window.AUTH_CONFIG.FIREBASE_CONFIG);
+    }
+    const db = firebase.firestore();
 
     let products = [];
     let waNumber = '082370958651';
@@ -326,106 +328,69 @@
     let isAudioPlaying = false;
     let currentLang = localStorage.getItem('jp_language') || 'id';
 
-    // HELPER UNTUK MENGAMBIL SCRIPT URL DECODED DARI auth-config.js
-    function getDecodedScriptUrl() {
-      if (window.AUTH_CONFIG && window.AUTH_CONFIG.SCRIPT_URL_ENCODED) {
-        try {
-          return atob(window.AUTH_CONFIG.SCRIPT_URL_ENCODED);
-        } catch (e) {
-          console.error("Gagal decode SCRIPT_URL_ENCODED:", e);
-        }
-      }
-      return 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('lang-selector').value = currentLang;
 
-      // 1. Ambil Setting Terpusat dari WebApp Sheets TERLEBIH DAHULU (Menghindari Stale Cache)
-      await loadSettingsFromGoogleSheets();
+      // 1. Listen Pengaturan Global Realtime dari Firebase
+      listenSettingsFromFirebase();
 
-      // 2. Baru inisialisasi audio setelah setting terbaru dari Sheets ter-update di LocalStorage
-      initAudio();
+      // 2. Listen Stok Katalog Piano Realtime dari Firebase
+      listenProductsFromFirebase();
 
       setTimeout(() => {
-        if (currentLang && currentLang !== 'id') {
-          translatePage(currentLang);
-        }
+        if (currentLang && currentLang !== 'id') translatePage(currentLang);
       }, 1000);
-
-      // 3. Ambil Stok Produk Piano dari Google Sheets
-      try {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
-        const res = await fetch(csvUrl);
-        if (res.ok) {
-          const csvText = await res.text();
-          const sheetProducts = parseCSVData(csvText);
-          
-          if (sheetProducts.length > 0 && sheetProducts.some(p => p.image && !p.image.includes('unsplash'))) {
-            products = sheetProducts;
-            localStorage.setItem('hop_products', JSON.stringify(products));
-          }
-        }
-      } catch (err) { }
-
-      if (!products || products.length === 0) {
-        const localData = localStorage.getItem('hop_products');
-        if (localData) {
-          try { products = JSON.parse(localData); } catch (e) {}
-        }
-      }
-
-      populateCategoriesFilter();
-      renderCarousel();
-      renderProductGrid();
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const productId = urlParams.get('id');
-      if (productId) showDetailView(productId);
     });
 
-    // FUNGSI MEMBACA SETTING DIRECT DARI APPS SCRIPT WEBAPP
-    async function loadSettingsFromGoogleSheets() {
-      const scriptUrl = localStorage.getItem('jp_script_url') || getDecodedScriptUrl();
+    // LISTEN SETTING DARI FIREBASE (INSTAN < 100MS)
+    function listenSettingsFromFirebase() {
+      db.collection('settings').doc('global').onSnapshot((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.jp_wa_number) localStorage.setItem('jp_wa_number', data.jp_wa_number);
+          if (data.jp_show_admin_icon) localStorage.setItem('jp_show_admin_icon', data.jp_show_admin_icon);
+          if (data.jp_operating_hours) localStorage.setItem('jp_operating_hours', data.jp_operating_hours);
+          if (data.jp_backsound_url) localStorage.setItem('jp_backsound_url', data.jp_backsound_url);
+          if (data.jp_backsound_mode) localStorage.setItem('jp_backsound_mode', data.jp_backsound_mode);
 
-      try {
-        // Parameter timestamp nocache memaksa browser mengambil data paling baru dari server Apps Script
-        const res = await fetch(`${scriptUrl}?nocache=${Date.now()}`);
-        if (res.ok) {
-          const settingsData = await res.json();
-          Object.keys(settingsData).forEach(key => {
-            if (settingsData[key]) {
-              localStorage.setItem(key, settingsData[key]);
-            }
-          });
+          setupAdminIconVisibility();
+          setupOperatingHours();
+          setupFooterContacts();
+          initAudio();
         }
-      } catch (e) {
-        console.log("Gagal membaca API Settings, menggunakan fallback lokal:", e);
-      }
+      });
+    }
 
-      setupAdminIconVisibility();
-      setupOperatingHours();
-      setupFooterContacts();
+    // LISTEN KATALOG PIANO DARI FIREBASE
+    function listenProductsFromFirebase() {
+      db.collection('products').onSnapshot((snapshot) => {
+        products = [];
+        snapshot.forEach((doc) => {
+          products.push({ id: doc.id, ...doc.data() });
+        });
+
+        populateCategoriesFilter();
+        renderCarousel();
+        renderProductGrid();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        if (productId) showDetailView(productId);
+      });
     }
 
     function setupAdminIconVisibility() {
       const showAdmin = localStorage.getItem('jp_show_admin_icon');
       const adminLink = document.getElementById('header-admin-link');
       if (adminLink) {
-        if (showAdmin === 'false') {
-          adminLink.classList.add('hidden');
-        } else {
-          adminLink.classList.remove('hidden');
-        }
+        adminLink.classList.toggle('hidden', showAdmin === 'false');
       }
     }
 
     function setupOperatingHours() {
       const hours = localStorage.getItem('jp_operating_hours');
       const hoursEl = document.getElementById('footer-operating-hours');
-      if (hoursEl && hours) {
-        hoursEl.textContent = hours;
-      }
+      if (hoursEl && hours) hoursEl.textContent = hours;
     }
 
     function setupFooterContacts() {
@@ -450,64 +415,8 @@
       }
     }
 
-    function parseCSVData(csvText) {
-      const lines = csvText.split(/\r\n|\n/);
-      if (lines.length < 2) return [];
-
-      const headers = parseCSVLine(lines[0]).map(h => h.trim().toUpperCase());
-      const result = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = parseCSVLine(lines[i]);
-        const row = {};
-        headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
-
-        let rawPrice = row['HARGA'] || 'Hubungi Sales';
-        let formattedPrice = rawPrice;
-        if (/^\d+$/.test(rawPrice)) {
-          formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
-        }
-
-        const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-        const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
-
-        const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
-        const isCarouselActive = (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1');
-
-        result.push({
-          id: i.toString(),
-          gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
-          title: row['MERK PIANO'] || row['NAMA / MERK PIANO'] || 'PIANO',
-          category: row['CATEGORY'] || 'Upright Piano',
-          no_seri: row['NO.SERI'] || row['NO. SERI'] || '-',
-          warna: (row['WARNA'] || 'HITAM').toUpperCase(),
-          price: formattedPrice,
-          status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-          isCarousel: isCarouselActive,
-          image: mainImg,
-          images: galleryImgs,
-          description: `Piano ${row['MERK PIANO'] || 'Piano'} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`
-        });
-      }
-      return result;
-    }
-
-    function parseCSVLine(text) {
-      const regex = /(?:,|\r?\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^,\r\n]*))/gi;
-      const array = [];
-      let match = null;
-      while ((match = regex.exec(text))) {
-        if (match[1] !== undefined) array.push(match[1].replace(/""/g, '"'));
-        else array.push(match[2]);
-      }
-      return array;
-    }
-
-    // INISIALISASI PEMUTAR MUSIK & HANDLING AUTOPLAY BROWSER
     function initAudio() {
       const audio = document.getElementById('bg-audio');
-      
       const fallbackAudio = (window.AUTH_CONFIG && window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL) 
         ? window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL 
         : 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
@@ -515,10 +424,7 @@
       const savedAudioUrl = localStorage.getItem('jp_backsound_url') || fallbackAudio;
       const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
 
-      // Selalu update sumber audio jika nilainya berubah
-      if (audio.src !== savedAudioUrl) {
-        audio.src = savedAudioUrl;
-      }
+      if (audio.src !== savedAudioUrl) audio.src = savedAudioUrl;
 
       if (audioMode === 'auto') {
         const startPlay = () => {
@@ -548,7 +454,7 @@
         audio.play().then(() => {
           isAudioPlaying = true;
           updateAudioIcon();
-        }).catch(err => alert("Gagal memutar audio, pastikan format link valid."));
+        }).catch(err => alert("Gagal memutar audio."));
       }
       updateAudioIcon();
     }
