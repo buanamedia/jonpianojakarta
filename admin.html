@@ -430,85 +430,102 @@
       });
     }
 
-    // FUNGSI IMPORT DATA DARI FILE CSV KE FIREBASE
-    async function handleCSVImport(fileInput) {
-      if (!fileInput.files || fileInput.files.length === 0) return;
-      
-      const file = fileInput.files[0];
-      if (!confirm(`Apakah Anda yakin ingin mengimpor data dari file "${file.name}" ke Firebase?`)) {
-        fileInput.value = '';
-        return;
+    // FUNGSI IMPORT CSV (YANG SUDAH DIPERBAIKI ATAU DIBATASI BARIS KOSONG)
+async function handleCSVImport(fileInput) {
+  if (!fileInput.files || fileInput.files.length === 0) return;
+  
+  const file = fileInput.files[0];
+  if (!confirm(`Apakah Anda yakin ingin mengimpor data dari file "${file.name}" ke Firebase?`)) {
+    fileInput.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const csvText = e.target.result;
+    
+    // Split baris dengan bersih (mengabaikan baris kosong)
+    const lines = csvText.split(/\r\n|\n|\r/).filter(line => line.trim() !== '');
+    if (lines.length < 2) return alert("File CSV kosong atau format tidak valid!");
+
+    // Helper parser CSV presisi
+    const parseCSVLine = (text) => {
+      const result = [];
+      let cell = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(cell.trim());
+          cell = '';
+        } else {
+          cell += char;
+        }
+      }
+      result.push(cell.trim());
+      return result.map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'));
+    };
+
+    const headers = parseCSVLine(lines[0]).map(h => h.trim().toUpperCase());
+    const batch = db.batch();
+    let count = 0;
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = parseCSVLine(lines[i]);
+      if (values.length < 2) continue; // Abaikan baris rusak
+
+      const row = {};
+      headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+
+      // Validasi: Wajib ada nama unit/merk piano
+      const titleName = row['MERK PIANO'] || row['NAMA / MERK PIANO'] || row['TITLE'] || '';
+      if (!titleName) continue; 
+
+      let rawPrice = row['HARGA'] || row['PRICE'] || 'Hubungi Sales';
+      let formattedPrice = rawPrice;
+      if (/^\d+$/.test(rawPrice)) {
+        formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
       }
 
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const csvText = e.target.result;
-        const lines = csvText.split(/\r\n|\n/);
-        if (lines.length < 2) return alert("File CSV kosong atau format tidak valid!");
+      const mainImg = row['FOTO UTAMA'] || row['IMAGE'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
+      const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
+      const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
 
-        const parseCSVLine = (text) => {
-          const regex = /(?:,|\r?\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^,\r\n]*))/gi;
-          const array = [];
-          let match = null;
-          while ((match = regex.exec(text))) {
-            if (match[1] !== undefined) array.push(match[1].replace(/""/g, '"'));
-            else array.push(match[2]);
-          }
-          return array;
-        };
-
-        const headers = parseCSVLine(lines[0]).map(h => h.trim().toUpperCase());
-        const batch = db.batch();
-        let count = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          if (!lines[i].trim()) continue;
-          const values = parseCSVLine(lines[i]);
-          const row = {};
-          headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
-
-          let rawPrice = row['HARGA'] || 'Hubungi Sales';
-          let formattedPrice = rawPrice;
-          if (/^\d+$/.test(rawPrice)) {
-            formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
-          }
-
-          const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-          const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
-          const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
-
-          const productDoc = {
-            gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
-            title: row['MERK PIANO'] || row['NAMA / MERK PIANO'] || 'PIANO',
-            category: row['CATEGORY'] || 'Upright Piano',
-            no_seri: row['NO.SERI'] || row['NO. SERI'] || '-',
-            warna: (row['WARNA'] || 'HITAM').toUpperCase(),
-            price: formattedPrice,
-            status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-            isCarousel: (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1'),
-            image: mainImg,
-            images: galleryImgs,
-            description: `Piano ${row['MERK PIANO'] || 'Piano'} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          const docRef = db.collection('products').doc();
-          batch.set(docRef, productDoc);
-          count++;
-        }
-
-        try {
-          await batch.commit();
-          alert(`Berhasil mengimpor ${count} unit piano dari file CSV ke Firebase!`);
-        } catch (err) {
-          alert("Gagal mengimpor data CSV: " + err.message);
-        } finally {
-          fileInput.value = '';
-        }
+      const productDoc = {
+        gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
+        title: titleName,
+        category: row['CATEGORY'] || row['KATEGORI'] || 'Upright Piano',
+        no_seri: row['NO.SERI'] || row['NO. SERI'] || '-',
+        warna: (row['WARNA'] || 'HITAM').toUpperCase(),
+        price: formattedPrice,
+        status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
+        isCarousel: (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1'),
+        image: mainImg,
+        images: galleryImgs,
+        description: `Piano ${titleName} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
 
-      reader.readAsText(file);
+      const docRef = db.collection('products').doc();
+      batch.set(docRef, productDoc);
+      count++;
     }
+
+    try {
+      await batch.commit();
+      alert(`Sukses! Berhasil mengimpor tepat ${count} unit piano ke Firebase.`);
+    } catch (err) {
+      alert("Gagal mengimpor data CSV: " + err.message);
+    } finally {
+      fileInput.value = '';
+    }
+  };
+
+  reader.readAsText(file);
+}
 
     // SIMPAN SETTING GLOBAL KE FIREBASE
     async function sendSettingToFirebase(key, value) {
