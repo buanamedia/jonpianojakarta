@@ -98,6 +98,12 @@
         <p class="text-gray-500 text-xs sm:text-sm">Database Firebase Firestore - Respon Instan & Realtime.</p>
       </div>
       <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <!-- TOMBOL IMPORT CSV -->
+        <label for="import-csv-file" class="px-3 py-2 bg-purple-700 hover:bg-purple-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all cursor-pointer inline-flex items-center justify-center">
+          <i class="fa-solid fa-file-import mr-1"></i>Import CSV
+        </label>
+        <input type="file" id="import-csv-file" accept=".csv" onchange="handleCSVImport(this)" class="hidden">
+
         <button onclick="exportToCSV()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
           <i class="fa-solid fa-file-export mr-1"></i>Export CSV
         </button>
@@ -422,6 +428,86 @@
           }
         }
       });
+    }
+
+    // FUNGSI IMPORT DATA DARI FILE CSV KE FIREBASE
+    async function handleCSVImport(fileInput) {
+      if (!fileInput.files || fileInput.files.length === 0) return;
+      
+      const file = fileInput.files[0];
+      if (!confirm(`Apakah Anda yakin ingin mengimpor data dari file "${file.name}" ke Firebase?`)) {
+        fileInput.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const csvText = e.target.result;
+        const lines = csvText.split(/\r\n|\n/);
+        if (lines.length < 2) return alert("File CSV kosong atau format tidak valid!");
+
+        const parseCSVLine = (text) => {
+          const regex = /(?:,|\r?\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^,\r\n]*))/gi;
+          const array = [];
+          let match = null;
+          while ((match = regex.exec(text))) {
+            if (match[1] !== undefined) array.push(match[1].replace(/""/g, '"'));
+            else array.push(match[2]);
+          }
+          return array;
+        };
+
+        const headers = parseCSVLine(lines[0]).map(h => h.trim().toUpperCase());
+        const batch = db.batch();
+        let count = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const values = parseCSVLine(lines[i]);
+          const row = {};
+          headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+
+          let rawPrice = row['HARGA'] || 'Hubungi Sales';
+          let formattedPrice = rawPrice;
+          if (/^\d+$/.test(rawPrice)) {
+            formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
+          }
+
+          const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
+          const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
+          const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
+
+          const productDoc = {
+            gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
+            title: row['MERK PIANO'] || row['NAMA / MERK PIANO'] || 'PIANO',
+            category: row['CATEGORY'] || 'Upright Piano',
+            no_seri: row['NO.SERI'] || row['NO. SERI'] || '-',
+            warna: (row['WARNA'] || 'HITAM').toUpperCase(),
+            price: formattedPrice,
+            status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
+            isCarousel: (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1'),
+            image: mainImg,
+            images: galleryImgs,
+            description: `Piano ${row['MERK PIANO'] || 'Piano'} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          const docRef = db.collection('products').doc();
+          batch.set(docRef, productDoc);
+          count++;
+        }
+
+        try {
+          await batch.commit();
+          alert(`Berhasil mengimpor ${count} unit piano dari file CSV ke Firebase!`);
+        } catch (err) {
+          alert("Gagal mengimpor data CSV: " + err.message);
+        } finally {
+          fileInput.value = '';
+        }
+      };
+
+      reader.readAsText(file);
     }
 
     // SIMPAN SETTING GLOBAL KE FIREBASE
