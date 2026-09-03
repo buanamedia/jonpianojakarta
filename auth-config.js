@@ -13,5 +13,5 @@ window.AUTH_CONFIG = {
   },
 
   DEFAULT_WA_NUMBER: "082370958651",
-  DEFAULT_BACKSOUND_URL: "https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3"
+  DEFAULT_BACKSOUND_URL: "https://res.cloudinary.com/jca7x4qo/video/upload/v1788258478/Beautiful_in_White_x_Canon_in_D_Piano_Cover_by_Riyandi_Kusuma.mp3"
 };
