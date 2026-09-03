@@ -98,21 +98,27 @@
         <p class="text-gray-500 text-xs sm:text-sm">Database Firebase Firestore - Respon Instan & Realtime.</p>
       </div>
       <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <!-- TOMBOL Tambah Unit -->
+        <button onclick="openModal()" class="px-3 py-2 bg-brand-gold hover:bg-amber-600 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
+          <i class="fa-solid fa-plus mr-1"></i>Tambah Unit
+        </button>
+        
         <!-- TOMBOL IMPORT CSV -->
         <label for="import-csv-file" class="px-3 py-2 bg-purple-700 hover:bg-purple-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all cursor-pointer inline-flex items-center justify-center">
           <i class="fa-solid fa-file-import mr-1"></i>Import CSV
         </label>
         <input type="file" id="import-csv-file" accept=".csv" onchange="handleCSVImport(this)" class="hidden">
-
+        
+        <!-- TOMBOL Export CSV -->
         <button onclick="exportToCSV()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
           <i class="fa-solid fa-file-export mr-1"></i>Export CSV
         </button>
-        <button onclick="deleteSelectedProducts()" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
+        
+        <!-- TOMBOL Hapus Terpilih -->
+                <button onclick="deleteSelectedProducts()" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
           <i class="fa-solid fa-trash-can mr-1"></i>Hapus Terpilih
         </button>
-        <button onclick="openModal()" class="px-3 py-2 bg-brand-gold hover:bg-amber-600 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
-          <i class="fa-solid fa-plus mr-1"></i>Tambah Unit
-        </button>
+                
       </div>
     </div>
 
