@@ -342,24 +342,35 @@
       }, 1000);
     });
 
-    // LISTEN SETTING DARI FIREBASE (INSTAN < 100MS)
-    function listenSettingsFromFirebase() {
-      db.collection('settings').doc('global').onSnapshot((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.jp_wa_number) localStorage.setItem('jp_wa_number', data.jp_wa_number);
-          if (data.jp_show_admin_icon) localStorage.setItem('jp_show_admin_icon', data.jp_show_admin_icon);
-          if (data.jp_operating_hours) localStorage.setItem('jp_operating_hours', data.jp_operating_hours);
-          if (data.jp_backsound_url) localStorage.setItem('jp_backsound_url', data.jp_backsound_url);
-          if (data.jp_backsound_mode) localStorage.setItem('jp_backsound_mode', data.jp_backsound_mode);
+    // 1. UPDATE LISTEN SETTINGS FIREBASE (INSTAN REFRESH AUDIO)
+function listenSettingsFromFirebase() {
+  db.collection('settings').doc('global').onSnapshot((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      
+      // Simpan setting ke LocalStorage
+      if (data.jp_wa_number) localStorage.setItem('jp_wa_number', data.jp_wa_number);
+      if (data.jp_show_admin_icon) localStorage.setItem('jp_show_admin_icon', data.jp_show_admin_icon);
+      if (data.jp_operating_hours) localStorage.setItem('jp_operating_hours', data.jp_operating_hours);
+      
+      // Deteksi perubahan URL Backsound secara instan
+      const oldAudioUrl = localStorage.getItem('jp_backsound_url');
+      if (data.jp_backsound_url) localStorage.setItem('jp_backsound_url', data.jp_backsound_url);
+      if (data.jp_backsound_mode) localStorage.setItem('jp_backsound_mode', data.jp_backsound_mode);
 
-          setupAdminIconVisibility();
-          setupOperatingHours();
-          setupFooterContacts();
-          initAudio();
-        }
-      });
+      setupAdminIconVisibility();
+      setupOperatingHours();
+      setupFooterContacts();
+      
+      // Jika URL audio berubah saat web dibuka, paksa reload player audio
+      if (oldAudioUrl !== data.jp_backsound_url) {
+        initAudio(true);
+      } else {
+        initAudio(false);
+      }
     }
+  });
+}
 
     // LISTEN KATALOG PIANO DARI FIREBASE
     function listenProductsFromFirebase() {
@@ -415,35 +426,52 @@
       }
     }
 
-    function initAudio() {
-      const audio = document.getElementById('bg-audio');
-      const fallbackAudio = (window.AUTH_CONFIG && window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL) 
-        ? window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL 
-        : 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
+    // 2. UPDATE INISIALISASI PEMUTAR MUSIK (BYPASS CACHE BROWSER)
+function initAudio(forceReload = false) {
+  const audio = document.getElementById('bg-audio');
+  const fallbackAudio = (window.AUTH_CONFIG && window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL) 
+    ? window.AUTH_CONFIG.DEFAULT_BACKSOUND_URL 
+    : 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
 
-      const savedAudioUrl = localStorage.getItem('jp_backsound_url') || fallbackAudio;
-      const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
+  let savedAudioUrl = localStorage.getItem('jp_backsound_url') || fallbackAudio;
+  const audioMode = localStorage.getItem('jp_backsound_mode') || 'manual';
 
-      if (audio.src !== savedAudioUrl) audio.src = savedAudioUrl;
+  // Tambahkan query parameter timestamp jika ada force reload agar memutus cache lama
+  let finalAudioUrl = savedAudioUrl;
+  if (forceReload && savedAudioUrl.includes('cloudinary.com')) {
+    finalAudioUrl = `${savedAudioUrl}?v=${Date.now()}`;
+  }
 
-      if (audioMode === 'auto') {
-        const startPlay = () => {
-          if (!isAudioPlaying && audio.src) {
-            audio.play().then(() => {
-              isAudioPlaying = true;
-              updateAudioIcon();
-            }).catch(err => console.log("Autoplay ditahan browser:", err));
-          }
-          document.removeEventListener('click', startPlay);
-          document.removeEventListener('touchstart', startPlay);
-          document.removeEventListener('scroll', startPlay);
-        };
-
-        document.addEventListener('click', startPlay, { once: true });
-        document.addEventListener('touchstart', startPlay, { once: true });
-        document.addEventListener('scroll', startPlay, { once: true });
-      }
+  // Jika URL berbeda atau dipaksa reload, ganti sumber audio
+  if (audio.src !== finalAudioUrl || forceReload) {
+    const wasPlaying = isAudioPlaying;
+    audio.src = finalAudioUrl;
+    audio.load(); // Paksa browser membaca file audio baru
+    
+    if (wasPlaying) {
+      audio.play().catch(e => console.log("Gagal melanjutkan audio:", e));
     }
+  }
+
+  // Penanganan Autoplay
+  if (audioMode === 'auto') {
+    const startPlay = () => {
+      if (!isAudioPlaying && audio.src) {
+        audio.play().then(() => {
+          isAudioPlaying = true;
+          updateAudioIcon();
+        }).catch(err => console.log("Autoplay ditahan browser:", err));
+      }
+      document.removeEventListener('click', startPlay);
+      document.removeEventListener('touchstart', startPlay);
+      document.removeEventListener('scroll', startPlay);
+    };
+
+    document.addEventListener('click', startPlay, { once: true });
+    document.addEventListener('touchstart', startPlay, { once: true });
+    document.addEventListener('scroll', startPlay, { once: true });
+  }
+}
 
     function toggleAudio() {
       const audio = document.getElementById('bg-audio');
