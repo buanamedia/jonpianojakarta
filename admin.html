@@ -248,20 +248,22 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs sm:text-sm border-collapse">
           <thead>
-            <tr class="bg-gray-50 border-b text-gray-600 text-[10px] sm:text-xs uppercase select-none">
-              <th class="py-2.5 px-2 text-center w-8">
-                <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-3.5 h-3.5 rounded text-brand-gold cursor-pointer">
-              </th>
-              <th onclick="sortTable('gudang')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">GUDANG</th>
-              <th onclick="sortTable('title')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">MERK PIANO</th>
-              <th onclick="sortTable('isCarousel')" class="py-2.5 px-2 text-center cursor-pointer hover:bg-gray-100 whitespace-nowrap">CAROUSEL</th>
-              <th class="py-2.5 px-2 whitespace-nowrap">NO. SERI</th>
-              <th class="py-2.5 px-2 whitespace-nowrap">WARNA</th>
-              <th onclick="sortTable('price')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">HARGA</th>
-              <th onclick="sortTable('status')" class="py-2.5 px-2 text-center cursor-pointer hover:bg-gray-100 whitespace-nowrap">STATUS</th>
-              <th class="py-2.5 px-2 text-center whitespace-nowrap">AKSI</th>
-            </tr>
-          </thead>
+  <tr class="bg-gray-50 border-b text-gray-600 text-[10px] sm:text-xs uppercase select-none">
+    <th class="py-2.5 px-2 text-center w-8">
+      <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="w-3.5 h-3.5 rounded text-brand-gold cursor-pointer">
+    </th>
+    <!-- KOLOM NOMOR URUT BARU -->
+    <th class="py-2.5 px-2 text-center font-bold w-10 whitespace-nowrap">NO</th>
+    <th onclick="sortTable('gudang')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">GUDANG</th>
+    <th onclick="sortTable('title')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">MERK PIANO</th>
+    <th onclick="sortTable('isCarousel')" class="py-2.5 px-2 text-center cursor-pointer hover:bg-gray-100 whitespace-nowrap">CAROUSEL</th>
+    <th class="py-2.5 px-2 whitespace-nowrap">NO. SERI</th>
+    <th class="py-2.5 px-2 whitespace-nowrap">WARNA</th>
+    <th onclick="sortTable('price')" class="py-2.5 px-2 cursor-pointer hover:bg-gray-100 whitespace-nowrap">HARGA</th>
+    <th onclick="sortTable('status')" class="py-2.5 px-2 text-center cursor-pointer hover:bg-gray-100 whitespace-nowrap">STATUS</th>
+    <th class="py-2.5 px-2 text-center whitespace-nowrap">AKSI</th>
+  </tr>
+</thead>
           <tbody id="admin-table-body" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
@@ -539,45 +541,47 @@ async function handleCSVImport(fileInput) {
     }
 
     function renderAdminTable() {
-      const tbody = document.getElementById('admin-table-body');
-      document.getElementById('total-count').textContent = products.length;
-      tbody.innerHTML = '';
+  const tbody = document.getElementById('admin-table-body');
+  document.getElementById('total-count').textContent = products.length;
+  tbody.innerHTML = '';
 
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-400">Tidak ada data stok piano di Firebase.</td></tr>`;
-        return;
-      }
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="py-6 text-center text-gray-400">Tidak ada data stok piano di Firebase.</td></tr>`;
+    return;
+  }
 
-      products.forEach(p => {
-        const isSold = p.status === 'SOLD OUT';
-        const itemGudang = (p.gudang || 'UTAMA').toUpperCase();
-        const isCarousel = p.isCarousel === true;
+  products.forEach((p, index) => {
+    const isSold = p.status === 'SOLD OUT';
+    const itemGudang = (p.gudang || 'UTAMA').toUpperCase();
+    const isCarousel = p.isCarousel === true;
 
-        tbody.innerHTML += `
-          <tr class="hover:bg-gray-50 ${isCarousel ? 'bg-amber-50/40' : ''}">
-            <td class="py-2.5 px-2 text-center">
-              <input type="checkbox" class="product-checkbox w-3.5 h-3.5 rounded text-brand-gold cursor-pointer" value="${p.id}" data-gudang="${itemGudang}">
-            </td>
-            <td class="py-2.5 px-2 font-bold text-[11px] text-amber-900 whitespace-nowrap">${itemGudang}</td>
-            <td class="py-2.5 px-2 font-semibold text-gray-800 text-xs">${p.title}</td>
-            <td class="py-2.5 px-2 text-center whitespace-nowrap">
-              ${isCarousel ? '<span class="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[9px] rounded-full">CAROUSEL</span>' : '<span class="text-gray-300 text-xs">-</span>'}
-            </td>
-            <td class="py-2.5 px-2 font-mono text-[11px] whitespace-nowrap">${p.no_seri || '-'}</td>
-            <td class="py-2.5 px-2 text-[11px] whitespace-nowrap">${p.warna || '-'}</td>
-            <td class="py-2.5 px-2 font-bold text-gray-900 text-xs whitespace-nowrap">${p.price}</td>
-            <td class="py-2.5 px-2 text-center whitespace-nowrap">
-              ${isSold ? '<span class="px-2 py-0.5 text-[9px] bg-red-100 text-red-700 font-bold rounded-full">SOLD</span>' : '<span class="px-2 py-0.5 text-[9px] bg-green-100 text-green-700 font-bold rounded-full">READY</span>'}
-            </td>
-            <td class="py-2.5 px-2 text-center space-x-1 whitespace-nowrap">
-              <a href="index.html?id=${p.id}" target="_blank" class="px-2 py-1 bg-green-50 text-green-700 rounded text-[11px] font-semibold">View</a>
-              <button onclick="editProduct('${p.id}')" class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[11px] font-semibold">Edit</button>
-              <button onclick="deleteProduct('${p.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[11px] font-semibold">Hapus</button>
-            </td>
-          </tr>
-        `;
-      });
-    }
+    tbody.innerHTML += `
+      <tr class="hover:bg-gray-50 ${isCarousel ? 'bg-amber-50/40' : ''}">
+        <td class="py-2.5 px-2 text-center">
+          <input type="checkbox" class="product-checkbox w-3.5 h-3.5 rounded text-brand-gold cursor-pointer" value="${p.id}" data-gudang="${itemGudang}">
+        </td>
+        <!-- TAMPILAN NOMOR URUT DINAMIS -->
+        <td class="py-2.5 px-2 text-center font-bold text-gray-500 text-xs whitespace-nowrap">${index + 1}</td>
+        <td class="py-2.5 px-2 font-bold text-[11px] text-amber-900 whitespace-nowrap">${itemGudang}</td>
+        <td class="py-2.5 px-2 font-semibold text-gray-800 text-xs">${p.title}</td>
+        <td class="py-2.5 px-2 text-center whitespace-nowrap">
+          ${isCarousel ? '<span class="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[9px] rounded-full">CAROUSEL</span>' : '<span class="text-gray-300 text-xs">-</span>'}
+        </td>
+        <td class="py-2.5 px-2 font-mono text-[11px] whitespace-nowrap">${p.no_seri || '-'}</td>
+        <td class="py-2.5 px-2 text-[11px] whitespace-nowrap">${p.warna || '-'}</td>
+        <td class="py-2.5 px-2 font-bold text-gray-900 text-xs whitespace-nowrap">${p.price}</td>
+        <td class="py-2.5 px-2 text-center whitespace-nowrap">
+          ${isSold ? '<span class="px-2 py-0.5 text-[9px] bg-red-100 text-red-700 font-bold rounded-full">SOLD</span>' : '<span class="px-2 py-0.5 text-[9px] bg-green-100 text-green-700 font-bold rounded-full">READY</span>'}
+        </td>
+        <td class="py-2.5 px-2 text-center space-x-1 whitespace-nowrap">
+          <a href="index.html?id=${p.id}" target="_blank" class="px-2 py-1 bg-green-50 text-green-700 rounded text-[11px] font-semibold">View</a>
+          <button onclick="editProduct('${p.id}')" class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[11px] font-semibold">Edit</button>
+          <button onclick="deleteProduct('${p.id}')" class="px-2 py-1 bg-red-50 text-red-600 rounded text-[11px] font-semibold">Hapus</button>
+        </td>
+      </tr>
+    `;
+  });
+}
 
     function sortTable(columnKey) {
       if (currentSortColumn === columnKey) { currentSortAsc = !currentSortAsc; }
