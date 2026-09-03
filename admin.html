@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Jon Piano Jakarta - Inventory Admin</title>
+  <title>Jon Piano Jakarta - Inventory Admin (Firebase)</title>
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon jon piano.png">
@@ -13,7 +13,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <script src="env.js"></script>
+  
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="auth-config.js"></script>
 
   <script>
@@ -36,8 +39,8 @@
         <img src="icon jon piano.png" alt="Jon Piano Admin Icon" class="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0">
         <div>
           <span class="font-serif text-base sm:text-xl font-bold tracking-wider text-white block">JON PIANO ADMIN</span>
-          <span class="text-[8px] sm:text-[10px] text-green-400 font-mono tracking-widest uppercase flex items-center">
-            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 animate-pulse mr-1"></span>LIVE DASHBOARD
+          <span class="text-[8px] sm:text-[10px] text-orange-400 font-mono tracking-widest uppercase flex items-center">
+            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-400 animate-pulse mr-1"></span>FIREBASE REALTIME
           </span>
         </div>
       </div>
@@ -92,12 +95,9 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 sm:mb-6">
       <div>
         <h1 class="font-serif text-2xl sm:text-3xl font-bold">Kelola Inventaris Piano</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Kelola unit, update status, upload foto & synchronise stok piano.</p>
+        <p class="text-gray-500 text-xs sm:text-sm">Database Firebase Firestore - Respon Instan & Realtime.</p>
       </div>
       <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-        <button onclick="fetchSheetDataFromGoogle()" class="px-3 py-2 bg-green-700 hover:bg-green-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
-          <i class="fa-solid fa-arrows-rotate mr-1"></i>Refresh Data
-        </button>
         <button onclick="exportToCSV()" class="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition-all">
           <i class="fa-solid fa-file-export mr-1"></i>Export CSV
         </button>
@@ -112,21 +112,24 @@
 
     <!-- UTILITY & CONFIG CARDS -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-      <!-- KARTU SCRIPT URL -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-shield-halved text-blue-600 mr-2"></i>Google Apps Script WebApp URL (Secured)</h3>
-        <div class="flex space-x-2">
-          <input type="password" id="script-url-input" placeholder="• • • • • • • • • • • • • • • • • • • •" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-mono tracking-widest">
-          <button onclick="saveScriptUrl()" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 whitespace-nowrap">Simpan URL</button>
-        </div>
-      </div>
-
       <!-- KARTU WHATSAPP SALES -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-brands fa-whatsapp text-green-600 mr-2"></i>Nomor WhatsApp Sales</h3>
         <div class="flex space-x-2">
           <input type="text" id="wa-number-input" placeholder="082370958651" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
           <button onclick="saveWaNumber()" class="px-3 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 whitespace-nowrap">Simpan</button>
+        </div>
+      </div>
+
+      <!-- KARTU IKON ADMIN -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-user-gear text-purple-600 mr-2"></i>Ikon Akun Admin di Header Website</h3>
+        <div class="flex items-center justify-between space-x-2">
+          <select id="show-admin-icon-select" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-semibold text-gray-700">
+            <option value="true">Tampilkan Ikon Akun Admin</option>
+            <option value="false">Sembunyikan Ikon Akun Admin</option>
+          </select>
+          <button onclick="saveAdminIconSetting()" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700 whitespace-nowrap">Simpan</button>
         </div>
       </div>
 
@@ -197,41 +200,28 @@
         </div>
       </div>
 
-      <!-- WRAPPER UNTUK IKON AKUN ADMIN & MUSIK BACKSOUND -->
-      <div class="space-y-4 sm:space-y-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2"><i class="fa-solid fa-user-gear text-purple-600 mr-2"></i>Ikon Akun Admin di Website Header</h3>
-          <div class="flex items-center justify-between space-x-2">
-            <select id="show-admin-icon-select" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-semibold text-gray-700">
-              <option value="true">Tampilkan Ikon Akun Admin</option>
-              <option value="false">Sembunyikan Ikon Akun Admin</option>
-            </select>
-            <button onclick="saveAdminIconSetting()" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700 whitespace-nowrap">Simpan</button>
+      <!-- KARTU MUSIK BACKSOUND -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 flex items-center justify-between">
+          <span><i class="fa-solid fa-music text-amber-600 mr-2"></i>Pengaturan Musik Backsound Website</span>
+          <span id="audio-upload-status" class="text-[10px] text-gray-500 font-normal"></span>
+        </h3>
+        <div class="space-y-2.5">
+          <div class="flex space-x-2">
+            <input type="text" id="backsound-url-input" placeholder="https://res.cloudinary.com/.../audio.mp3" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
+            <label for="backsound-file-input" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap flex items-center">
+              <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Upload MP3
+            </label>
+            <input type="file" id="backsound-file-input" accept="audio/*" onchange="uploadAudioToCloudinary(this)" class="hidden">
           </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 flex items-center justify-between">
-            <span><i class="fa-solid fa-music text-amber-600 mr-2"></i>Pengaturan Musik Backsound Website</span>
-            <span id="audio-upload-status" class="text-[10px] text-gray-500 font-normal"></span>
-          </h3>
-          <div class="space-y-2.5">
-            <div class="flex space-x-2">
-              <input type="text" id="backsound-url-input" placeholder="https://res.cloudinary.com/.../audio.mp3" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50">
-              <label for="backsound-file-input" id="lbl-upload-audio" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg cursor-pointer whitespace-nowrap flex items-center">
-                <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Upload MP3
-              </label>
-              <input type="file" id="backsound-file-input" accept="audio/*" onchange="uploadAudioToCloudinary(this)" class="hidden">
-            </div>
-            <div class="flex space-x-2">
-              <select id="backsound-mode-select" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-semibold text-gray-700">
-                <option value="manual">Manual Play (User Klik Icon)</option>
-                <option value="auto">Auto Play (Putar Otomatis)</option>
-              </select>
-              <button onclick="saveBacksoundSettings()" class="px-3 py-1.5 bg-brand-gold hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap">
-                <i class="fa-solid fa-floppy-disk mr-1"></i>Simpan
-              </button>
-            </div>
+          <div class="flex space-x-2">
+            <select id="backsound-mode-select" class="w-full px-3 py-1.5 border rounded-lg text-xs bg-gray-50 font-semibold text-gray-700">
+              <option value="manual">Manual Play (User Klik Icon)</option>
+              <option value="auto">Auto Play (Putar Otomatis)</option>
+            </select>
+            <button onclick="saveBacksoundSettings()" class="px-3 py-1.5 bg-brand-gold hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-all whitespace-nowrap">
+              <i class="fa-solid fa-floppy-disk mr-1"></i>Simpan
+            </button>
           </div>
         </div>
       </div>
@@ -350,10 +340,13 @@
   </div>
 
   <script>
-    const SPREADSHEET_ID = '13wLs3Zq4GQQ9zUWVqa4VDxUlrm0KRQkc2h-_5q1EXNU';
-    const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqtBXWpeiWBX2nJ58XP7FvaDBqc9u1xp_yXyV9U62mrvRxYFzPW3JJEznqb3qb2l3WMg/exec';
+    // INISIALISASI FIREBASE
+    if (window.AUTH_CONFIG && window.AUTH_CONFIG.FIREBASE_CONFIG) {
+      firebase.initializeApp(window.AUTH_CONFIG.FIREBASE_CONFIG);
+    }
+    const db = firebase.firestore();
 
-    let products = JSON.parse(localStorage.getItem('hop_products')) || [];
+    let products = [];
     let defaultWarehouses = ["ASSALAM", "G2", "K4", "KEDAUNG", "UTAMA"];
     let warehouses = JSON.parse(localStorage.getItem('jp_warehouses')) || defaultWarehouses;
     let defaultCategories = ["Digital Piano", "Grand Piano", "Upright Piano"];
@@ -362,20 +355,10 @@
     let currentSortColumn = null;
     let currentSortAsc = true;
     let pendingFileObjects = [null, null, null, null, null];
-    let oldImageUrlsToClean = [];
-
-    function getActiveScriptUrl() {
-      return localStorage.getItem('jp_script_url') || DEFAULT_SCRIPT_URL;
-    }
 
     document.addEventListener('DOMContentLoaded', async () => {
       populateTimeOptions();
       checkAuthStatus();
-      loadScriptUrl();
-      loadWaNumber();
-      loadBacksoundSettings();
-      loadAdminIconSetting();
-      loadOperatingHoursSetting();
     });
 
     function populateTimeOptions() {
@@ -399,82 +382,57 @@
       document.getElementById('section-dashboard').classList.toggle('hidden', !isAuth);
       document.getElementById('btn-logout').classList.toggle('hidden', !isAuth);
       if (isAuth) {
-        if (products.length === 0) fetchSheetDataFromGoogle();
-        else {
-          populateChecklistWarehouses();
-          renderAdminTable();
-        }
+        listenProductsFromFirebase();
+        listenSettingsFromFirebase();
       }
     }
 
-    async function fetchSheetDataFromGoogle() {
-      const tbody = document.getElementById('admin-table-body');
-      tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-gray-500 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2 text-brand-gold"></i>Mengambil data...</td></tr>`;
-
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&cacheBust=${Date.now()}`;
-
-      try {
-        const res = await fetch(csvUrl);
-        if (res.ok) {
-          const csvText = await res.text();
-          products = parseCSVData(csvText);
-          localStorage.setItem('hop_products', JSON.stringify(products));
-          populateChecklistWarehouses();
-          renderAdminTable();
-        }
-      } catch (err) {}
-    }
-
-    function parseCSVData(csvText) {
-      const lines = csvText.split(/\r\n|\n/);
-      if (lines.length < 2) return [];
-
-      const headers = parseCSVLine(lines[0]).map(h => h.trim().toUpperCase());
-      const result = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = parseCSVLine(lines[i]);
-        const row = {};
-        headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
-
-        let rawPrice = row['HARGA'] || 'Hubungi Sales';
-        let formattedPrice = rawPrice;
-        if (/^\d+$/.test(rawPrice)) {
-          formattedPrice = 'Rp ' + parseInt(rawPrice, 10).toLocaleString('id-ID');
-        }
-
-        const mainImg = row['FOTO UTAMA'] || 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=800';
-        const galleryImgs = row['FOTO GALERI'] ? row['FOTO GALERI'].split('|') : [mainImg];
-        const rawCarousel = (row['CAROUSEL'] || row['IS_CAROUSEL'] || '').toString().trim().toUpperCase();
-
-        result.push({
-          id: i.toString(),
-          gudang: (row['GUDANG'] || 'UTAMA').toUpperCase(),
-          title: row['MERK PIANO'] || row['NAMA / MERK PIANO'] || 'PIANO',
-          category: row['CATEGORY'] || 'Upright Piano',
-          no_seri: row['NO.SERI'] || row['NO. SERI'] || '-',
-          warna: (row['WARNA'] || 'HITAM').toUpperCase(),
-          price: formattedPrice,
-          status: (row['STATUS'] || 'AVAILABLE').toUpperCase(),
-          isCarousel: (rawCarousel === 'YA' || rawCarousel === 'TRUE' || rawCarousel === '1'),
-          image: mainImg,
-          images: galleryImgs,
-          description: `Piano ${row['MERK PIANO'] || 'Piano'} kondisi terawat di Gudang ${row['GUDANG'] || 'UTAMA'}.`
+    // LISTENER INSTAN KATALOG PRODUK DARI FIREBASE
+    function listenProductsFromFirebase() {
+      db.collection('products').onSnapshot((snapshot) => {
+        products = [];
+        snapshot.forEach((doc) => {
+          products.push({ id: doc.id, ...doc.data() });
         });
-      }
-      return result;
+        localStorage.setItem('hop_products', JSON.stringify(products));
+        populateChecklistWarehouses();
+        renderAdminTable();
+      });
     }
 
-    function parseCSVLine(text) {
-      const regex = /(?:,|\r?\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^,\r\n]*))/gi;
-      const array = [];
-      let match = null;
-      while ((match = regex.exec(text))) {
-        if (match[1] !== undefined) array.push(match[1].replace(/""/g, '"'));
-        else array.push(match[2]);
+    // LISTENER INSTAN PENGATURAN DARI FIREBASE
+    function listenSettingsFromFirebase() {
+      db.collection('settings').doc('global').onSnapshot((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.jp_wa_number) document.getElementById('wa-number-input').value = data.jp_wa_number;
+          if (data.jp_show_admin_icon) document.getElementById('show-admin-icon-select').value = data.jp_show_admin_icon;
+          if (data.jp_backsound_url) document.getElementById('backsound-url-input').value = data.jp_backsound_url;
+          if (data.jp_backsound_mode) document.getElementById('backsound-mode-select').value = data.jp_backsound_mode;
+          
+          if (data.jp_operating_hours_config) {
+            try {
+              const config = typeof data.jp_operating_hours_config === 'string' ? JSON.parse(data.jp_operating_hours_config) : data.jp_operating_hours_config;
+              document.querySelectorAll('input[name="op_day"]').forEach(cb => { cb.checked = config.days.includes(cb.value); });
+              document.getElementById('op-time-open').value = config.open || "09.00";
+              document.getElementById('op-time-close').value = config.close || "18.00";
+              document.getElementById('op-timezone').value = config.timezone || "WIB";
+              updateHoursPreview(config);
+            } catch(e) {}
+          }
+        }
+      });
+    }
+
+    // SIMPAN SETTING GLOBAL KE FIREBASE
+    async function sendSettingToFirebase(key, value) {
+      try {
+        const updateObj = {};
+        updateObj[key] = value;
+        await db.collection('settings').doc('global').set(updateObj, { merge: true });
+      } catch (err) {
+        console.error("Gagal simpan setting ke Firebase:", err);
       }
-      return array;
     }
 
     function renderAdminTable() {
@@ -483,7 +441,7 @@
       tbody.innerHTML = '';
 
       if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-400">Tidak ada data stok piano.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-400">Tidak ada data stok piano di Firebase.</td></tr>`;
         return;
       }
 
@@ -545,7 +503,6 @@
     function openModal(id = null) {
       document.getElementById('product-form').reset();
       pendingFileObjects = [null, null, null, null, null];
-      oldImageUrlsToClean = [];
 
       if (id) {
         const item = products.find(p => p.id === id);
@@ -563,8 +520,6 @@
           const imgList = item.images && item.images.length > 0 ? item.images : [item.image || ''];
           let mainIndex = imgList.indexOf(item.image);
           if (mainIndex === -1) mainIndex = 0;
-
-          oldImageUrlsToClean = [...imgList];
 
           renderPhotoSlots(imgList, mainIndex);
           renderWarehouseOptions(item.gudang || 'UTAMA');
@@ -634,60 +589,21 @@
       });
     }
 
-    // UPLOAD KE CLOUDINARY (Preset ml_default Unsigned)
     async function uploadSingleFileToCloudinary(fileObject) {
       if (!fileObject) return null;
-
-      const cloudName = 'jca7x4qo';
-      const uploadPreset = 'ml_default';
-
       const formData = new FormData();
       formData.append('file', fileObject);
-      formData.append('upload_preset', uploadPreset);
+      formData.append('upload_preset', 'ml_default');
 
       try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: 'POST',
-          body: formData
-        });
-        
+        const res = await fetch(`https://api.cloudinary.com/v1_1/jca7x4qo/image/upload`, { method: 'POST', body: formData });
         const data = await res.json();
-        if (data.secure_url) {
-          return data.secure_url;
-        } else {
-          console.error("Cloudinary Error Response:", data);
-          alert(`Gagal upload ke Cloudinary: ${data.error ? data.error.message : 'Preset Upload Gagal'}`);
-          return null;
-        }
+        return data.secure_url || null;
       } catch (err) {
-        console.error("Gagal melakukan fetch upload:", err);
         return null;
       }
     }
 
-    // SIMPAN PENGATURAN TERPUSAT KE GOOGLE SHEETS
-    async function sendSettingToGoogleSheets(key, value) {
-      const scriptUrl = getActiveScriptUrl();
-      if (!scriptUrl) return;
-
-      try {
-        await fetch(scriptUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'SAVE_SETTINGS',
-            key: key,
-            value: value
-          }),
-          redirect: 'follow'
-        });
-      } catch (err) {
-        console.error("Gagal mengirim setting ke Sheets:", err);
-      }
-    }
-
-    // PROSES SIMPAN FORM UNIT PIANO
     async function handleFormSubmit(e) {
       e.preventDefault();
       const btnSubmit = document.getElementById('btn-submit-unit');
@@ -700,10 +616,6 @@
             const uploadedUrl = await uploadSingleFileToCloudinary(pendingFileObjects[i]);
             if (uploadedUrl) {
               document.getElementById(`form-img-${i}`).value = uploadedUrl;
-            } else {
-              btnSubmit.disabled = false;
-              btnSubmit.innerHTML = `<span>Simpan Unit</span>`;
-              return alert(`Proses dibatalkan karena Foto ${i+1} gagal terunggah.`);
             }
           }
         }
@@ -746,8 +658,7 @@
         if (rawImages.length === 0) rawImages = [mainImage];
         let galleryImages = [mainImage, ...rawImages.filter(img => img !== mainImage)];
 
-        const newProductObj = {
-          id: id || Date.now().toString(),
+        const productDoc = {
           title,
           gudang: finalGudang,
           category: finalCategory,
@@ -758,33 +669,20 @@
           isCarousel,
           image: mainImage,
           images: galleryImages,
-          description
+          description,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
+        btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan ke Firebase...`;
+
         if (id) {
-          const idx = products.findIndex(p => p.id === id);
-          if (idx !== -1) products[idx] = newProductObj;
+          await db.collection('products').doc(id).update(productDoc);
         } else {
-          products.unshift(newProductObj);
-        }
-        localStorage.setItem('hop_products', JSON.stringify(products));
-
-        btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan ke Google Sheets...`;
-        const scriptUrl = getActiveScriptUrl();
-        if (scriptUrl) {
-          await fetch(scriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(newProductObj),
-            redirect: 'follow'
-          });
+          await db.collection('products').add(productDoc);
         }
 
-        populateChecklistWarehouses();
-        renderAdminTable();
         closeModal();
-        alert('Unit piano & foto Cloudinary berhasil disimpan di Sheets!');
+        alert('Unit piano berhasil disimpan di Firebase!');
       } catch (err) {
         alert("Terjadi kesalahan saat menyimpan unit.");
       } finally {
@@ -793,84 +691,25 @@
       }
     }
 
-    function saveScriptUrl() {
-      const url = document.getElementById('script-url-input').value.trim();
-      if (url) {
-        localStorage.setItem('jp_script_url', url);
-        alert('Google Apps Script WebApp URL berhasil disimpan!');
-      }
-    }
-
-    function loadScriptUrl() {
-      document.getElementById('script-url-input').value = getActiveScriptUrl();
-    }
-
-    // FUNGSI HAPUS SATU UNIT
     async function deleteProduct(id) {
-      const item = products.find(p => p.id === id);
-      if (!item) return;
-
-      if (confirm(`Hapus unit "${item.title}" (${item.no_seri})? Foto di Cloudinary dan data di Sheets juga akan terhapus!`)) {
-        products = products.filter(p => p.id !== id);
-        localStorage.setItem('hop_products', JSON.stringify(products));
-        populateChecklistWarehouses();
-        renderAdminTable();
-
-        const scriptUrl = getActiveScriptUrl();
-        if (scriptUrl) {
-          try {
-            await fetch(scriptUrl, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({
-                action: 'DELETE',
-                no_seri: item.no_seri
-              }),
-              redirect: 'follow'
-            });
-            alert('Unit & foto berhasil terhapus dari Google Sheets & Cloudinary!');
-          } catch (err) {
-            console.error('Gagal menghapus via Apps Script:', err);
-          }
-        }
+      if (confirm(`Hapus unit ini dari Firebase?`)) {
+        await db.collection('products').doc(id).delete();
+        alert('Unit berhasil dihapus!');
       }
     }
 
-    // FUNGSI HAPUS BEBERAPA UNIT SEKALIGUS (BULK DELETE)
     async function deleteSelectedProducts() {
       const checkboxes = document.querySelectorAll('.product-checkbox:checked');
       if (checkboxes.length === 0) return alert('Pilih unit yang ingin dihapus!');
 
-      if (confirm(`Hapus ${checkboxes.length} unit terpilih? Data di Sheets & Cloudinary akan dibersihkan!`)) {
-        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-        const itemsToDelete = products.filter(p => selectedIds.includes(p.id));
-
-        products = products.filter(p => !selectedIds.includes(p.id));
-        localStorage.setItem('hop_products', JSON.stringify(products));
-        populateChecklistWarehouses();
-        renderAdminTable();
-
-        const scriptUrl = getActiveScriptUrl();
-        if (scriptUrl) {
-          for (const item of itemsToDelete) {
-            try {
-              await fetch(scriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                  action: 'DELETE',
-                  no_seri: item.no_seri
-                }),
-                redirect: 'follow'
-              });
-            } catch (err) {
-              console.error('Gagal menghapus unit:', item.no_seri, err);
-            }
-          }
-          alert(`${itemsToDelete.length} unit berhasil dihapus dari Sheets & Cloudinary!`);
-        }
+      if (confirm(`Hapus ${checkboxes.length} unit terpilih dari Firebase?`)) {
+        const batch = db.batch();
+        checkboxes.forEach(cb => {
+          const docRef = db.collection('products').doc(cb.value);
+          batch.delete(docRef);
+        });
+        await batch.commit();
+        alert(`${checkboxes.length} unit berhasil dihapus!`);
       }
     }
 
@@ -903,8 +742,8 @@
       const userHash = CryptoJS.SHA256(inputUser).toString();
       const passHash = CryptoJS.SHA256(inputPass).toString();
 
-      const targetUserHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.USER_HASH : "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
-      const targetPassHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.PASS_HASH : "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+      const targetUserHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.USER_HASH : "";
+      const targetPassHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.PASS_HASH : "";
 
       if(userHash === targetUserHash && passHash === targetPassHash) {
         sessionStorage.setItem('hop_admin_logged', 'true');
@@ -916,39 +755,20 @@
 
     function logoutAdmin() { sessionStorage.removeItem('hop_admin_logged'); checkAuthStatus(); }
 
-    // SIMPAN NO. WA KE SHEETS & LOKAL
     async function saveWaNumber() {
       const waVal = document.getElementById('wa-number-input').value.trim();
       if(!waVal) return;
       const cleanWa = waVal.replace(/[^0-9]/g, '');
-      localStorage.setItem('jp_wa_number', cleanWa);
-      await sendSettingToGoogleSheets('jp_wa_number', cleanWa);
-      alert('Nomor WA disimpan ke database terpusat!');
+      await sendSettingToFirebase('jp_wa_number', cleanWa);
+      alert('Nomor WA disimpan di Firebase!');
     }
 
-    function loadWaNumber() { 
-      document.getElementById('wa-number-input').value = localStorage.getItem('jp_wa_number') || '082370958651'; 
-    }
-
-    // SIMPAN BACKSOUND KE SHEETS & LOKAL
     async function saveBacksoundSettings() {
       const url = document.getElementById('backsound-url-input').value.trim();
       const mode = document.getElementById('backsound-mode-select').value;
-      
-      if (url) {
-        localStorage.setItem('jp_backsound_url', url);
-        await sendSettingToGoogleSheets('jp_backsound_url', url);
-      }
-      localStorage.setItem('jp_backsound_mode', mode);
-      await sendSettingToGoogleSheets('jp_backsound_mode', mode);
-
-      alert('Pengaturan Musik Backsound tersimpan di database terpusat!');
-    }
-
-    function loadBacksoundSettings() {
-      const defaultAudio = 'https://assets.mixkit.co/music/preview/mixkit-piano-reflections-22.mp3';
-      document.getElementById('backsound-url-input').value = localStorage.getItem('jp_backsound_url') || defaultAudio;
-      document.getElementById('backsound-mode-select').value = localStorage.getItem('jp_backsound_mode') || 'manual';
+      if (url) await sendSettingToFirebase('jp_backsound_url', url);
+      await sendSettingToFirebase('jp_backsound_mode', mode);
+      alert('Pengaturan Musik Backsound tersimpan di Firebase!');
     }
 
     async function uploadAudioToCloudinary(fileInput) {
@@ -969,88 +789,43 @@
           document.getElementById('backsound-url-input').value = data.secure_url;
           statusLbl.textContent = 'Upload Sukses!';
           statusLbl.className = 'text-[10px] text-green-600 font-bold';
-        } else {
-          throw new Error('Gagal mengunggah');
         }
       } catch (err) {
-        alert('Gagal mengunggah file musik ke Cloudinary.');
         statusLbl.textContent = 'Upload Gagal';
         statusLbl.className = 'text-[10px] text-red-600 font-bold';
       }
     }
 
-    // SIMPAN IKON ADMIN KE SHEETS & LOKAL
     async function saveAdminIconSetting() {
       const isVisible = document.getElementById('show-admin-icon-select').value;
-      localStorage.setItem('jp_show_admin_icon', isVisible);
-      await sendSettingToGoogleSheets('jp_show_admin_icon', isVisible);
-      alert('Pengaturan Tampilan Ikon Admin tersimpan di database terpusat!');
+      await sendSettingToFirebase('jp_show_admin_icon', isVisible);
+      alert('Tampilan Ikon Admin tersimpan di Firebase!');
     }
 
-    function loadAdminIconSetting() {
-      const isVisible = localStorage.getItem('jp_show_admin_icon');
-      document.getElementById('show-admin-icon-select').value = isVisible === 'false' ? 'false' : 'true';
-    }
-
-    // SIMPAN JAM OPERASIONAL KE SHEETS & LOKAL
     async function saveOperatingHoursSetting() {
       const checkedDays = Array.from(document.querySelectorAll('input[name="op_day"]:checked')).map(cb => cb.value);
       const openTime = document.getElementById('op-time-open').value;
       const closeTime = document.getElementById('op-time-close').value;
       const timezone = document.getElementById('op-timezone').value;
 
-      if (checkedDays.length === 0) {
-        return alert('Pilih setidaknya 1 hari operasional!');
-      }
+      if (checkedDays.length === 0) return alert('Pilih setidaknya 1 hari operasional!');
 
       const config = { days: checkedDays, open: openTime, close: closeTime, timezone: timezone };
       const formattedText = formatOperatingHoursText(config);
 
-      localStorage.setItem('jp_operating_hours_config', JSON.stringify(config));
-      localStorage.setItem('jp_operating_hours', formattedText);
-
-      await sendSettingToGoogleSheets('jp_operating_hours_config', config);
-      await sendSettingToGoogleSheets('jp_operating_hours', formattedText);
+      await sendSettingToFirebase('jp_operating_hours_config', JSON.stringify(config));
+      await sendSettingToFirebase('jp_operating_hours', formattedText);
 
       updateHoursPreview(config);
-      alert(`Jam Operasional Disimpan ke Database Terpusat:\n"${formattedText}"`);
-    }
-
-    function loadOperatingHoursSetting() {
-      const savedConfig = localStorage.getItem('jp_operating_hours_config');
-      let config = {
-        days: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
-        open: "09.00",
-        close: "18.00",
-        timezone: "WIB"
-      };
-
-      if (savedConfig) {
-        try { config = JSON.parse(savedConfig); } catch (e) {}
-      }
-
-      document.querySelectorAll('input[name="op_day"]').forEach(cb => {
-        cb.checked = config.days.includes(cb.value);
-      });
-
-      document.getElementById('op-time-open').value = config.open || "09.00";
-      document.getElementById('op-time-close').value = config.close || "18.00";
-      document.getElementById('op-timezone').value = config.timezone || "WIB";
-
-      updateHoursPreview(config);
+      alert(`Jam Operasional tersimpan di Firebase:\n"${formattedText}"`);
     }
 
     function formatOperatingHoursText(config) {
       let dayText = "";
-      if (config.days.length === 7) {
-        dayText = "Buka Setiap Hari";
-      } else if (config.days.length === 6 && !config.days.includes("Minggu")) {
-        dayText = "Senin - Sabtu";
-      } else if (config.days.length === 5 && !config.days.includes("Sabtu") && !config.days.includes("Minggu")) {
-        dayText = "Senin - Jumat";
-      } else {
-        dayText = config.days.join(", ");
-      }
+      if (config.days.length === 7) dayText = "Buka Setiap Hari";
+      else if (config.days.length === 6 && !config.days.includes("Minggu")) dayText = "Senin - Sabtu";
+      else if (config.days.length === 5 && !config.days.includes("Sabtu") && !config.days.includes("Minggu")) dayText = "Senin - Jumat";
+      else dayText = config.days.join(", ");
       return `${dayText}: ${config.open} - ${config.close} ${config.timezone}`;
     }
 
