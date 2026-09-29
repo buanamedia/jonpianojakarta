@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Jon Piano Jakarta - Inventory Admin (Firebase)</title>
+  <title>082370958651 - Jon Piano Jakarta Inventory Admin (Firebase)</title>
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="icon/icon.png">
@@ -729,10 +729,20 @@
           ? document.getElementById('form-gudang-baru').value.trim().toUpperCase() 
           : selectGudang;
 
+        if (selectGudang === '__NEW__' && finalGudang && !warehouses.includes(finalGudang)) {
+          warehouses.push(finalGudang);
+          localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+        }
+
         const selectCategory = document.getElementById('form-category-select').value;
         let finalCategory = selectCategory === '__NEW__' 
           ? document.getElementById('form-kategori-baru').value.trim() 
           : selectCategory;
+
+        if (selectCategory === '__NEW__' && finalCategory && !categories.includes(finalCategory)) {
+          categories.push(finalCategory);
+          localStorage.setItem('jp_categories', JSON.stringify(categories));
+        }
 
         const id = document.getElementById('form-id').value;
         const title = document.getElementById('form-title').value;
@@ -764,8 +774,8 @@
 
         const productDoc = {
           title,
-          gudang: finalGudang,
-          category: finalCategory,
+          gudang: finalGudang || 'UTAMA',
+          category: finalCategory || 'Upright Piano',
           no_seri,
           warna,
           price,
@@ -988,9 +998,13 @@
     function renderCategoryOptions(selectedValue = '') {
       const select = document.getElementById('form-category-select');
       select.innerHTML = '';
+      if (selectedValue && !categories.includes(selectedValue) && selectedValue !== '__NEW__') {
+        categories.push(selectedValue);
+        localStorage.setItem('jp_categories', JSON.stringify(categories));
+      }
       categories.forEach(cat => select.innerHTML += `<option value="${cat}">${cat}</option>`);
       select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Kategori Baru...</option>`;
-      if (selectedValue && categories.includes(selectedValue)) select.value = selectedValue;
+      if (selectedValue) select.value = selectedValue;
       handleCategoryChange(select);
     }
 
@@ -1018,9 +1032,13 @@
     function renderWarehouseOptions(selectedValue = '') {
       const select = document.getElementById('form-gudang-select');
       select.innerHTML = '';
+      if (selectedValue && !warehouses.includes(selectedValue) && selectedValue !== '__NEW__') {
+        warehouses.push(selectedValue);
+        localStorage.setItem('jp_warehouses', JSON.stringify(warehouses));
+      }
       warehouses.forEach(wh => select.innerHTML += `<option value="${wh}">${wh}</option>`);
       select.innerHTML += `<option value="__NEW__" class="font-bold text-blue-600">+ Tambah Gudang Baru...</option>`;
-      if (selectedValue && warehouses.includes(selectedValue)) select.value = selectedValue;
+      if (selectedValue) select.value = selectedValue;
       handleGudangChange(select);
     }
 
