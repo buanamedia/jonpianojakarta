@@ -1,0 +1,6 @@
+# Environment dan secret
+.env
+.env.*
+
+# File konfigurasi lokal
+env.js

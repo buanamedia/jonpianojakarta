@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jon Piano Jakarta - Ultimate Site Customizer (Dev Mode)</title>
+
+  <link rel="icon" type="image/png" href="icon/icon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;600&family=Outfit:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="auth-config.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { gold: '#C5A059', dark: '#111111', charcoal: '#1A1A1A', cream: '#FAF8F5' } },
+          fontFamily: { serif: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .draggable-item { cursor: grab; }
+    .draggable-item:active { cursor: grabbing; }
+    .draggable-item.dragging { opacity: 0.4; border: 2px dashed #C5A059; }
+  </style>
+</head>
+<body class="bg-gray-100 text-brand-dark font-sans flex flex-col min-h-screen">
+
+  <!-- SECTION 1: FORM LOGIN MANDIRI KHUSUS CUSTOMIZER -->
+  <div id="section-login" class="fixed inset-0 z-[100] bg-brand-charcoal flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-brand-gold/20 overflow-hidden relative">
+      <div class="bg-brand-dark p-6 sm:p-8 text-center text-white border-b border-brand-gold/30">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-brand-gold/10 border border-brand-gold/40 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+          <img src="icon/icon.png" alt="Jon Piano Customizer Icon" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
+        </div>
+        <h2 class="font-serif text-xl sm:text-2xl font-bold tracking-wide">Customizer Login</h2>
+        <p class="text-[10px] sm:text-xs text-amber-400 mt-1 font-mono uppercase tracking-widest">Development & Page Layout Engine</p>
+      </div>
+
+      <form onsubmit="handleCustomizerLogin(event)" class="p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <div id="login-error" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-lg flex items-center">
+          <i class="fa-solid fa-circle-exclamation mr-2 text-sm"></i>
+          <span>Username atau Password salah!</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username Dev</label>
+          <input type="text" id="login-username" required placeholder="Masukkan username" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password Dev</label>
+          <input type="password" id="login-password" required placeholder="Masukkan password" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 sm:py-3 bg-brand-gold hover:bg-amber-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow transition-all flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Masuk Customizer</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SECTION 2: CONTENT DESIGN CUSTOMIZER UTAMA -->
+  <div id="section-customizer" class="hidden flex-col min-h-screen">
+    
+    <!-- HEADER DEV CUSTOMIZER -->
+    <header class="bg-brand-dark text-white sticky top-0 z-50 border-b border-brand-gold/30">
+      <div class="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <img src="icon/icon.png" alt="Jon Piano Icon" class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
+          <div>
+            <span class="font-serif text-base sm:text-xl font-bold tracking-wider text-white block">INDEX PAGE CUSTOMIZER</span>
+            <span class="text-[9px] sm:text-[10px] text-amber-400 font-mono tracking-widest uppercase">Development Mode (Internal Tools)</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a href="index.html" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-900 bg-brand-gold hover:bg-amber-600 hover:text-white transition-all">
+            <i class="fa-solid fa-eye mr-1.5"></i>Lihat Website
+          </a>
+          <button onclick="logoutCustomizer()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-400 bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 transition-all">
+            <i class="fa-solid fa-right-from-bracket mr-1.5"></i>Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 py-6 flex-grow w-full space-y-6">
+
+      <!-- BAR SIMPAN UTAMA -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 sticky top-20 z-40">
+        <div>
+          <h1 class="font-serif text-xl sm:text-2xl font-bold">Pengaturan Header, SEO, Warna, Font & Navigasi</h1>
+          <p class="text-xs text-gray-500">Atur visibilitas elemen header, judul & deskripsi Google SEO, teks brand, skema warna latar, jenis font, serta urutan menu & sub-menu halaman.</p>
+        </div>
+        <button onclick="saveAllSettings()" class="w-full sm:w-auto px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow transition-all flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Simpan Semua Perubahan</span>
+        </button>
+      </div>
+
+      <!-- TAMPILAN 3 KOLOM UTAMA UNTUK HEADER, WARNA/FONT, DAN MENU NAVIGASI -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- KOLOM 1: VISIBILITAS ELEMEN HEADER, BRAND TEXT, DAN PENGINDEXAN GOOGLE (SEO) -->
+        <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+          <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+            <i class="fa-solid fa-sliders text-brand-gold mr-2"></i>Visibilitas Header & SEO Google
+          </h3>
+
+          <div class="space-y-3 text-xs">
+            <!-- PENGATURAN SEO (GOOGLE PENCARIAN) -->
+            <div class="bg-amber-50/60 p-3 rounded-xl border border-amber-200/80 space-y-2">
+              <span class="font-bold text-amber-900 uppercase block border-b border-amber-200 pb-1 text-xs flex items-center">
+                <i class="fa-solid fa-magnifying-glass text-brand-gold mr-1.5"></i>Pengindexan Google (SEO Meta)
+              </span>
+
+              <div class="space-y-2 pt-1">
+                <div>
+                  <label class="block font-bold text-gray-700 text-[10px] uppercase">Judul Web di Google (Meta Title)</label>
+                  <input type="text" id="setting-seo-title" placeholder="Jon Piano Jakarta - Luxury Keys & Showroom Jual-Beli & Stem Piano" class="w-full px-2.5 py-1.5 border rounded-lg font-bold text-xs bg-white">
+                </div>
+                <div>
+                  <label class="block font-bold text-gray-700 text-[10px] uppercase">Deskripsi Web di Google (Meta Description)</label>
+                  <textarea id="setting-seo-desc" rows="3" placeholder="ALAMAT SHOWROOM. Jl. Mesjid Assalam No. 46 (Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640." class="w-full px-2.5 py-1.5 border rounded-lg text-xs bg-white"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
+              <span class="font-bold text-gray-800 uppercase block border-b pb-1">Logo & Brand Title</span>
+              <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer pt-1">
+                <input type="checkbox" id="setting-show-logo" checked class="w-4 h-4 text-brand-gold rounded">
+                <span>Tampilkan Logo & Text Brand</span>
+              </label>
+              <div class="pt-1 space-y-1.5">
+                <label class="block font-bold text-gray-600 text-[10px] uppercase">Judul Utama Brand</label>
+                <input type="text" id="setting-brand-title" value="JON PIANO JAKARTA" class="w-full px-2.5 py-1.5 border rounded-lg font-bold text-xs">
+                <label class="block font-bold text-gray-600 text-[10px] uppercase">Deskripsi / Subtitle Brand</label>
+                <input type="text" id="setting-brand-sub" value="LUXURY KEYS & SHOWROOM" class="w-full px-2.5 py-1.5 border rounded-lg text-xs">
+              </div>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
+              <span class="font-bold text-gray-800 uppercase block border-b pb-1">Pilihan Bahasa (ID/EN)</span>
+              <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer pt-1">
+                <input type="checkbox" id="setting-show-lang" checked class="w-4 h-4 text-brand-gold rounded">
+                <span>Tampilkan Selector Bahasa</span>
+              </label>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
+              <span class="font-bold text-gray-800 uppercase block border-b pb-1">Audio / Backsound Musik</span>
+              <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer pt-1">
+                <input type="checkbox" id="setting-show-audio-btn" checked class="w-4 h-4 text-brand-gold rounded">
+                <span>Tampilkan Tombol Audio</span>
+              </label>
+              <label class="flex items-center space-x-2 font-semibold text-amber-900 cursor-pointer pt-1">
+                <input type="checkbox" id="setting-audio-autoplay" class="w-4 h-4 text-brand-gold rounded">
+                <span>Autoplay Musik saat Buka Web</span>
+              </label>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2">
+              <span class="font-bold text-gray-800 uppercase block border-b pb-1">Ikon Akun / Admin Login</span>
+              <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer pt-1">
+                <input type="checkbox" id="setting-show-account" checked class="w-4 h-4 text-brand-gold rounded">
+                <span>Tampilkan Ikon Akun Admin</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- KOLOM 2: WARNA LATAR & JENIS FONT DEFAULT WEBSITE -->
+        <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+          <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+            <i class="fa-solid fa-palette text-brand-gold mr-2"></i>Warna Latar & Font Website
+          </h3>
+
+          <div class="space-y-3.5 text-xs">
+            <div>
+              <label class="block font-bold text-gray-700 uppercase mb-1">Warna Background Header</label>
+              <div class="flex space-x-2">
+                <input type="color" id="setting-color-header" value="#111111" class="h-9 w-12 rounded border cursor-pointer">
+                <input type="text" id="setting-hex-header" value="#111111" oninput="document.getElementById('setting-color-header').value=this.value" class="w-full px-3 py-1.5 border rounded-lg font-mono text-xs">
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-bold text-gray-700 uppercase mb-1">Warna Background Utama Web</label>
+              <div class="flex space-x-2">
+                <input type="color" id="setting-color-bg" value="#FAF8F5" class="h-9 w-12 rounded border cursor-pointer">
+                <input type="text" id="setting-hex-bg" value="#FAF8F5" oninput="document.getElementById('setting-color-bg').value=this.value" class="w-full px-3 py-1.5 border rounded-lg font-mono text-xs">
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-bold text-gray-700 uppercase mb-1">Jenis Font Utama (Body Text)</label>
+              <select id="setting-font-body" class="w-full px-3 py-2 border rounded-lg bg-gray-50 font-semibold text-gray-800 text-xs">
+                <option value="'Inter', sans-serif">Inter (Default Modern & Clean)</option>
+                <option value="'Roboto', sans-serif">Roboto</option>
+                <option value="'Montserrat', sans-serif">Montserrat</option>
+                <option value="'Poppins', sans-serif">Poppins</option>
+                <option value="'Outfit', sans-serif">Outfit</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-bold text-gray-700 uppercase mb-1">Jenis Font Judul / Heading</label>
+              <select id="setting-font-heading" class="w-full px-3 py-2 border rounded-lg bg-amber-50 font-bold text-amber-950 border-amber-300 text-xs">
+                <option value="'Playfair Display', serif">Playfair Display (Default Luxury Serif)</option>
+                <option value="'Montserrat', sans-serif">Montserrat Bold</option>
+                <option value="'Poppins', sans-serif">Poppins Bold</option>
+                <option value="'Outfit', sans-serif">Outfit Bold</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- KOLOM 3: DAFTAR MENU NAVIGASI HALAMAN & SUB-MENU DROPDOWN -->
+        <div class="lg:col-span-4 bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+          <div class="flex items-center justify-between border-b pb-2">
+            <h3 class="font-bold text-sm text-gray-800 flex items-center">
+              <i class="fa-solid fa-bars-staggered text-brand-gold mr-2"></i>Menu Navigasi Halaman
+            </h3>
+            <button onclick="addNavMenuItem()" class="px-2.5 py-1 bg-brand-gold hover:bg-amber-600 text-white text-[11px] font-bold rounded-lg shadow transition-all flex items-center space-x-1">
+              <i class="fa-solid fa-plus text-[9px]"></i>
+              <span>Tambah Menu</span>
+            </button>
+          </div>
+
+          <!-- CHECKBOX SEMBUNYIKAN / TAMPILKAN MENU NAVIGASI -->
+          <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+            <label class="flex items-center space-x-2 font-bold text-amber-900 cursor-pointer text-xs">
+              <input type="checkbox" id="setting-show-nav-menu" checked class="w-4 h-4 text-brand-gold rounded">
+              <span>Tampilkan Menu Navigasi di Website</span>
+            </label>
+          </div>
+
+          <p class="text-[11px] text-gray-500 leading-tight">
+            Klik tombol <span class="font-bold text-amber-900">+ Sub</span> pada menu untuk menambah dropdown item di bawahnya.
+          </p>
+
+          <div id="nav-menu-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-1"></div>
+        </div>
+
+      </div>
+
+      <!-- GRID UTAMA MANAJEMEN WIDGET & KONTEN SECTION -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN -->
+        <div class="lg:col-span-6 space-y-6">
+
+          <!-- 1. POSITION MANAGER -->
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+              <h3 class="font-bold text-sm text-gray-800 flex items-center">
+                <i class="fa-solid fa-arrows-up-down-left-right text-brand-gold mr-2"></i>Urutan Posisi Section & Widget
+              </h3>
+              <span class="text-[10px] text-gray-500 font-normal">Drag & Drop / Gunakan Panah ▲/▼</span>
+            </div>
+
+            <div id="widgets-list" class="space-y-3"></div>
+          </div>
+
+          <!-- 2. LAYOUT GRID KATALOG PRODUK -->
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-3">
+            <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+              <i class="fa-solid fa-border-all text-brand-gold mr-2"></i>Pengaturan Kolom Kartu Stok Piano
+            </h3>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-gray-700 mb-1">Jumlah Kolom Grid Katalog Stok Piano (Desktop):</label>
+                <select id="setting-grid-cols" class="w-full px-3 py-2 border rounded-lg bg-gray-50 text-xs font-semibold text-gray-800">
+                  <option value="1">1 Kolom (Tampilan Banner Besar Full Width)</option>
+                  <option value="2">2 Kolom (Tampilan Kartu Sedang 2 Kolom)</option>
+                  <option value="3">3 Kolom (Ukuran Kartu Standar Besar)</option>
+                  <option value="4" selected>4 Kolom (Default Standar Website)</option>
+                  <option value="5">5 Kolom (Ukuran Kartu Compact Ringkas)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. EDIT CONTENT PROMO & SERVICES BANNER -->
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+              <i class="fa-solid fa-pen-to-square text-brand-gold mr-2"></i>Edit Teks Banner Informasi / Promo
+            </h3>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-gray-700 uppercase mb-1">Judul Utama Section Promo</label>
+                <input type="text" id="input-promo-title" placeholder="Contoh: JUAL-BELI & STEM UPRIGHT DAN GRAND PIANO" class="w-full px-3 py-2 border rounded-lg text-xs font-bold">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 uppercase mb-1">Deskripsi Singkat Section Promo</label>
+                <textarea id="input-promo-desc" rows="2" class="w-full px-3 py-2 border rounded-lg text-xs" placeholder="Melayani unit piano baru maupun bekas berbagai merk ternama..."></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label class="block font-bold text-amber-900 uppercase mb-1">List Layanan (Pisahkan Koma):</label>
+                  <textarea id="input-services-list" rows="5" class="w-full px-3 py-2 border rounded-lg text-xs" placeholder="Jual Piano Baru & Bekas Kualitas Baik, Melayani Stem / Tuning Piano Profesional..."></textarea>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-amber-900 uppercase mb-1">List Fasilitas Gratis (Pisahkan Koma):</label>
+                  <textarea id="input-freebies-list" rows="5" class="w-full px-3 py-2 border rounded-lg text-xs" placeholder="Free Pengiriman Se-Jabodetabek, Bangku Piano + Pemanas / Heater..."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="lg:col-span-6 space-y-6">
+
+          <!-- 1. FORM TAMBAH / EDIT WIDGET CUSTOM -->
+          <div id="widget-form-card" class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+              <h3 id="form-widget-header" class="font-bold text-sm text-gray-800 flex items-center">
+                <i class="fa-solid fa-plus-circle text-brand-gold mr-2"></i>Tambah Widget / Gadget Baru
+              </h3>
+              <button id="btn-cancel-edit" onclick="resetWidgetForm()" class="hidden text-xs text-red-600 font-bold hover:underline">Batal Edit</button>
+            </div>
+
+            <input type="hidden" id="editing-widget-id" value="">
+
+            <div class="space-y-3 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Tipe Widget</label>
+                  <select id="new-widget-type" onchange="handleWidgetTypeChange(this.value)" class="w-full px-3 py-2 border rounded-lg bg-gray-50 font-semibold text-gray-800">
+                    <option value="youtube">🎥 Embed Video YouTube / Showcase</option>
+                    <option value="text_banner">📢 Banner Teks Custom / Pengumuman</option>
+                    <option value="custom_html">💻 Embed Script / Code HTML Custom</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Lebar Layout Widget</label>
+                  <select id="new-widget-width" class="w-full px-3 py-2 border rounded-lg bg-amber-50 font-bold text-amber-900 border-amber-300">
+                    <option value="full">↔️ 1 Kolom (Full Width - 100%)</option>
+                    <option value="half">⏸️ 2 Kolom Berdampingan (50%)</option>
+                    <option value="third">📊 3 Kolom Berdampingan (33%)</option>
+                    <option value="quarter">🧩 4 Kolom Berdampingan (25%)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="block font-bold text-gray-700 uppercase mb-1">Judul Widget</label>
+                <input type="text" id="new-widget-title" placeholder="Contoh: Video Review Showroom" class="w-full px-3 py-2 border rounded-lg">
+                
+                <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer pt-1">
+                  <input type="checkbox" id="show-widget-title" checked class="w-4 h-4 text-brand-gold rounded">
+                  <span class="text-xs">Tampilkan Judul Widget ini di Website</span>
+                </label>
+              </div>
+
+              <!-- OPSI YOUTUBE -->
+              <div id="wrapper-youtube" class="space-y-2">
+                <label class="block font-bold text-gray-700 uppercase mb-1">URL / Link Video YouTube</label>
+                <input type="text" id="new-youtube-url" placeholder="https://www.youtube.com/watch?v=XXXXX atau https://youtu.be/XXXXX" class="w-full px-3 py-2 border rounded-lg">
+                
+                <div class="grid grid-cols-2 gap-2 pt-1 bg-amber-50 p-2.5 rounded-lg border border-amber-200/60">
+                  <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer">
+                    <input type="checkbox" id="yt-autoplay" class="w-4 h-4 text-brand-gold rounded">
+                    <span>Autoplay Video</span>
+                  </label>
+                  <label class="flex items-center space-x-2 font-semibold text-gray-800 cursor-pointer">
+                    <input type="checkbox" id="yt-loop" class="w-4 h-4 text-brand-gold rounded">
+                    <span>Loop (Putar Berulang)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- OPSI BANNER TEKS -->
+              <div id="wrapper-text-banner" class="hidden space-y-2">
+                <label class="block font-bold text-gray-700 uppercase mb-1">Isi Pesan Pengumuman / Banner</label>
+                <textarea id="new-banner-text" rows="3" placeholder="Diskon khusus bulan ini untuk pembelian Upright Piano..." class="w-full px-3 py-2 border rounded-lg"></textarea>
+              </div>
+
+              <!-- OPSI HTML CUSTOM -->
+              <div id="wrapper-custom-html" class="hidden space-y-2">
+                <label class="block font-bold text-gray-700 uppercase mb-1">Kode HTML / Script Embed</label>
+                <textarea id="new-custom-html" rows="4" placeholder="<iframe src='...'></iframe>" class="w-full px-3 py-2 border rounded-lg font-mono text-[11px]"></textarea>
+              </div>
+
+              <button id="btn-save-widget" onclick="saveOrUpdateWidget()" class="w-full py-2.5 bg-brand-gold hover:bg-amber-600 text-white font-bold rounded-lg shadow transition-all flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-plus"></i>
+                <span id="btn-save-widget-text">Tambahkan Widget ke Halaman</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. EDIT 4 KARTU HIGHLIGHT FITUR -->
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+              <i class="fa-solid fa-cubes text-brand-gold mr-2"></i>Edit 4 Kartu Highlight Ringkas
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs" id="highlight-cards-container"></div>
+          </div>
+
+          <!-- 3. EDIT ALAMAT SHOWROOM & GOOGLE MAPS PREVIEW -->
+          <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <h3 class="font-bold text-sm text-gray-800 border-b pb-2 flex items-center">
+              <i class="fa-solid fa-location-dot text-brand-gold mr-2"></i>Pengaturan Alamat Showroom & Peta Maps
+            </h3>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-gray-700 uppercase mb-1">Teks Alamat Lengkap Showroom</label>
+                <textarea id="input-address-text" rows="3" class="w-full px-3 py-2 border rounded-lg text-xs" placeholder="Jl. Mesjid Assalam No. 46 (Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640."></textarea>
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 uppercase mb-1">URL Embed Google Maps (src iframe)</label>
+                <input type="text" id="input-maps-url" oninput="updateMapsPreview(this.value)" placeholder="https://maps.google.com/maps?q=-6.2236647,106.7284725&hl=id&z=17&output=embed" class="w-full px-3 py-2 border rounded-lg font-mono text-[11px]">
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-500 uppercase mb-1 text-[10px]">Tampilan Preview Peta Google Maps saat ini:</label>
+                <div class="w-full h-48 rounded-xl overflow-hidden border border-gray-300 shadow-inner bg-gray-100 relative">
+                  <iframe id="preview-maps-iframe" src="https://maps.google.com/maps?q=-6.2236647,106.7284725&hl=id&z=17&output=embed" class="w-full h-full border-0" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- MODAL EDIT WIDGET SYSTEM -->
+      <div id="system-widget-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+          <h3 class="font-bold text-base text-gray-800 border-b pb-2 flex items-center">
+            <i class="fa-solid fa-sliders text-brand-gold mr-2"></i>Edit Layout Section Sistem
+          </h3>
+          <input type="hidden" id="modal-system-widget-id">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Section</label>
+            <input type="text" id="modal-system-widget-name" readonly class="w-full px-3 py-2 border rounded-lg bg-gray-100 text-xs font-bold text-gray-600">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Lebar Layout Widget</label>
+            <select id="modal-system-widget-width" class="w-full px-3 py-2 border rounded-lg bg-amber-50 font-bold text-amber-900 border-amber-300 text-xs">
+              <option value="full">↔️ 1 Kolom (Full Width - 100%)</option>
+              <option value="half">⏸️ 2 Kolom Berdampingan (50%)</option>
+              <option value="third">📊 3 Kolom Berdampingan (33%)</option>
+              <option value="quarter">🧩 4 Kolom Berdampingan (25%)</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-2 pt-2">
+            <button onclick="closeSystemWidgetModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-xs font-bold text-gray-700">Batal</button>
+            <button onclick="saveSystemWidgetModal()" class="px-4 py-2 bg-brand-gold hover:bg-amber-600 text-white rounded-lg text-xs font-bold">Simpan Layout</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    if (window.AUTH_CONFIG && window.AUTH_CONFIG.FIREBASE_CONFIG) {
+      firebase.initializeApp(window.AUTH_CONFIG.FIREBASE_CONFIG);
+    }
+    const db = firebase.firestore();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkCustomizerAuth();
+    });
+
+    // SISTEM OTENTIKASI MANDIRI KHUSUS CUSTOMIZER
+    function checkCustomizerAuth() {
+      const isAuth = sessionStorage.getItem('customizer_logged_in') === 'true';
+      const sectionLogin = document.getElementById('section-login');
+      const sectionCustomizer = document.getElementById('section-customizer');
+
+      if (isAuth) {
+        sectionLogin.classList.add('hidden');
+        sectionCustomizer.classList.remove('hidden');
+        sectionCustomizer.classList.add('flex');
+        
+        renderHighlightInputs(defaultDesignConfig.highlights);
+        loadAllSettingsFromFirebase();
+      } else {
+        sectionLogin.classList.remove('hidden');
+        sectionCustomizer.classList.add('hidden');
+        sectionCustomizer.classList.remove('flex');
+      }
+    }
+
+    function handleCustomizerLogin(e) {
+      e.preventDefault();
+      const inputUser = document.getElementById('login-username').value;
+      const inputPass = document.getElementById('login-password').value;
+
+      const userHash = CryptoJS.SHA256(inputUser).toString();
+      const passHash = CryptoJS.SHA256(inputPass).toString();
+
+      const targetUserHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.USER_HASH : "";
+      const targetPassHash = window.AUTH_CONFIG ? window.AUTH_CONFIG.PASS_HASH : "";
+
+      if(userHash === targetUserHash && passHash === targetPassHash) {
+        sessionStorage.setItem('customizer_logged_in', 'true');
+        document.getElementById('login-error').classList.add('hidden');
+        checkCustomizerAuth();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
+    }
+
+    function logoutCustomizer() {
+      sessionStorage.removeItem('customizer_logged_in');
+      checkCustomizerAuth();
+    }
+
+    // DEFAULT MENU & SUB-MENU DROPDOWN STRUCTURE
+    let defaultNavMenu = [
+      { id: "menu_home", name: "HOME", url: "#", children: [] },
+      { id: "menu_akustik", name: "PIANO AKUSTIK", url: "#", children: [] },
+      { 
+        id: "menu_digital", 
+        name: "PIANO DIGITAL", 
+        url: "#", 
+        children: [
+          { id: "sub_1", name: "SYNTHESIZER", url: "#" },
+          { id: "sub_2", name: "KEYBOARD", url: "#" },
+          { id: "sub_3", name: "PORTABLE GRAND", url: "#" },
+          { id: "sub_4", name: "P-SERIES", url: "#" },
+          { id: "sub_5", name: "ARIUS", url: "#" },
+          { id: "sub_6", name: "CLAVINOVA", url: "#" }
+        ] 
+      },
+      { id: "menu_aksesoris", name: "AKSESORIS", url: "#", children: [] },
+      { id: "menu_daftar", name: "DAFTAR PRODUK", url: "#", children: [] }
+    ];
+
+    let defaultLayoutWidgets = [
+      { id: "sec_carousel", type: "system", name: "Carousel Banner Utama", enabled: true, width: "full", showTitle: true },
+      { id: "sec_highlights", type: "system", name: "4 Kartu Highlight Fitur", enabled: true, width: "full", showTitle: true },
+      { id: "sec_promo", type: "system", name: "Banner Layanan & Promo", enabled: true, width: "full", showTitle: true },
+      { id: "sec_products", type: "system", name: "Katalog Stok Piano (Grid Produk)", enabled: true, width: "full", showTitle: true }
+    ];
+
+    let defaultDesignConfig = {
+      seoTitle: "Jon Piano Jakarta - Luxury Keys & Showroom Jual-Beli & Stem Piano",
+      seoDesc: "ALAMAT SHOWROOM. Jl. Mesjid Assalam No. 46 (Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640.",
+      showLogoHeader: true,
+      brandTitle: "JON PIANO JAKARTA",
+      brandSub: "LUXURY KEYS & SHOWROOM",
+      showLangSelector: true,
+      showAudioBtn: true,
+      audioAutoplay: false,
+      showAccountBtn: true,
+      headerBgColor: "#111111",
+      siteBgColor: "#FAF8F5",
+      fontBody: "'Inter', sans-serif",
+      fontHeading: "'Playfair Display', serif",
+      showNavMenu: true,
+      navMenu: [...defaultNavMenu],
+      gridCols: "4",
+      promoTitle: "JUAL-BELI & STEM UPRIGHT DAN GRAND PIANO",
+      promoDesc: "Melayani unit piano baru maupun bekas berbagai merk ternama: Yamaha, Kawai, Petrof, Steinway & Sons, Samick, Young Chang, dll. Bergaransi resmi dan kualitas terbaik impor.",
+      servicesList: "Jual Piano Baru & Bekas Kualitas Baik, Melayani Stem / Tuning Piano Profesional, Menerima Jasa Pindahan Piano Khusus, Pengiriman Luar Kota (Biaya Kirim Terjangkau & Negotiable), Pembayaran Fleksibel (Bisa Cash & Kredit)",
+      freebiesList: "Free Pengiriman Se-Jabodetabek, Bangku Piano + Pemanas / Heater, Cover Atas + Cover Tuts + Kunci, Garansi Mekanik 3 Tahun, Free Stem / Tuning 2 Kali",
+      addressText: "Jl. Mesjid Assalam No. 46 (Depan Toko Beras Padi Mas), Komplek DKI Joglo, Kel. Joglo, Kec. Kembangan, Kota Jakarta Barat, DKI Jakarta 11640.",
+      mapsUrl: "https://maps.google.com/maps?q=-6.2236647,106.7284725&hl=id&z=17&output=embed",
+      highlights: [
+        { icon: "fa-gem", title: "Piano Baru & Bekas", sub: "Yamaha, Kawai, Petrof, Steinway" },
+        { icon: "fa-sliders", title: "Stem & Pindahan", sub: "Jasa Tuning & Pindahan Khusus" },
+        { icon: "fa-truck-fast", title: "Kirim Luar Kota", sub: "Free Ongkir Jabodetabek" },
+        { icon: "fa-shield-halved", title: "Cash & Kredit", sub: "Garansi Mekanik 3 Tahun" }
+      ]
+    };
+
+    let currentWidgets = [...defaultLayoutWidgets];
+    let currentNavMenu = [...defaultNavMenu];
+    let dragSrcIndex = null;
+
+    function renderHighlightInputs(highlights) {
+      const container = document.getElementById('highlight-cards-container');
+      if(!container) return;
+      container.innerHTML = '';
+      highlights.forEach((card, i) => {
+        container.innerHTML += `
+          <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
+            <span class="font-bold text-amber-900 block">Kartu ${i+1}</span>
+            <div class="flex space-x-2">
+              <input type="text" id="hl-icon-${i}" value="${card.icon}" placeholder="Icon FontAwesome (fa-gem)" class="w-1/3 px-2 py-1 border rounded text-[11px]">
+              <input type="text" id="hl-title-${i}" value="${card.title}" placeholder="Judul Singkat" class="w-2/3 px-2 py-1 border rounded text-[11px] font-bold">
+            </div>
+            <input type="text" id="hl-sub-${i}" value="${card.sub}" placeholder="Deskripsi Subtitle" class="w-full px-2 py-1 border rounded text-[11px]">
+          </div>
+        `;
+      });
+    }
+
+    async function loadAllSettingsFromFirebase() {
+      try {
+        const doc = await db.collection('settings').doc('index_layout').get();
+        if (doc.exists) {
+          const data = { ...defaultDesignConfig, ...doc.data() };
+          
+          if (data.widgets && Array.isArray(data.widgets)) {
+            currentWidgets = data.widgets.map(w => ({ width: "full", showTitle: true, ...w }));
+          }
+
+          if (data.navMenu && Array.isArray(data.navMenu)) {
+            currentNavMenu = data.navMenu;
+          }
+
+          document.getElementById('setting-seo-title').value = data.seoTitle || defaultDesignConfig.seoTitle;
+          document.getElementById('setting-seo-desc').value = data.seoDesc || defaultDesignConfig.seoDesc;
+
+          document.getElementById('setting-show-logo').checked = data.showLogoHeader !== false;
+          document.getElementById('setting-brand-title').value = data.brandTitle || "JON PIANO JAKARTA";
+          document.getElementById('setting-brand-sub').value = data.brandSub || "LUXURY KEYS & SHOWROOM";
+
+          document.getElementById('setting-show-lang').checked = data.showLangSelector !== false;
+          document.getElementById('setting-show-audio-btn').checked = data.showAudioBtn !== false;
+          document.getElementById('setting-audio-autoplay').checked = data.audioAutoplay === true;
+          document.getElementById('setting-show-account').checked = data.showAccountBtn !== false;
+
+          document.getElementById('setting-color-header').value = data.headerBgColor || "#111111";
+          document.getElementById('setting-hex-header').value = data.headerBgColor || "#111111";
+          document.getElementById('setting-color-bg').value = data.siteBgColor || "#FAF8F5";
+          document.getElementById('setting-hex-bg').value = data.siteBgColor || "#FAF8F5";
+
+          document.getElementById('setting-font-body').value = data.fontBody || "'Inter', sans-serif";
+          document.getElementById('setting-font-heading').value = data.fontHeading || "'Playfair Display', serif";
+
+          document.getElementById('setting-show-nav-menu').checked = data.showNavMenu !== false;
+
+          document.getElementById('setting-grid-cols').value = data.gridCols || "4";
+          document.getElementById('input-promo-title').value = data.promoTitle || "";
+          document.getElementById('input-promo-desc').value = data.promoDesc || "";
+          document.getElementById('input-services-list').value = data.servicesList || "";
+          document.getElementById('input-freebies-list').value = data.freebiesList || "";
+          document.getElementById('input-address-text').value = data.addressText || "";
+          document.getElementById('input-maps-url').value = data.mapsUrl || "";
+          
+          updateMapsPreview(data.mapsUrl || defaultDesignConfig.mapsUrl);
+
+          if (data.highlights && data.highlights.length === 4) {
+            renderHighlightInputs(data.highlights);
+          }
+        }
+        renderNavMenuList();
+        renderWidgetsList();
+      } catch (e) {
+        console.error("Gagal memuat setting dari Firebase:", e);
+        renderNavMenuList();
+        renderWidgetsList();
+      }
+    }
+
+    // MANAGEMEN RENDER NAV MENU DAN SUB-MENU
+    function renderNavMenuList() {
+      const container = document.getElementById('nav-menu-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      currentNavMenu.forEach((m, idx) => {
+        if (!m.children) m.children = [];
+        
+        let subMenuHtml = '';
+        m.children.forEach((sub, subIdx) => {
+          subMenuHtml += `
+            <div class="flex items-center space-x-1 mt-1 pl-4 border-l-2 border-brand-gold/50">
+              <span class="text-[9px] text-gray-400 font-mono">└</span>
+              <input type="text" value="${sub.name}" onchange="updateSubMenuItem(${idx}, ${subIdx}, 'name', this.value)" placeholder="Nama Sub" class="px-1.5 py-0.5 border rounded text-[10px] font-bold text-gray-700 w-1/2 bg-white">
+              <input type="text" value="${sub.url || '#'}" onchange="updateSubMenuItem(${idx}, ${subIdx}, 'url', this.value)" placeholder="URL" class="px-1.5 py-0.5 border rounded text-[9px] text-gray-500 w-1/2 font-mono bg-white">
+              <button onclick="deleteSubMenuItem(${idx}, ${subIdx})" class="text-red-500 hover:text-red-700 p-1" title="Hapus Sub-menu">
+                <i class="fa-solid fa-xmark text-[10px]"></i>
+              </button>
+            </div>
+          `;
+        });
+
+        container.innerHTML += `
+          <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-200 space-y-1 text-xs">
+            <div class="flex items-center justify-between gap-1.5">
+              <div class="flex items-center space-x-1 flex-grow">
+                <span class="font-bold text-gray-400 font-mono text-[10px] w-3">${idx + 1}.</span>
+                <input type="text" value="${m.name}" onchange="updateNavMenuItem(${idx}, 'name', this.value)" placeholder="Nama Utama" class="px-1.5 py-1 border rounded text-[11px] font-bold text-gray-800 w-1/2">
+                <input type="text" value="${m.url || '#'}" onchange="updateNavMenuItem(${idx}, 'url', this.value)" placeholder="URL" class="px-1.5 py-1 border rounded text-[10px] text-gray-600 w-1/2 font-mono">
+              </div>
+
+              <div class="flex items-center space-x-1 shrink-0">
+                <button onclick="addSubMenuItem(${idx})" class="px-1.5 py-0.5 bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold rounded" title="Tambah Sub-menu">
+                  + Sub
+                </button>
+                <button onclick="moveNavMenuItem(${idx}, -1)" ${idx === 0 ? 'disabled class="text-gray-300 cursor-not-allowed"' : 'class="p-0.5 text-gray-600 hover:text-brand-gold"'}>
+                  <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                </button>
+                <button onclick="moveNavMenuItem(${idx}, 1)" ${idx === currentNavMenu.length - 1 ? 'disabled class="text-gray-300 cursor-not-allowed"' : 'class="p-0.5 text-gray-600 hover:text-brand-gold"'}>
+                  <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                </button>
+                <button onclick="deleteNavMenuItem(${idx})" class="p-0.5 text-red-600 hover:bg-red-50 rounded" title="Hapus Menu">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- LIST SUB MENU CONTAINER -->
+            <div class="space-y-1 pt-0.5">
+              ${subMenuHtml}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function addNavMenuItem() {
+      currentNavMenu.push({
+        id: 'menu_' + Date.now(),
+        name: 'MENU BARU',
+        url: '#',
+        children: []
+      });
+      renderNavMenuList();
+    }
+
+    function updateNavMenuItem(index, field, value) {
+      currentNavMenu[index][field] = value;
+    }
+
+    function moveNavMenuItem(index, direction) {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= currentNavMenu.length) return;
+      const temp = currentNavMenu[index];
+      currentNavMenu[index] = currentNavMenu[targetIndex];
+      currentNavMenu[targetIndex] = temp;
+      renderNavMenuList();
+    }
+
+    function deleteNavMenuItem(index) {
+      if (confirm('Hapus menu navigasi ini beserta seluruh sub-menunya?')) {
+        currentNavMenu.splice(index, 1);
+        renderNavMenuList();
+      }
+    }
+
+    function addSubMenuItem(parentIndex) {
+      if (!currentNavMenu[parentIndex].children) {
+        currentNavMenu[parentIndex].children = [];
+      }
+      currentNavMenu[parentIndex].children.push({
+        id: 'sub_' + Date.now(),
+        name: 'SUB MENU BARU',
+        url: '#'
+      });
+      renderNavMenuList();
+    }
+
+    function updateSubMenuItem(parentIndex, subIndex, field, value) {
+      currentNavMenu[parentIndex].children[subIndex][field] = value;
+    }
+
+    function deleteSubMenuItem(parentIndex, subIndex) {
+      currentNavMenu[parentIndex].children.splice(subIndex, 1);
+      renderNavMenuList();
+    }
+
+    function updateMapsPreview(url) {
+      const iframe = document.getElementById('preview-maps-iframe');
+      if (iframe && url) iframe.src = url;
+    }
+
+    function getWidthLabel(width) {
+      if (width === 'half') return '⏸️ 2 Kolom (50%)';
+      if (width === 'third') return '📊 3 Kolom (33%)';
+      if (width === 'quarter') return '🧩 4 Kolom (25%)';
+      return '↔️ 1 Kolom Full';
+    }
+
+    function renderWidgetsList() {
+      const container = document.getElementById('widgets-list');
+      if(!container) return;
+      container.innerHTML = '';
+
+      currentWidgets.forEach((w, index) => {
+        const isSystem = w.type === 'system';
+        const widthText = getWidthLabel(w.width);
+        
+        const el = document.createElement('div');
+        el.className = 'draggable-item p-3 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between gap-3 hover:border-brand-gold transition-all select-none';
+        el.draggable = true;
+        el.dataset.index = index;
+
+        el.innerHTML = `
+          <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-1 text-gray-400">
+              <i class="fa-solid fa-grip-vertical text-sm cursor-grab p-1" title="Tarik untuk geser"></i>
+              <div class="flex flex-col space-y-0.5">
+                <button onclick="moveWidget(${index}, -1)" ${index === 0 ? 'disabled class="text-gray-300 cursor-not-allowed"' : 'class="text-gray-600 hover:text-brand-gold"'}>
+                  <i class="fa-solid fa-chevron-up text-[10px]"></i>
+                </button>
+                <button onclick="moveWidget(${index}, 1)" ${index === currentWidgets.length - 1 ? 'disabled class="text-gray-300 cursor-not-allowed"' : 'class="text-gray-600 hover:text-brand-gold"'}>
+                  <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <span class="px-2 py-0.5 text-[8px] font-bold rounded uppercase ${isSystem ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-900'}">
+                  ${isSystem ? 'Bawaan Sistem' : 'Widget Custom (' + w.type + ')'}
+                </span>
+                <span class="px-1.5 py-0.5 text-[8px] font-bold rounded uppercase bg-purple-100 text-purple-800">
+                  ${widthText}
+                </span>
+                ${w.showTitle === false ? '<span class="px-1.5 py-0.5 text-[8px] font-bold rounded uppercase bg-red-100 text-red-700">Judul Sembunyi</span>' : ''}
+              </div>
+              <h4 class="font-bold text-xs text-gray-800 mt-1">${w.name || w.title || 'Widget ' + (index + 1)}</h4>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="flex items-center space-x-1.5 text-xs font-semibold text-gray-600 cursor-pointer mr-1">
+              <input type="checkbox" ${w.enabled ? 'checked' : ''} onchange="toggleWidgetEnabled(${index})" class="w-4 h-4 text-brand-gold rounded">
+              <span>Tampilkan</span>
+            </label>
+
+            <button onclick="${isSystem ? `openSystemWidgetModal(${index})` : `editWidget(${index})`}" class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs font-bold transition-all" title="Edit Layout/Isi Widget">
+              <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
+            </button>
+
+            ${!isSystem ? `
+              <button onclick="deleteWidget(${index})" class="p-1.5 text-red-600 hover:bg-red-50 rounded text-xs transition-all" title="Hapus Widget">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            ` : ''}
+          </div>
+        `;
+
+        el.addEventListener('dragstart', handleDragStart);
+        el.addEventListener('dragover', handleDragOver);
+        el.addEventListener('drop', handleDrop);
+        el.addEventListener('dragend', handleDragEnd);
+
+        container.appendChild(el);
+      });
+    }
+
+    function moveWidget(index, direction) {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= currentWidgets.length) return;
+      const temp = currentWidgets[index];
+      currentWidgets[index] = currentWidgets[targetIndex];
+      currentWidgets[targetIndex] = temp;
+      renderWidgetsList();
+    }
+
+    function handleDragStart(e) {
+      dragSrcIndex = parseInt(this.dataset.index, 10);
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) e.stopPropagation();
+      const dropTargetIndex = parseInt(this.dataset.index, 10);
+
+      if (dragSrcIndex !== null && dragSrcIndex !== dropTargetIndex) {
+        const movedItem = currentWidgets.splice(dragSrcIndex, 1)[0];
+        currentWidgets.splice(dropTargetIndex, 0, movedItem);
+        renderWidgetsList();
+      }
+      return false;
+    }
+
+    function handleDragEnd() {
+      this.classList.remove('dragging');
+      dragSrcIndex = null;
+    }
+
+    function toggleWidgetEnabled(index) {
+      currentWidgets[index].enabled = !currentWidgets[index].enabled;
+    }
+
+    function deleteWidget(index) {
+      if (confirm('Apakah Anda yakin ingin menghapus widget custom ini?')) {
+        currentWidgets.splice(index, 1);
+        renderWidgetsList();
+        resetWidgetForm();
+      }
+    }
+
+    function handleWidgetTypeChange(type) {
+      document.getElementById('wrapper-youtube').classList.toggle('hidden', type !== 'youtube');
+      document.getElementById('wrapper-text-banner').classList.toggle('hidden', type !== 'text_banner');
+      document.getElementById('wrapper-custom-html').classList.toggle('hidden', type !== 'custom_html');
+    }
+
+    function extractYouTubeID(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function openSystemWidgetModal(index) {
+      const w = currentWidgets[index];
+      document.getElementById('modal-system-widget-id').value = w.id;
+      document.getElementById('modal-system-widget-name').value = w.name;
+      document.getElementById('modal-system-widget-width').value = w.width || 'full';
+      document.getElementById('system-widget-modal').classList.remove('hidden');
+    }
+
+    function closeSystemWidgetModal() {
+      document.getElementById('system-widget-modal').classList.add('hidden');
+    }
+
+    function saveSystemWidgetModal() {
+      const id = document.getElementById('modal-system-widget-id').value;
+      const width = document.getElementById('modal-system-widget-width').value;
+      const idx = currentWidgets.findIndex(w => w.id === id);
+      if (idx !== -1) {
+        currentWidgets[idx].width = width;
+        renderWidgetsList();
+      }
+      closeSystemWidgetModal();
+    }
+
+    function editWidget(index) {
+      const w = currentWidgets[index];
+      if (!w || w.type === 'system') return;
+
+      document.getElementById('editing-widget-id').value = w.id;
+      document.getElementById('new-widget-type').value = w.type;
+      document.getElementById('new-widget-width').value = w.width || 'full';
+      document.getElementById('new-widget-title').value = w.name || '';
+      document.getElementById('show-widget-title').checked = w.showTitle !== false;
+      handleWidgetTypeChange(w.type);
+
+      if (w.type === 'youtube') {
+        document.getElementById('new-youtube-url').value = w.youtubeId ? `https://www.youtube.com/watch?v=${w.youtubeId}` : '';
+        document.getElementById('yt-autoplay').checked = w.autoplay || false;
+        document.getElementById('yt-loop').checked = w.loop || false;
+      } else if (w.type === 'text_banner') {
+        document.getElementById('new-banner-text').value = w.text || '';
+      } else if (w.type === 'custom_html') {
+        document.getElementById('new-custom-html').value = w.html || '';
+      }
+
+      document.getElementById('form-widget-header').innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-gold mr-2"></i>Edit Widget Custom`;
+      document.getElementById('btn-save-widget-text').textContent = "Simpan Perubahan Widget";
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+      document.getElementById('widget-form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetWidgetForm() {
+      document.getElementById('editing-widget-id').value = '';
+      document.getElementById('new-widget-title').value = '';
+      document.getElementById('show-widget-title').checked = true;
+      document.getElementById('new-widget-width').value = 'full';
+      document.getElementById('new-youtube-url').value = '';
+      document.getElementById('yt-autoplay').checked = false;
+      document.getElementById('yt-loop').checked = false;
+      document.getElementById('new-banner-text').value = '';
+      document.getElementById('new-custom-html').value = '';
+
+      document.getElementById('form-widget-header').innerHTML = `<i class="fa-solid fa-plus-circle text-brand-gold mr-2"></i>Tambah Widget / Gadget Baru`;
+      document.getElementById('btn-save-widget-text').textContent = "Tambahkan Widget ke Halaman";
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+    }
+
+    function saveOrUpdateWidget() {
+      const editingId = document.getElementById('editing-widget-id').value;
+      const type = document.getElementById('new-widget-type').value;
+      const width = document.getElementById('new-widget-width').value;
+      const title = document.getElementById('new-widget-title').value.trim();
+      const showTitle = document.getElementById('show-widget-title').checked;
+
+      let widgetData = {
+        id: editingId || ('widget_' + Date.now()),
+        type: type,
+        width: width,
+        name: title || (type === 'youtube' ? 'Video YouTube' : 'Widget Custom'),
+        showTitle: showTitle,
+        enabled: true
+      };
+
+      if (type === 'youtube') {
+        const url = document.getElementById('new-youtube-url').value.trim();
+        const youtubeId = extractYouTubeID(url);
+        if (!youtubeId) return alert('URL Video YouTube tidak valid!');
+        widgetData.youtubeId = youtubeId;
+        widgetData.autoplay = document.getElementById('yt-autoplay').checked;
+        widgetData.loop = document.getElementById('yt-loop').checked;
+      } else if (type === 'text_banner') {
+        const text = document.getElementById('new-banner-text').value.trim();
+        if (!text) return alert('Teks pengumuman tidak boleh kosong!');
+        widgetData.text = text;
+      } else if (type === 'custom_html') {
+        const html = document.getElementById('new-custom-html').value.trim();
+        if (!html) return alert('Kode HTML tidak boleh kosong!');
+        widgetData.html = html;
+      }
+
+      if (editingId) {
+        const idx = currentWidgets.findIndex(w => w.id === editingId);
+        if (idx !== -1) currentWidgets[idx] = { ...currentWidgets[idx], ...widgetData };
+        alert('Widget berhasil diperbarui!');
+      } else {
+        currentWidgets.push(widgetData);
+        alert('Widget baru berhasil ditambahkan!');
+      }
+
+      renderWidgetsList();
+      resetWidgetForm();
+    }
+
+    async function saveAllSettings() {
+      let highlights = [];
+      for (let i = 0; i < 4; i++) {
+        highlights.push({
+          icon: document.getElementById(`hl-icon-${i}`).value.trim(),
+          title: document.getElementById(`hl-title-${i}`).value.trim(),
+          sub: document.getElementById(`hl-sub-${i}`).value.trim()
+        });
+      }
+
+      const payload = {
+        seoTitle: document.getElementById('setting-seo-title').value.trim(),
+        seoDesc: document.getElementById('setting-seo-desc').value.trim(),
+        showLogoHeader: document.getElementById('setting-show-logo').checked,
+        brandTitle: document.getElementById('setting-brand-title').value,
+        brandSub: document.getElementById('setting-brand-sub').value,
+        showLangSelector: document.getElementById('setting-show-lang').checked,
+        showAudioBtn: document.getElementById('setting-show-audio-btn').checked,
+        audioAutoplay: document.getElementById('setting-audio-autoplay').checked,
+        showAccountBtn: document.getElementById('setting-show-account').checked,
+        headerBgColor: document.getElementById('setting-hex-header').value,
+        siteBgColor: document.getElementById('setting-hex-bg').value,
+        fontBody: document.getElementById('setting-font-body').value,
+        fontHeading: document.getElementById('setting-font-heading').value,
+        showNavMenu: document.getElementById('setting-show-nav-menu').checked,
+        navMenu: currentNavMenu,
+        widgets: currentWidgets,
+        gridCols: document.getElementById('setting-grid-cols').value,
+        promoTitle: document.getElementById('input-promo-title').value,
+        promoDesc: document.getElementById('input-promo-desc').value,
+        servicesList: document.getElementById('input-services-list').value,
+        freebiesList: document.getElementById('input-freebies-list').value,
+        addressText: document.getElementById('input-address-text').value,
+        mapsUrl: document.getElementById('input-maps-url').value,
+        highlights: highlights,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        await db.collection('settings').doc('index_layout').set(payload, { merge: true });
+        alert('Semua pengaturan tampilan, SEO Meta, header, warna, font & menu (termasuk sub-menu) berhasil disimpan!');
+      } catch (err) {
+        alert('Gagal menyimpan perubahan: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
